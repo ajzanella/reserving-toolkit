@@ -1,0 +1,882 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reserving Toolkit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* ── Tokens ──────────────────────────────────────────────────────────── */
+:root {
+  --bg:       #0d1117;
+  --surface:  #161b22;
+  --surface2: #1c2128;
+  --border:   #21262d;
+  --accent:   #2dd4bf;
+  --accent2:  #f59e0b;
+  --text:     #e6edf3;
+  --muted:    #7d8590;
+  --green:    #3fb950;
+  --red:      #f85149;
+  --blue:     #4493f8;
+  --purple:   #c084fc;
+  --font-ui:  'Inter', system-ui, sans-serif;
+  --font-num: 'JetBrains Mono', monospace;
+  --r:        8px;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg:      #f6f8fa;
+    --surface: #ffffff;
+    --surface2:#f0f2f5;
+    --border:  #d0d7de;
+    --text:    #1f2328;
+    --muted:   #636c76;
+  }
+}
+:root[data-theme="dark"] {
+  --bg:#0d1117; --surface:#161b22; --surface2:#1c2128;
+  --border:#21262d; --text:#e6edf3; --muted:#7d8590;
+}
+
+/* ── Reset ───────────────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font-ui);font-size:14px;line-height:1.5}
+button{cursor:pointer;font-family:inherit}
+select,input{font-family:var(--font-ui);font-size:13px}
+a{color:var(--accent);text-decoration:none}
+
+/* ── Layout ──────────────────────────────────────────────────────────── */
+.shell{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:220px;min-width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;padding:20px 14px}
+.main{flex:1;overflow-y:auto;padding:20px}
+
+/* ── Sidebar ─────────────────────────────────────────────────────────── */
+.logo{font-size:16px;font-weight:700;color:var(--accent);letter-spacing:-0.01em;margin-bottom:2px}
+.logo-sub{font-size:11px;color:var(--muted);margin-bottom:20px}
+.ctrl-label{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:5px;margin-top:14px}
+.ctrl-label:first-of-type{margin-top:0}
+select,input[type=number]{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 8px;outline:none}
+select:focus,input:focus{border-color:var(--accent)}
+.radio-group{display:flex;flex-direction:column;gap:5px}
+.radio-group label{display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer;color:var(--text)}
+.radio-group input[type=radio]{accent-color:var(--accent)}
+.sidebar hr{border:none;border-top:1px solid var(--border);margin:16px 0}
+
+/* ── Tabs ────────────────────────────────────────────────────────────── */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:20px}
+.tab-btn{background:none;border:none;padding:8px 16px;color:var(--muted);font-size:13px;font-weight:500;border-bottom:2px solid transparent;transition:color .15s,border-color .15s}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+
+/* ── Cards & sections ────────────────────────────────────────────────── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:16px}
+.section-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px}
+.metric-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:3px}
+.metric-value{font-size:20px;font-weight:700;font-family:var(--font-num);color:var(--accent)}
+.metric-value.green{color:var(--green)}
+.metric-value.amber{color:var(--accent2)}
+.metric-value.red{color:var(--red)}
+.metric-value.purple{color:var(--purple)}
+
+/* ── Explain box ─────────────────────────────────────────────────────── */
+.explain{background:var(--surface2);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--muted);line-height:1.7}
+.explain strong{color:var(--text)}
+.explain code{font-family:var(--font-num);background:var(--border);padding:1px 5px;border-radius:3px;font-size:11px}
+
+/* ── Tables ──────────────────────────────────────────────────────────── */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px;font-family:var(--font-num)}
+th{background:var(--surface2);color:var(--muted);font-weight:600;text-transform:uppercase;font-size:10px;letter-spacing:.05em;padding:7px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--border)}
+th:first-child{text-align:left}
+td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--border);color:var(--text);white-space:nowrap}
+td:first-child{text-align:left;font-family:var(--font-ui);font-weight:500}
+tr:last-child td{border-bottom:none}
+tr.total-row td{font-weight:700;background:var(--surface2);color:var(--accent)}
+tr:hover td{background:var(--surface2)}
+.cv-high{color:var(--red)!important}
+.cv-med{color:var(--accent2)!important}
+.cv-ok{color:var(--green)!important}
+.lognorm{color:var(--green)!important}
+.delta-pos{color:var(--green)!important}
+.delta-neg{color:var(--red)!important}
+
+/* ── Heatmap ─────────────────────────────────────────────────────────── */
+.heatmap-wrap{overflow-x:auto}
+.heatmap{display:grid;gap:2px}
+.hm-cell{padding:4px 6px;border-radius:3px;font-size:10px;font-family:var(--font-num);text-align:center;min-width:60px}
+.hm-cell.hm-known{}
+.hm-cell.hm-projected{outline:2px solid var(--accent);outline-offset:-2px}
+.hm-cell.hm-empty{background:var(--surface2);color:var(--muted)}
+.hm-label{font-size:10px;color:var(--muted);text-align:center;padding:2px}
+
+/* ── Charts ──────────────────────────────────────────────────────────── */
+.chart-wrap{position:relative;height:240px;margin-top:4px}
+
+/* ── Method select per lag ───────────────────────────────────────────── */
+.method-select{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:4px;padding:2px 4px;font-size:11px;font-family:var(--font-ui)}
+
+/* ── Responsive ──────────────────────────────────────────────────────── */
+@media(max-width:640px){
+  .sidebar{width:100%;min-width:unset;height:auto;border-right:none;border-bottom:1px solid var(--border)}
+  .shell{flex-direction:column}
+  .main{padding:12px}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ── Sidebar ──────────────────────────────────────────────────────── -->
+<nav class="sidebar">
+  <div class="logo">Reserving Toolkit</div>
+  <div class="logo-sub">Ferramenta didática de reservas</div>
+
+  <div class="ctrl-label">Triângulo</div>
+  <select id="tri-select"></select>
+
+  <hr>
+
+  <div class="ctrl-label">Método CL (padrão)</div>
+  <select id="cl-method">
+    <option value="vw">Volume-weighted (vw)</option>
+    <option value="simple">Média simples</option>
+    <option value="medial">Medial (sem outliers)</option>
+    <option value="geo">Geométrica</option>
+    <option value="last3">Últimos 3 anos</option>
+    <option value="ls">Least Squares</option>
+    <option value="p25">Percentil 25</option>
+    <option value="p50">Mediana (p50)</option>
+    <option value="p75">Percentil 75</option>
+  </select>
+  <div class="explain" style="margin-top:8px;font-size:11px">
+    Você pode sobrescrever o método em cada lag na aba <strong>Chain Ladder</strong>.
+  </div>
+
+  <hr>
+
+  <div class="ctrl-label">Variante BF</div>
+  <select id="bf-variant">
+    <option value="bf">BF Padrão</option>
+    <option value="benktander1">Benktander 1 iter.</option>
+    <option value="benktander2">Benktander 2 iter.</option>
+    <option value="credibility">Credibilidade</option>
+  </select>
+
+  <div class="ctrl-label">ELR a priori</div>
+  <div class="radio-group">
+    <label><input type="radio" name="elr-mode" value="cape_cod" checked> Automático (Cape Cod)</label>
+    <label><input type="radio" name="elr-mode" value="historical"> Histórico</label>
+    <label><input type="radio" name="elr-mode" value="manual"> Manual</label>
+  </div>
+  <input type="number" id="elr-manual" value="0.70" step="0.01" min="0.01" max="9" style="margin-top:8px">
+</nav>
+
+<!-- ── Main ─────────────────────────────────────────────────────────── -->
+<main class="main">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="cl">📐 Chain Ladder</button>
+    <button class="tab-btn" data-tab="bf">🔮 Bornhuetter-Ferguson</button>
+    <button class="tab-btn" data-tab="compare">📊 Comparação</button>
+  </div>
+
+  <!-- ── Tab CL ── -->
+  <div id="tab-cl" class="tab-pane active">
+    <div class="explain">
+      <strong>Chain Ladder</strong> é o método mais usado em reservas de seguros.
+      Olha como as perdas cresceram de um período para o próximo em anos passados,
+      calcula um "fator de crescimento" médio e aplica nos anos mais novos que ainda
+      não terminaram de se desenvolver. A tabela abaixo mostra todos os métodos
+      possíveis para calcular cada fator — você pode misturar um método por lag.
+    </div>
+    <div class="metrics" id="cl-metrics"></div>
+    <div class="card">
+      <div class="section-title">Tabela diagnóstica — todos os métodos de fator</div>
+      <div class="explain">
+        Cada linha é uma transição de lag. <strong>cv%</strong> mede a dispersão dos fatores individuais
+        entre os anos de origem — quanto maior, mais impacta a escolha do método.
+        <strong>log-normal?</strong> verde = sim (prefira <code>geo</code>), vermelho = não.
+        Na coluna <strong>Usar</strong> você escolhe o método para aquele lag específico.
+      </div>
+      <div class="tbl-wrap"><table id="diag-table"></table></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+      <div class="card" style="margin-bottom:0">
+        <div class="section-title">Triângulo</div>
+        <div class="heatmap-wrap"><div id="heatmap"></div></div>
+      </div>
+      <div class="card" style="margin-bottom:0">
+        <div class="section-title">Curvas de desenvolvimento</div>
+        <div class="chart-wrap"><canvas id="dev-chart"></canvas></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">Resultado Chain Ladder</div>
+      <div class="explain">
+        <strong>Reportado</strong> = última diagonal (já sabemos).
+        <strong>IBNR</strong> = quanto ainda vai emergir (Ultimate − Reportado).
+        <strong>IBNR%</strong> = % do ultimate que ainda não emergiu.
+      </div>
+      <div class="tbl-wrap"><table id="cl-result-table"></table></div>
+      <div class="chart-wrap" style="height:200px;margin-top:16px"><canvas id="cl-ibnr-chart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ── Tab BF ── -->
+  <div id="tab-bf" class="tab-pane">
+    <div class="explain">
+      <strong>Bornhuetter-Ferguson</strong> resolve um problema do CL: para anos jovens
+      com poucos dados, o CL amplifica demais as incertezas. O BF combina o que já
+      aconteceu com uma <strong>expectativa a priori</strong> sobre as perdas totais:
+      <code>Ultimate = Reportado + (% não reportado × Perda esperada a priori)</code><br>
+      Quanto mais maduro o ano (mais % reportado), mais o BF se comporta como o CL.
+    </div>
+    <div class="metrics" id="bf-metrics"></div>
+    <div class="card">
+      <div class="section-title">Passo a passo do cálculo</div>
+      <div class="explain">
+        Cada coluna mostra exatamente o que foi calculado para chegar no IBNR BF.
+        <strong>① Prêmio</strong> × <strong>② ELR</strong> = <strong>③ Perda esperada</strong>.
+        <strong>④ CDF</strong> → <strong>⑤ % já reportado</strong> (= 1/CDF) →
+        <strong>⑥ % não reportado</strong> (= 1−⑤) →
+        <strong>⑦ IBNR BF</strong> (= ③×⑥) + <strong>⑧ Reportado</strong> =
+        <strong>⑨ Ultimate BF</strong>.
+      </div>
+      <div class="tbl-wrap"><table id="bf-steps-table"></table></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Resumo BF vs CL por Origin</div>
+      <div class="tbl-wrap"><table id="bf-result-table"></table></div>
+      <div class="chart-wrap" style="height:200px;margin-top:16px"><canvas id="bf-ibnr-chart"></canvas></div>
+    </div>
+    <div class="card" id="bf-variant-explain"></div>
+  </div>
+
+  <!-- ── Tab Compare ── -->
+  <div id="tab-compare" class="tab-pane">
+    <div class="explain">
+      <strong>CL</strong> é sempre a âncora — o que os dados dizem sem informação externa.
+      <strong>BF</strong> puxa na direção do a priori. <strong>Benktander</strong> fica entre BF e CL
+      (cada iteração se aproxima mais do CL). <strong>Credibilidade</strong> pondera CL e BF
+      pelo % já reportado de cada origin — matematicamente equivalente ao Benktander 1.
+    </div>
+    <div class="metrics" id="compare-metrics"></div>
+    <div class="card">
+      <div class="section-title">IBNR por Origin — todos os métodos</div>
+      <div class="chart-wrap" style="height:280px"><canvas id="compare-chart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Tabela comparativa</div>
+      <div class="tbl-wrap"><table id="compare-table"></table></div>
+    </div>
+  </div>
+</main>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// MATH ENGINE
+// ═══════════════════════════════════════════════════════════════════════
+
+const mean = arr => arr.reduce((s,v)=>s+v,0)/arr.length;
+const stddev = arr => { const m=mean(arr); return Math.sqrt(arr.reduce((s,v)=>s+(v-m)**2,0)/arr.length); };
+function percentile(arr, p) {
+  const s=[...arr].sort((a,b)=>a-b);
+  const idx=(p/100)*(s.length-1);
+  const lo=Math.floor(idx), hi=Math.ceil(idx);
+  return s[lo]+(s[hi]-s[lo])*(idx-lo);
+}
+
+// Individual age-to-age factors for lag transition j→j+1 (column indices)
+function individualFactors(data, colJ, colJ1) {
+  const factors=[];
+  for(let i=0;i<data.length;i++){
+    const a=data[i][colJ], b=data[i][colJ1];
+    if(a!=null && b!=null && a>0) factors.push({origin:i, value:b/a, a, b});
+  }
+  return factors;
+}
+
+function computeLDF(data, colJ, colJ1, method, lastN=3) {
+  const indiv = individualFactors(data, colJ, colJ1);
+  if(!indiv.length) return NaN;
+  const vals = indiv.map(f=>f.value);
+  if(typeof method==='number') return method;
+  switch(method){
+    case 'vw': {
+      const sj=indiv.reduce((s,f)=>s+f.a,0), sj1=indiv.reduce((s,f)=>s+f.b,0);
+      return sj1/sj;
+    }
+    case 'simple': return mean(vals);
+    case 'medial': {
+      if(vals.length<=2) return mean(vals);
+      const s=[...vals].sort((a,b)=>a-b);
+      return mean(s.slice(1,-1));
+    }
+    case 'geo': return Math.exp(mean(vals.map(v=>Math.log(v))));
+    case 'last3': case 'lastn': {
+      const n=method==='last3'?3:lastN;
+      const recent=indiv.slice(-n);
+      return recent.reduce((s,f)=>s+f.b,0)/recent.reduce((s,f)=>s+f.a,0);
+    }
+    case 'ls': {
+      const num=indiv.reduce((s,f)=>s+f.a*f.b,0);
+      const den=indiv.reduce((s,f)=>s+f.a*f.a,0);
+      return num/den;
+    }
+    default: {
+      if(method.startsWith('p')){
+        const p=parseFloat(method.slice(1));
+        return percentile(vals,p);
+      }
+      return NaN;
+    }
+  }
+}
+
+// Simplified log-normality check: if cv of log(factors) < cv of factors → likely log-normal
+function isLognormal(vals) {
+  if(vals.length<3) return null;
+  const lv=vals.map(v=>Math.log(v));
+  const cvLin = stddev(vals)/mean(vals);
+  const cvLog = stddev(lv)/Math.abs(mean(lv));
+  return cvLog < cvLin * 0.9; // log-normal if log-transformed is tighter
+}
+
+function factorDiagnostics(tri, selectedMethods) {
+  const {data, lags} = tri;
+  const methods=['vw','simple','medial','geo','last3','ls','p25','p50','p75'];
+  const rows=[];
+  for(let k=0;k<lags.length-1;k++){
+    const j=k, j1=k+1;
+    const label=`${lags[j]}→${lags[j1]}`;
+    const indiv=individualFactors(data,j,j1);
+    const vals=indiv.map(f=>f.value);
+    const row={label, n:indiv.length, factors:{}};
+    for(const m of methods) row.factors[m]=computeLDF(data,j,j1,m);
+    row.cv = vals.length>1 ? stddev(vals)/mean(vals)*100 : NaN;
+    row.lognorm = isLognormal(vals);
+    row.selected = selectedMethods ? selectedMethods[k] : 'vw';
+    row.indiv = vals;
+    rows.push(row);
+  }
+  return rows;
+}
+
+function computeCDFs(ldfs, tailFactor=1.0) {
+  const cdfs=new Array(ldfs.length+1).fill(tailFactor);
+  for(let k=ldfs.length-1;k>=0;k--) cdfs[k]=ldfs[k]*cdfs[k+1];
+  return cdfs; // cdfs[k] = CDF from lag[k] to ultimate
+}
+
+function projectTriangle(tri, ldfs) {
+  const data=tri.data.map(row=>[...row]);
+  const m=tri.lags.length;
+  for(let i=0;i<data.length;i++){
+    let lastKnownCol=-1, lastVal=NaN;
+    for(let j=0;j<m;j++) if(data[i][j]!=null){lastKnownCol=j;lastVal=data[i][j];}
+    let val=lastVal;
+    for(let j=lastKnownCol;j<m-1;j++){
+      const f=ldfs[j];
+      if(isNaN(f)) break;
+      val=val*f;
+      if(data[i][j+1]==null) data[i][j+1]=val;
+    }
+  }
+  return data;
+}
+
+function chainLadder(tri, selectedMethods, tailFactor=1.0) {
+  const {data, lags, n, m, origins} = tri;
+  const ldfs=lags.slice(0,-1).map((_,k)=>{
+    const method=selectedMethods?selectedMethods[k]:'vw';
+    return computeLDF(data,k,k+1,method);
+  });
+  const cdfs=computeCDFs(ldfs, tailFactor);
+  const projected=projectTriangle(tri, ldfs);
+
+  // Latest diagonal
+  const latest=data.map(row=>{
+    for(let j=m-1;j>=0;j--) if(row[j]!=null) return row[j];
+    return 0;
+  });
+  const latestLag=data.map(row=>{
+    for(let j=m-1;j>=0;j--) if(row[j]!=null) return j;
+    return 0;
+  });
+
+  const ultimates=projected.map(row=>row[m-1]*tailFactor);
+  const ibnr=ultimates.map((u,i)=>u-latest[i]);
+
+  return {ldfs, cdfs, projected, latest, latestLag, ultimates, ibnr,
+          totalIBNR:ibnr.reduce((s,v)=>s+v,0),
+          totalUltimate:ultimates.reduce((s,v)=>s+v,0)};
+}
+
+// ── BF ──────────────────────────────────────────────────────────────────
+
+function estimateELR(tri, premiums, cdfs, latestLag, method='cape_cod') {
+  const {data, n, m} = tri;
+  const latest=data.map(row=>{for(let j=m-1;j>=0;j--) if(row[j]!=null) return row[j]; return 0;});
+  const pctRep=latestLag.map(j=>cdfs[j]>0?1/cdfs[j]:1);
+
+  if(method==='cape_cod'){
+    const num=latest.reduce((s,v)=>s+v,0);
+    const den=premiums.reduce((s,p,i)=>s+p*pctRep[i],0);
+    return den>0?num/den:1;
+  }
+  if(method==='historical'){
+    const maxLag=m-1;
+    const mature=latestLag.map((j,i)=>j===maxLag?i:-1).filter(i=>i>=0);
+    if(!mature.length) return estimateELR(tri,premiums,cdfs,latestLag,'cape_cod');
+    const lrs=mature.map(i=>latest[i]/premiums[i]);
+    return mean(lrs);
+  }
+  return 1;
+}
+
+function bornhuetterFerguson(tri, premiums, elrParam, cdfs, latestLag, variant='bf', nIter=2) {
+  const {data, n, m} = tri;
+  const latest=data.map(row=>{for(let j=m-1;j>=0;j--) if(row[j]!=null) return row[j]; return 0;});
+  const pctUnrep=latestLag.map(j=>1-(cdfs[j]>0?1/cdfs[j]:1));
+
+  // Resolve ELR
+  let elr;
+  if(typeof elrParam==='number') elr=new Array(n).fill(elrParam);
+  else if(typeof elrParam==='string') {
+    const val=estimateELR(tri,premiums,cdfs,latestLag,elrParam);
+    elr=new Array(n).fill(val);
+  } else elr=elrParam;
+
+  const expUlt=premiums.map((p,i)=>p*elr[i]);
+
+  function bfUlt(elrArr){
+    return latest.map((r,i)=>r+pctUnrep[i]*premiums[i]*elrArr[i]);
+  }
+
+  let bfUltimate;
+  if(variant==='bf'){
+    bfUltimate=bfUlt(elr);
+  } else if(variant.startsWith('benktander')){
+    let ult=bfUlt(elr);
+    for(let iter=0;iter<nIter;iter++){
+      const newElr=ult.map((u,i)=>u/premiums[i]);
+      ult=bfUlt(newElr);
+    }
+    bfUltimate=ult;
+  } else if(variant==='credibility'){
+    // Same as benktander1 mathematically, but expressed as weighted average
+    const clUlt=latest.map((r,i)=>r*cdfs[latestLag[i]]);
+    const bfStd=bfUlt(elr);
+    const pctRep=latestLag.map(j=>cdfs[j]>0?1/cdfs[j]:1);
+    bfUltimate=latest.map((_,i)=>pctRep[i]*clUlt[i]+(1-pctRep[i])*bfStd[i]);
+  }
+
+  const ibnr=bfUltimate.map((u,i)=>u-latest[i]);
+  return {
+    elr, premiums, pctUnrep, expUlt, latest, bfUltimate, ibnr,
+    totalIBNR:ibnr.reduce((s,v)=>s+v,0),
+    totalUltimate:bfUltimate.reduce((s,v)=>s+v,0),
+  };
+}
+
+function compareVariants(tri, premiums, elrParam, cdfs, latestLag) {
+  const cl=chainLadder(tri,null);
+  const bf=bornhuetterFerguson(tri,premiums,elrParam,cdfs,latestLag,'bf');
+  const bk1=bornhuetterFerguson(tri,premiums,elrParam,cdfs,latestLag,'benktander',1);
+  const bk2=bornhuetterFerguson(tri,premiums,elrParam,cdfs,latestLag,'benktander',2);
+  const cr=bornhuetterFerguson(tri,premiums,elrParam,cdfs,latestLag,'credibility');
+  return {
+    CL:cl.ibnr, BF:bf.ibnr,
+    'Benktander 1':bk1.ibnr, 'Benktander 2':bk2.ibnr,
+    Credibilidade:cr.ibnr,
+    totals:{
+      CL:cl.totalIBNR, BF:bf.totalIBNR,
+      'Benktander 1':bk1.totalIBNR, 'Benktander 2':bk2.totalIBNR,
+      Credibilidade:cr.totalIBNR,
+    }
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// FORMATTING
+// ═══════════════════════════════════════════════════════════════════════
+
+const fmt = v => v==null||isNaN(v)?'—':v.toLocaleString('pt-BR',{maximumFractionDigits:0});
+const fmt4 = v => v==null||isNaN(v)?'—':v.toLocaleString('pt-BR',{minimumFractionDigits:4,maximumFractionDigits:4});
+const fmtPct = v => v==null||isNaN(v)?'—':(v).toFixed(1)+'%';
+const fmtSign = v => v==null||isNaN(v)?'—':(v>=0?'+':'')+fmt(v);
+
+function colorForValue(val, min, max) {
+  if(val==null) return 'transparent';
+  const t=(val-min)/(max-min||1);
+  const r=Math.round(13+t*(40-13));
+  const g=Math.round(17+t*(60-17));
+  const b=Math.round(34+t*(100-34));
+  return `rgb(${r},${g},${b})`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════════
+
+let TRIANGLES={}, currentTri=null, selectedMethods=null, charts={};
+
+// ═══════════════════════════════════════════════════════════════════════
+// UI BUILDERS
+// ═══════════════════════════════════════════════════════════════════════
+
+function buildMetric(label, value, cls='') {
+  return `<div class="metric"><div class="metric-label">${label}</div><div class="metric-value ${cls}">${value}</div></div>`;
+}
+
+function buildHeatmap(tri, projected) {
+  const {data, lags, origins, m} = tri;
+  const flat=[...data.flat().filter(v=>v!=null), ...(projected?projected.flat().filter(v=>v!=null):[])];
+  const minV=Math.min(...flat), maxV=Math.max(...flat);
+
+  let html=`<div class="heatmap" style="grid-template-columns:auto repeat(${m},1fr)">`;
+  // Header row
+  html+=`<div class="hm-label"></div>`;
+  lags.forEach(l=>html+=`<div class="hm-label">${l}</div>`);
+  // Data rows
+  data.forEach((row,i)=>{
+    html+=`<div class="hm-label" style="text-align:left;padding-right:6px">${origins[i]}</div>`;
+    row.forEach((v,j)=>{
+      if(v!=null){
+        const bg=colorForValue(v,minV,maxV);
+        html+=`<div class="hm-cell hm-known" style="background:${bg}">${v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(0)+'k':v.toFixed(0)}</div>`;
+      } else if(projected && projected[i][j]!=null){
+        const pv=projected[i][j];
+        const bg=colorForValue(pv,minV,maxV);
+        html+=`<div class="hm-cell hm-projected" style="background:${bg}">${pv>=1e6?(pv/1e6).toFixed(1)+'M':pv>=1e3?(pv/1e3).toFixed(0)+'k':pv.toFixed(0)}</div>`;
+      } else {
+        html+=`<div class="hm-cell hm-empty">—</div>`;
+      }
+    });
+  });
+  html+='</div>';
+  document.getElementById('heatmap').innerHTML=html;
+}
+
+function buildDevChart(tri, projected) {
+  const {data, lags, origins} = tri;
+  const ctx=document.getElementById('dev-chart').getContext('2d');
+  if(charts.dev) charts.dev.destroy();
+  const palette=['#2dd4bf','#4493f8','#f59e0b','#3fb950','#c084fc','#f85149','#60a5fa','#34d399','#fbbf24','#a78bfa'];
+  const datasets=data.map((row,i)=>{
+    const known=row.map((v,j)=>v!=null?{x:lags[j],y:v}:null).filter(Boolean);
+    const ds=[{
+      label:origins[i], data:known,
+      borderColor:palette[i%palette.length], backgroundColor:'transparent',
+      pointRadius:3, borderWidth:1.5, tension:0.3,
+    }];
+    if(projected){
+      const lastKnown=known[known.length-1];
+      const proj=projected[i].map((v,j)=>data[i][j]==null&&v!=null?{x:lags[j],y:v}:null).filter(Boolean);
+      if(proj.length && lastKnown){
+        ds.push({
+          label:'', data:[lastKnown,...proj],
+          borderColor:palette[i%palette.length], backgroundColor:'transparent',
+          pointRadius:2, borderWidth:1.2, borderDash:[4,3], tension:0.3,
+          showInLegend:false,
+        });
+      }
+    }
+    return ds;
+  }).flat();
+
+  charts.dev=new Chart(ctx,{
+    type:'line', data:{datasets},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#7d8590',font:{size:10},boxWidth:12}}},
+      scales:{
+        x:{type:'linear',title:{display:true,text:'Lag',color:'#7d8590'},
+           ticks:{color:'#7d8590'},grid:{color:'#21262d'}},
+        y:{title:{display:true,text:'Perda',color:'#7d8590'},
+           ticks:{color:'#7d8590',callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(0)+'k':v},
+           grid:{color:'#21262d'}},
+      },
+    }
+  });
+}
+
+function buildIBNRChart(canvasId, origins, ibnr, color) {
+  const ctx=document.getElementById(canvasId).getContext('2d');
+  if(charts[canvasId]) charts[canvasId].destroy();
+  charts[canvasId]=new Chart(ctx,{
+    type:'bar',
+    data:{labels:origins, datasets:[{data:ibnr, backgroundColor:color+'bb', borderColor:color, borderWidth:1}]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{color:'#7d8590',font:{size:10}},grid:{color:'#21262d'}},
+        y:{ticks:{color:'#7d8590',callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(0)+'k':v}, grid:{color:'#21262d'}},
+      },
+    }
+  });
+}
+
+function buildCompareChart(origins, variants) {
+  const ctx=document.getElementById('compare-chart').getContext('2d');
+  if(charts.compare) charts.compare.destroy();
+  const colors={'CL':'#4493f8','BF':'#2dd4bf','Benktander 1':'#f59e0b','Benktander 2':'#f97316','Credibilidade':'#c084fc'};
+  const datasets=Object.entries(variants).map(([name, ibnr])=>({
+    label:name, data:ibnr,
+    backgroundColor:colors[name]+'aa', borderColor:colors[name], borderWidth:1,
+  }));
+  charts.compare=new Chart(ctx,{
+    type:'bar', data:{labels:origins, datasets},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#7d8590',font:{size:11}}}},
+      scales:{
+        x:{ticks:{color:'#7d8590',font:{size:10}},grid:{color:'#21262d'}},
+        y:{ticks:{color:'#7d8590',callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(0)+'k':v},grid:{color:'#21262d'}},
+      }
+    }
+  });
+}
+
+function methodOptions(selected) {
+  const opts=['vw','simple','medial','geo','last3','ls','p25','p50','p75'];
+  return `<select class="method-select" onchange="onLagMethodChange(this)">
+    ${opts.map(o=>`<option value="${o}"${o===selected?' selected':''}>${o}</option>`).join('')}
+    <option value="fixed"${selected==='fixed'?' selected':''}>fixo…</option>
+  </select>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// RENDER FUNCTIONS
+// ═══════════════════════════════════════════════════════════════════════
+
+function renderCL() {
+  const tri=currentTri;
+  if(!tri) return;
+  const diag=factorDiagnostics(tri, selectedMethods);
+  // Sync selectedMethods from diag
+  if(!selectedMethods) selectedMethods=diag.map(r=>r.selected);
+
+  const cl=chainLadder(tri, selectedMethods);
+
+  // Metrics
+  document.getElementById('cl-metrics').innerHTML=
+    buildMetric('IBNR Total', fmt(cl.totalIBNR), 'blue')+
+    buildMetric('Ultimate Total', fmt(cl.totalUltimate))+
+    buildMetric('IBNR %', fmtPct(cl.totalIBNR/cl.totalUltimate*100), 'amber');
+
+  // Diagnostic table
+  const methods=['vw','simple','medial','geo','last3','ls','p25','p50','p75'];
+  let tbl=`<thead><tr><th>Lag</th>${methods.map(m=>`<th>${m}</th>`).join('')}<th>n</th><th>cv%</th><th>log-normal?</th><th>Usar</th></tr></thead><tbody>`;
+  diag.forEach((row,k)=>{
+    const cvCls=row.cv>20?'cv-high':row.cv>10?'cv-med':'cv-ok';
+    const ln=row.lognorm===null?'—':row.lognorm?'<span class="lognorm">✓ sim</span>':'<span class="cv-high">✗ não</span>';
+    tbl+=`<tr><td>${row.label}</td>`;
+    methods.forEach(m=>tbl+=`<td>${isNaN(row.factors[m])?'—':row.factors[m].toFixed(5)}</td>`);
+    tbl+=`<td>${row.n}</td><td class="${cvCls}">${isNaN(row.cv)?'—':row.cv.toFixed(1)+'%'}</td><td>${ln}</td>`;
+    tbl+=`<td data-k="${k}">${methodOptions(selectedMethods[k]||'vw')}</td></tr>`;
+  });
+  tbl+=`</tbody>`;
+  document.getElementById('diag-table').innerHTML=tbl;
+
+  // Heatmap
+  buildHeatmap(tri, cl.projected);
+  buildDevChart(tri, cl.projected);
+
+  // Result table
+  let rt=`<thead><tr><th>Origin</th><th>Reportado</th><th>Ultimate CL</th><th>IBNR</th><th>IBNR%</th></tr></thead><tbody>`;
+  tri.origins.forEach((orig,i)=>{
+    const pct=cl.ultimates[i]>0?cl.ibnr[i]/cl.ultimates[i]*100:0;
+    rt+=`<tr><td>${orig}</td><td>${fmt(cl.latest[i])}</td><td>${fmt(cl.ultimates[i])}</td><td>${fmt(cl.ibnr[i])}</td><td>${fmtPct(pct)}</td></tr>`;
+  });
+  rt+=`<tr class="total-row"><td>TOTAL</td><td>${fmt(cl.latest.reduce((s,v)=>s+v,0))}</td><td>${fmt(cl.totalUltimate)}</td><td>${fmt(cl.totalIBNR)}</td><td>${fmtPct(cl.totalIBNR/cl.totalUltimate*100)}</td></tr></tbody>`;
+  document.getElementById('cl-result-table').innerHTML=rt;
+
+  buildIBNRChart('cl-ibnr-chart', tri.origins, cl.ibnr, '#4493f8');
+}
+
+function getELRParam() {
+  const mode=document.querySelector('input[name="elr-mode"]:checked').value;
+  return mode==='manual'?parseFloat(document.getElementById('elr-manual').value)||0.7:mode;
+}
+
+function getBFVariantParams() {
+  const v=document.getElementById('bf-variant').value;
+  if(v==='benktander1') return ['benktander',1];
+  if(v==='benktander2') return ['benktander',2];
+  return [v,2];
+}
+
+function renderBF() {
+  const tri=currentTri;
+  if(!tri) return;
+  const cl=chainLadder(tri, selectedMethods);
+  const premiums=new Array(tri.n).fill(1.0);
+  const elrParam=getELRParam();
+  const [variant, nIter]=getBFVariantParams();
+
+  const bf=bornhuetterFerguson(tri,premiums,elrParam,cl.cdfs,cl.latestLag,variant,nIter);
+  const elrVal=bf.elr[0];
+  const delta=bf.totalIBNR-cl.totalIBNR;
+
+  document.getElementById('bf-metrics').innerHTML=
+    buildMetric('IBNR BF Total', fmt(bf.totalIBNR), 'green')+
+    buildMetric('Ultimate BF', fmt(bf.totalUltimate))+
+    buildMetric('ELR usado', elrVal.toFixed(4), 'amber')+
+    buildMetric('Δ vs CL', fmtSign(delta), delta>=0?'green':'red');
+
+  // Step-by-step table
+  let st=`<thead><tr><th>Origin</th><th>① Prêmio</th><th>② ELR</th><th>③ Esperado</th><th>④ CDF</th><th>⑤ % rep.</th><th>⑥ % não rep.</th><th>⑦ IBNR BF</th><th>⑧ Reportado</th><th>⑨ Ultimate BF</th></tr></thead><tbody>`;
+  tri.origins.forEach((orig,i)=>{
+    const cdfI=cl.cdfs[cl.latestLag[i]];
+    const pRep=cdfI>0?1/cdfI:1;
+    const pUnrep=bf.pctUnrep[i];
+    st+=`<tr><td>${orig}</td>
+      <td>${fmt4(bf.premiums[i])}</td>
+      <td>${fmt4(bf.elr[i])}</td>
+      <td>${fmt(bf.expUlt[i])}</td>
+      <td>${fmt4(cdfI)}</td>
+      <td>${fmtPct(pRep*100)}</td>
+      <td>${fmtPct(pUnrep*100)}</td>
+      <td>${fmt(bf.ibnr[i])}</td>
+      <td>${fmt(bf.latest[i])}</td>
+      <td style="color:var(--green);font-weight:600">${fmt(bf.bfUltimate[i])}</td>
+    </tr>`;
+  });
+  st+=`</tbody>`;
+  document.getElementById('bf-steps-table').innerHTML=st;
+
+  // Result table
+  let rt=`<thead><tr><th>Origin</th><th>Reportado</th><th>IBNR BF</th><th>Ultimate BF</th><th>Ultimate CL</th><th>Δ BF−CL</th></tr></thead><tbody>`;
+  tri.origins.forEach((orig,i)=>{
+    const d=bf.bfUltimate[i]-cl.ultimates[i];
+    rt+=`<tr><td>${orig}</td><td>${fmt(bf.latest[i])}</td><td>${fmt(bf.ibnr[i])}</td><td>${fmt(bf.bfUltimate[i])}</td><td>${fmt(cl.ultimates[i])}</td><td class="${d>=0?'delta-pos':'delta-neg'}">${fmtSign(d)}</td></tr>`;
+  });
+  rt+=`<tr class="total-row"><td>TOTAL</td><td>${fmt(bf.latest.reduce((s,v)=>s+v,0))}</td><td>${fmt(bf.totalIBNR)}</td><td>${fmt(bf.totalUltimate)}</td><td>${fmt(cl.totalUltimate)}</td><td class="${delta>=0?'delta-pos':'delta-neg'}">${fmtSign(delta)}</td></tr></tbody>`;
+  document.getElementById('bf-result-table').innerHTML=rt;
+  buildIBNRChart('bf-ibnr-chart', tri.origins, bf.ibnr, '#2dd4bf');
+
+  const variantExplains={
+    bf:`<div class="section-title">BF Padrão</div><div class="explain">Usa o ELR a priori diretamente. Para anos jovens, a estimativa a priori domina; para anos maduros, o que já foi reportado domina. É o ponto de partida antes de qualquer refinamento.</div>`,
+    benktander1:`<div class="section-title">Benktander — 1 iteração</div><div class="explain">Pega o ultimate BF, usa como novo a priori e recalcula. Fica mais próximo do CL do que o BF puro. Matematicamente equivalente à fórmula de Credibilidade.</div>`,
+    benktander2:`<div class="section-title">Benktander — 2 iterações</div><div class="explain">Dois ciclos de refinamento. A terceira iteração quase não muda — 2 é geralmente suficiente. Fica entre BF e CL, mais próximo do CL.</div>`,
+    credibility:`<div class="section-title">Credibilidade</div><div class="explain">Pondera CL e BF pelo % já reportado de cada origin: quanto mais dados, mais peso no CL. <strong>É matematicamente equivalente ao Benktander 1.</strong></div>`,
+  };
+  document.getElementById('bf-variant-explain').innerHTML=variantExplains[document.getElementById('bf-variant').value]||'';
+}
+
+function renderCompare() {
+  const tri=currentTri;
+  if(!tri) return;
+  const cl=chainLadder(tri, selectedMethods);
+  const premiums=new Array(tri.n).fill(1.0);
+  const elrParam=getELRParam();
+
+  const comp=compareVariants(tri,premiums,elrParam,cl.cdfs,cl.latestLag);
+  const {totals}=comp;
+  const variantKeys=['CL','BF','Benktander 1','Benktander 2','Credibilidade'];
+  const colors={'CL':'blue','BF':'green','Benktander 1':'amber','Benktander 2':'amber','Credibilidade':'purple'};
+
+  document.getElementById('compare-metrics').innerHTML=
+    variantKeys.map(k=>buildMetric(k, fmt(totals[k]), colors[k])).join('');
+
+  const ibnrByVariant={};
+  variantKeys.forEach(k=>ibnrByVariant[k]=comp[k]);
+  buildCompareChart(tri.origins, ibnrByVariant);
+
+  let ct=`<thead><tr><th>Origin</th>${variantKeys.map(k=>`<th>${k}</th>`).join('')}</tr></thead><tbody>`;
+  tri.origins.forEach((orig,i)=>{
+    ct+=`<tr><td>${orig}</td>${variantKeys.map(k=>`<td>${fmt(comp[k][i])}</td>`).join('')}</tr>`;
+  });
+  ct+=`<tr class="total-row"><td>TOTAL</td>${variantKeys.map(k=>`<td>${fmt(totals[k])}</td>`).join('')}</tr></tbody>`;
+  document.getElementById('compare-table').innerHTML=ct;
+}
+
+function renderActiveTab() {
+  const active=document.querySelector('.tab-pane.active').id.replace('tab-','');
+  if(active==='cl') renderCL();
+  else if(active==='bf') renderBF();
+  else if(active==='compare') renderCompare();
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// EVENT HANDLERS
+// ═══════════════════════════════════════════════════════════════════════
+
+function onLagMethodChange(sel) {
+  const k=parseInt(sel.closest('td').getAttribute('data-k'));
+  selectedMethods[k]=sel.value;
+  renderCL();
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+    renderActiveTab();
+  });
+});
+
+document.getElementById('tri-select').addEventListener('change', e=>{
+  currentTri=TRIANGLES[e.target.value];
+  selectedMethods=null;
+  renderActiveTab();
+});
+
+document.getElementById('cl-method').addEventListener('change', ()=>{
+  const m=document.getElementById('cl-method').value;
+  if(currentTri) selectedMethods=new Array(currentTri.lags.length-1).fill(m);
+  renderActiveTab();
+});
+
+['bf-variant','elr-manual'].forEach(id=>{
+  document.getElementById(id)?.addEventListener('change', ()=>{
+    const active=document.querySelector('.tab-pane.active').id;
+    if(active==='tab-bf') renderBF();
+    else if(active==='tab-compare') renderCompare();
+  });
+});
+
+document.querySelectorAll('input[name="elr-mode"]').forEach(r=>{
+  r.addEventListener('change', ()=>{
+    const active=document.querySelector('.tab-pane.active').id;
+    if(active==='tab-bf') renderBF();
+    else if(active==='tab-compare') renderCompare();
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════════
+
+fetch('data/triangles.json')
+  .then(r=>r.json())
+  .then(d=>{
+    TRIANGLES=d.triangles;
+    const sel=document.getElementById('tri-select');
+    Object.keys(TRIANGLES).sort().forEach(k=>{
+      const opt=document.createElement('option');
+      opt.value=k; opt.textContent=k;
+      if(k==='Classic_TaylorAshe1983') opt.selected=true;
+      sel.appendChild(opt);
+    });
+    currentTri=TRIANGLES['Classic_TaylorAshe1983'];
+    renderCL();
+  })
+  .catch(e=>{
+    document.querySelector('.main').innerHTML=
+      `<div class="card" style="color:var(--red)">Erro ao carregar triangles.json: ${e}<br>Rode <code>python export_json.py</code> primeiro.</div>`;
+  });
+</script>
+</body>
+</html>
