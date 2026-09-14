@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Distribution Fitting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* ── Tokens ─────────────────────────────────────────────────────── */
+:root {
+  --bg:#f6f8fa; --surface:#fff; --surface2:#f6f8fa;
+  --border:#d0d7de; --text:#24292f; --muted:#57606a;
+  --accent:#0969da; --green:#1a7f37; --red:#cf222e;
+  --amber:#9a6700; --r:8px;
+  --font:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono','Fira Code',monospace;
+}
+@media(prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0d1117; --surface:#161b22; --surface2:#21262d;
+    --border:#30363d; --text:#e6edf3; --muted:#8b949e;
+    --accent:#58a6ff; --green:#3fb950; --red:#f85149; --amber:#e3b341;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0d1117; --surface:#161b22; --surface2:#21262d;
+  --border:#30363d; --text:#e6edf3; --muted:#8b949e;
+  --accent:#58a6ff; --green:#3fb950; --red:#f85149; --amber:#e3b341;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;min-height:100vh}
+
+/* ── Top bar ─────────────────────────────────────────────────────── */
+.topbar{display:flex;align-items:center;gap:2px;padding:0 16px;height:44px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto}
+.topbar-logo{font-weight:700;font-size:14px;letter-spacing:-.3px;flex-shrink:0;margin-right:8px}
+.topbar-logo span{color:var(--accent)}
+.topbar a{display:flex;align-items:center;gap:5px;padding:4px 11px;border-radius:6px;font-size:12px;font-weight:500;text-decoration:none;color:var(--muted);white-space:nowrap;transition:background .12s,color .12s}
+.topbar a:hover{background:var(--surface2);color:var(--text)}
+.topbar a.active{background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent);font-weight:600}
+
+/* ── Layout ──────────────────────────────────────────────────────── */
+.shell{display:grid;grid-template-columns:300px 1fr;height:calc(100vh - 48px);overflow:hidden}
+.sidebar{background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;gap:16px}
+.main{overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px}
+
+/* ── Controls ─────────────────────────────────────────────────────── */
+.ctrl-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
+textarea.data-input{
+  width:100%;height:160px;resize:vertical;
+  font-family:var(--mono);font-size:11px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--r);padding:10px;color:var(--text);
+  line-height:1.6;outline:none;transition:border-color .12s
+}
+textarea.data-input:focus{border-color:var(--accent)}
+.btn{
+  width:100%;padding:8px;border:none;border-radius:var(--r);
+  background:var(--accent);color:#fff;font-size:13px;font-weight:600;
+  cursor:pointer;transition:opacity .12s
+}
+.btn:hover{opacity:.85}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-sm{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer}
+.btn-sm:hover{background:var(--border)}
+
+/* ── Distribution checklist ──────────────────────────────────────── */
+.dist-checks{display:flex;flex-direction:column;gap:4px}
+.dist-check{display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:5px;cursor:pointer;user-select:none}
+.dist-check:hover{background:var(--surface2)}
+.dist-check input{accent-color:var(--accent);width:13px;height:13px;cursor:pointer}
+.dist-name{flex:1;font-size:12px}
+.dist-params{font-size:10px;color:var(--muted);font-family:var(--mono)}
+
+/* ── Criteria pills ──────────────────────────────────────────────── */
+.crit-pills{display:flex;flex-wrap:wrap;gap:4px}
+.crit-pill{padding:4px 10px;border:1px solid var(--border);border-radius:20px;background:var(--surface2);color:var(--muted);font-size:11px;cursor:pointer;transition:all .12s}
+.crit-pill.active{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent);font-weight:600}
+
+/* ── Cards ────────────────────────────────────────────────────────── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px}
+.card-title{font-size:13px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card-title .ct-sub{font-size:11px;font-weight:400;color:var(--muted)}
+
+/* ── Ranking table ────────────────────────────────────────────────── */
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.rank-tbl{width:100%;min-width:500px;border-collapse:collapse;font-size:12px}
+table.rank-tbl th{background:var(--surface2);padding:7px 12px;text-align:right;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap}
+table.rank-tbl th:first-child,table.rank-tbl th:nth-child(2){text-align:left}
+table.rank-tbl td{padding:7px 12px;text-align:right;border-bottom:1px solid var(--border);color:var(--text)}
+table.rank-tbl td:first-child,table.rank-tbl td:nth-child(2){text-align:left}
+table.rank-tbl tr:last-child td{border-bottom:none}
+table.rank-tbl tr:hover td{background:var(--surface2)}
+table.rank-tbl tr.best td{background:color-mix(in srgb,var(--green) 6%,transparent)}
+.rank-badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;font-size:10px;font-weight:700;background:var(--surface2);color:var(--muted)}
+.rank-badge.r1{background:var(--accent);color:#fff}
+.mono{font-family:var(--mono);font-size:11px}
+.tag{display:inline-block;padding:1px 7px;border-radius:20px;font-size:10px;font-weight:500}
+.tag-ok{background:color-mix(in srgb,var(--green) 12%,transparent);color:var(--green)}
+.tag-fail{background:color-mix(in srgb,var(--red) 12%,transparent);color:var(--red)}
+
+/* ── Charts (2-col on wide) ───────────────────────────────────────── */
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:800px){.charts-grid{grid-template-columns:1fr}}
+canvas.fit-chart{display:block;width:100%;cursor:crosshair}
+
+/* ── Stats row ────────────────────────────────────────────────────── */
+.stats-row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:4px}
+.stat-chip{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:12px}
+.stat-chip .sv{font-family:var(--mono);font-weight:500;color:var(--accent)}
+
+/* ── Tooltip ──────────────────────────────────────────────────────── */
+#fit-tooltip{position:fixed;pointer-events:none;z-index:200;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-size:11px;box-shadow:0 4px 16px rgba(0,0,0,.2);display:none;max-width:200px}
+
+/* ── Messages ─────────────────────────────────────────────────────── */
+.msg-area{padding:32px;text-align:center;color:var(--muted);font-size:13px}
+.err{color:var(--red);background:color-mix(in srgb,var(--red) 8%,var(--surface));border:1px solid color-mix(in srgb,var(--red) 20%,transparent);border-radius:var(--r);padding:12px 16px;font-size:12px;margin-bottom:8px}
+
+/* ── Mobile ───────────────────────────────────────────────────────── */
+@media(max-width:640px){
+  .shell{grid-template-columns:1fr;height:auto;overflow:auto}
+  .sidebar{border-right:none;border-bottom:1px solid var(--border)}
+  .main{overflow-y:unset}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">Reserving <span>Toolkit</span></div>
+  <a href="index.html">📐 P&C Reservas</a>
+  <a href="life.html">❤️ Seguro de Vida</a>
+  <a href="mortality.html">🔬 Tábuas</a>
+  <a href="fitting.html" class="active">📊 Distribution Fitting</a>
+</div>
+
+<div class="shell">
+<!-- ── Sidebar ── -->
+<aside class="sidebar">
+
+  <div>
+    <div class="ctrl-label">Dados (um valor por linha ou separados por vírgula)</div>
+    <textarea class="data-input" id="data-input" placeholder="Ex:
+1250.5
+980
+2100.3
+450
+…ou cole de uma coluna do Excel"></textarea>
+    <div id="parse-info" style="font-size:11px;color:var(--muted);margin-top:4px"></div>
+  </div>
+
+  <div>
+    <div class="ctrl-label">Distribuições a ajustar</div>
+    <div class="dist-checks" id="dist-checks"></div>
+  </div>
+
+  <div>
+    <div class="ctrl-label">Critério de ordenação</div>
+    <div class="crit-pills" id="crit-pills">
+      <button class="crit-pill active" data-c="aic">AIC</button>
+      <button class="crit-pill" data-c="bic">BIC</button>
+      <button class="crit-pill" data-c="ks_stat">KS ↓</button>
+      <button class="crit-pill" data-c="ll">Log-L ↑</button>
+    </div>
+  </div>
+
+  <div>
+    <div class="ctrl-label">Histograma</div>
+    <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)">
+      <label style="display:flex;align-items:center;gap:5px;cursor:pointer">
+        <input type="checkbox" id="density-toggle" checked style="accent-color:var(--accent)"> Densidade (PDF)
+      </label>
+      <label style="display:flex;align-items:center;gap:5px;cursor:pointer;margin-left:8px">
+        <input type="checkbox" id="ecdf-toggle" checked style="accent-color:var(--accent)"> ECDF
+      </label>
+    </div>
+    <div style="margin-top:8px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)">
+      <span>Bins:</span>
+      <input type="range" id="bins-range" min="5" max="80" value="20" style="flex:1;accent-color:var(--accent)">
+      <span id="bins-val" style="font-family:var(--mono);font-size:11px;min-width:24px">20</span>
+    </div>
+  </div>
+
+  <button class="btn" id="fit-btn">Ajustar distribuições</button>
+  <div id="err-box"></div>
+
+</aside>
+
+<!-- ── Main ── -->
+<main class="main" id="main-area">
+  <div class="msg-area" id="welcome-msg">
+    <div style="font-size:32px;margin-bottom:12px">📊</div>
+    <strong>Distribution Fitting</strong><br>
+    Cole seus dados no painel lateral e clique em <em>Ajustar distribuições</em>.<br>
+    <span style="font-size:11px;margin-top:8px;display:block">Suporta: Normal, Lognormal, Gamma, Weibull, Pareto, Exponencial, Burr, Inv-Gaussian, Beta</span>
+  </div>
+</main>
+</div>
+
+<div id="fit-tooltip"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// DISTRIBUTIONS CONFIG
+// ═══════════════════════════════════════════════════════════════════
+
+const DISTS = [
+  { id:'normal',      name:'Normal',           params:'μ, σ',          color:'#60a5fa', enabled:true  },
+  { id:'lognormal',   name:'Lognormal',         params:'μ_ln, σ_ln',    color:'#4ade80', enabled:true  },
+  { id:'gamma',       name:'Gamma',             params:'α, β',          color:'#f59e0b', enabled:true  },
+  { id:'weibull',     name:'Weibull',           params:'k, λ',          color:'#f472b6', enabled:true  },
+  { id:'exponential', name:'Exponencial',       params:'λ',             color:'#a78bfa', enabled:true  },
+  { id:'pareto',      name:'Pareto',            params:'α, xₘ',         color:'#fb923c', enabled:true  },
+  { id:'burr',        name:'Burr (XII)',         params:'c, k',          color:'#34d399', enabled:false },
+  { id:'invgaussian', name:'Inv-Gaussian',       params:'μ, λ',          color:'#e879f9', enabled:false },
+  { id:'beta',        name:'Beta (0–1)',         params:'α, β',          color:'#f87171', enabled:false },
+];
+
+let sortBy = 'aic';
+let fitResults = [];
+let parsedData = [];
+let nBins = 20;
+
+// ═══════════════════════════════════════════════════════════════════
+// BUILD SIDEBAR
+// ═══════════════════════════════════════════════════════════════════
+
+function buildSidebar() {
+  const dc = document.getElementById('dist-checks');
+  DISTS.forEach(d => {
+    const lbl = document.createElement('label');
+    lbl.className = 'dist-check';
+    lbl.innerHTML = `
+      <input type="checkbox" data-id="${d.id}" ${d.enabled?'checked':''} style="accent-color:${d.color}">
+      <span class="dist-name" style="display:flex;align-items:center;gap:6px">
+        <span style="width:10px;height:10px;border-radius:50%;background:${d.color};display:inline-block;flex-shrink:0"></span>
+        ${d.name}
+      </span>
+      <span class="dist-params">${d.params}</span>
+    `;
+    dc.appendChild(lbl);
+  });
+
+  document.querySelectorAll('.crit-pill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('.crit-pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+      sortBy = p.dataset.c;
+      if (fitResults.length) renderResults();
+    });
+  });
+
+  document.getElementById('bins-range').addEventListener('input', e => {
+    nBins = +e.target.value;
+    document.getElementById('bins-val').textContent = nBins;
+    if (fitResults.length) renderResults();
+  });
+
+  document.getElementById('density-toggle').addEventListener('change', () => { if (fitResults.length) renderResults(); });
+  document.getElementById('ecdf-toggle').addEventListener('change', () => { if (fitResults.length) renderResults(); });
+}
+buildSidebar();
+
+// ── Parse data
+document.getElementById('data-input').addEventListener('input', () => {
+  const raw = document.getElementById('data-input').value;
+  const nums = parseData(raw);
+  document.getElementById('parse-info').textContent = nums.length > 0
+    ? `${nums.length} valores · min=${fmt4(Math.min(...nums))} · max=${fmt4(Math.max(...nums))}`
+    : '';
+});
+
+function parseData(raw) {
+  return raw.split(/[\n\r,;\t ]+/)
+    .map(s => parseFloat(s.trim().replace(',','.').replace(/[^\d.-]/g,'')))
+    .filter(v => isFinite(v) && !isNaN(v));
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// FIT BUTTON
+// ═══════════════════════════════════════════════════════════════════
+
+document.getElementById('fit-btn').addEventListener('click', () => {
+  document.getElementById('err-box').innerHTML = '';
+  const raw = document.getElementById('data-input').value;
+  const data = parseData(raw);
+
+  if (data.length < 4) {
+    showErr('Insira pelo menos 4 valores numéricos.'); return;
+  }
+
+  parsedData = [...data].sort((a,b)=>a-b);
+
+  const enabled = DISTS.filter(d => {
+    const cb = document.querySelector(`input[data-id="${d.id}"]`);
+    return cb && cb.checked;
+  });
+
+  if (!enabled.length) { showErr('Selecione ao menos uma distribuição.'); return; }
+
+  // Check constraints
+  const minVal = Math.min(...data);
+  const maxVal = Math.max(...data);
+
+  fitResults = [];
+  for (const dist of enabled) {
+    if ((dist.id === 'gamma' || dist.id === 'lognormal' || dist.id === 'weibull' ||
+         dist.id === 'exponential' || dist.id === 'pareto' || dist.id === 'burr' ||
+         dist.id === 'invgaussian') && minVal <= 0) {
+      fitResults.push({ dist, error: 'requer valores > 0' });
+      continue;
+    }
+    if (dist.id === 'beta' && (minVal <= 0 || maxVal >= 1)) {
+      fitResults.push({ dist, error: 'requer valores em (0,1)' });
+      continue;
+    }
+    try {
+      const result = fitDist(dist.id, data);
+      result.dist = dist;
+      fitResults.push(result);
+    } catch(e) {
+      fitResults.push({ dist, error: e.message });
+    }
+  }
+
+  renderResults();
+});
+
+function showErr(msg) {
+  document.getElementById('err-box').innerHTML = `<div class="err">${msg}</div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// MLE FITTING
+// ═══════════════════════════════════════════════════════════════════
+
+function mean(d) { return d.reduce((a,v)=>a+v,0)/d.length; }
+function variance(d) { const m=mean(d); return d.reduce((a,v)=>a+(v-m)**2,0)/d.length; }
+function stdev(d) { return Math.sqrt(variance(d)); }
+function logmean(d) { return mean(d.map(v=>Math.log(v))); }
+function logvar(d) { const lm=logmean(d); return d.reduce((a,v)=>a+(Math.log(v)-lm)**2,0)/d.length; }
+
+function fitDist(id, data) {
+  const n = data.length;
+  let params, ll;
+
+  switch(id) {
+    case 'normal': {
+      const mu = mean(data);
+      const sig = stdev(data);
+      params = { mu, sigma: sig };
+      ll = data.reduce((a,v) => a + logPdf_normal(v, mu, sig), 0);
+      break;
+    }
+    case 'lognormal': {
+      const mu = logmean(data);
+      const sig = Math.sqrt(logvar(data));
+      params = { mu, sigma: sig };
+      ll = data.reduce((a,v) => a + logPdf_lognormal(v, mu, sig), 0);
+      break;
+    }
+    case 'exponential': {
+      const lambda = 1 / mean(data);
+      params = { lambda };
+      ll = data.reduce((a,v) => a + logPdf_exp(v, lambda), 0);
+      break;
+    }
+    case 'gamma': {
+      // MLE via method of moments + Newton-Raphson on shape
+      const m = mean(data), v = variance(data);
+      let alpha = m*m/v;
+      const beta = v/m;
+      // Refine with digamma NR (3 iters)
+      const lnx_bar = mean(data.map(v=>Math.log(v)));
+      const ln_xbar = Math.log(m);
+      let s = ln_xbar - lnx_bar;
+      for(let i=0;i<10;i++){
+        const da = (Math.log(alpha)-digamma(alpha)-s);
+        const dda = 1/alpha - trigamma(alpha);
+        alpha -= da/dda;
+        if(alpha<=0) {alpha=0.01; break;}
+      }
+      const betaMle = m/alpha;
+      params = { alpha, beta: betaMle };
+      ll = data.reduce((a,v) => a + logPdf_gamma(v, alpha, betaMle), 0);
+      break;
+    }
+    case 'weibull': {
+      // MLE Newton-Raphson for shape k
+      let k = Math.sqrt(6)/Math.PI * stdev(data)/mean(data); // Gumbel moment estimate
+      if(k<=0||isNaN(k)) k=1;
+      for(let i=0;i<50;i++){
+        const lnx = data.map(v=>Math.log(v));
+        const xk = data.map(v=>Math.pow(v,k));
+        const sum_xk = xk.reduce((a,v)=>a+v,0);
+        const sum_xklnx = data.map((v,i)=>xk[i]*lnx[i]).reduce((a,v)=>a+v,0);
+        const sum_lnx = lnx.reduce((a,v)=>a+v,0);
+        const f = n/k + sum_lnx - n*sum_xklnx/sum_xk;
+        const xklnx2 = data.map((v,i)=>xk[i]*lnx[i]*lnx[i]).reduce((a,v)=>a+v,0);
+        const df = -n/(k*k) - n*(xklnx2*sum_xk - sum_xklnx**2)/(sum_xk**2);
+        const dk = -f/df;
+        k = Math.max(0.01, k+dk);
+        if(Math.abs(dk)<1e-8) break;
+      }
+      const lambda = Math.pow(data.map(v=>Math.pow(v,k)).reduce((a,v)=>a+v,0)/n, 1/k);
+      params = { k, lambda };
+      ll = data.reduce((a,v) => a + logPdf_weibull(v, k, lambda), 0);
+      break;
+    }
+    case 'pareto': {
+      // MLE: xm = min(data), alpha = n / sum(ln(xi/xm))
+      const xm = Math.min(...data);
+      const alpha = n / data.reduce((a,v)=>a+Math.log(v/xm),0);
+      params = { alpha, xm };
+      ll = data.reduce((a,v) => a + logPdf_pareto(v, alpha, xm), 0);
+      break;
+    }
+    case 'burr': {
+      // Method of moments for c,k — then refine
+      // Simple: fix k=2, estimate c via moment
+      const m = mean(data), v = variance(data);
+      let c = 2, k = 2;
+      // NR numerical for 2 params is complex — use moment matching c,k
+      // Use log-spacing grid search (simple but robust)
+      let bestLL = -Infinity;
+      for(let ci=0.5;ci<=6;ci+=0.5){
+        for(let ki=0.5;ki<=6;ki+=0.5){
+          const tryLL = data.reduce((a,v)=>a+logPdf_burr(v,ci,ki),0);
+          if(tryLL>bestLL){bestLL=tryLL;c=ci;k=ki;}
+        }
+      }
+      params={c,k};
+      ll=bestLL;
+      break;
+    }
+    case 'invgaussian': {
+      const mu = mean(data);
+      const lambda = n / data.reduce((a,v)=>a+(1/v-1/mu),0);
+      params = { mu, lambda };
+      ll = data.reduce((a,v)=>a+logPdf_invgaussian(v,mu,lambda),0);
+      break;
+    }
+    case 'beta': {
+      const m = mean(data), v = variance(data);
+      const fac = m*(1-m)/v - 1;
+      const alpha = m*fac, beta = (1-m)*fac;
+      params = { alpha, beta };
+      ll = data.reduce((a,v)=>a+logPdf_beta(v,alpha,beta),0);
+      break;
+    }
+    default: throw new Error('Distribuição desconhecida');
+  }
+
+  if(!isFinite(ll)) throw new Error('Log-likelihood infinita — verifique os dados');
+  const k = Object.keys(params).length;
+  const aic = 2*k - 2*ll;
+  const bic = Math.log(n)*k - 2*ll;
+
+  // KS test
+  const ks = ksTest(data, id, params);
+
+  return { params, ll, aic, bic, k, ks_stat: ks.stat, ks_pval: ks.pval };
+}
+
+// ── Special functions
+function digamma(x) {
+  if(x<1) return digamma(x+1)-1/x;
+  let r=0, x2=x;
+  while(x2<6){r-=1/x2;x2++;}
+  const inv=1/(x2*x2);
+  return r+Math.log(x2)-0.5/x2-inv/12+inv*inv/120-inv*inv*inv/252;
+}
+function trigamma(x) {
+  if(x<1) return trigamma(x+1)+1/(x*x);
+  let r=0, x2=x;
+  while(x2<6){r+=1/(x2*x2);x2++;}
+  const inv=1/(x2*x2);
+  return r+0.5/x2+1/x2*(1/x2+0.5*inv/3-inv*inv/30+inv*inv*inv/42);
+}
+function gammaln(x) {
+  const c=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,0.001208650973866179,-0.000005395239384953];
+  let y=x,tmp=x+5.5;
+  tmp-=(x+0.5)*Math.log(tmp);
+  let ser=1.000000000190015;
+  for(let j=0;j<6;j++){ser+=c[j]/++y;}
+  return -tmp+Math.log(2.5066282746310005*ser/x);
+}
+function betaln(a,b){return gammaln(a)+gammaln(b)-gammaln(a+b);}
+function incgamma(a,x){
+  // regularized incomplete gamma P(a,x) via series
+  if(x<0) return 0;
+  if(x===0) return 0;
+  let sum=1/a, term=1/a, n=1;
+  while(n<300){term*=x/( a+n);sum+=term;if(Math.abs(term)<1e-10)break;n++;}
+  return sum*Math.exp(-x+a*Math.log(x)-gammaln(a));
+}
+
+// ── Log PDFs
+function logPdf_normal(x,mu,sig){return -0.5*Math.log(2*Math.PI)-Math.log(sig)-0.5*((x-mu)/sig)**2;}
+function logPdf_lognormal(x,mu,sig){return -Math.log(x)-0.5*Math.log(2*Math.PI)-Math.log(sig)-0.5*((Math.log(x)-mu)/sig)**2;}
+function logPdf_exp(x,lam){return Math.log(lam)-lam*x;}
+function logPdf_gamma(x,a,b){return (a-1)*Math.log(x)-x/b-gammaln(a)-a*Math.log(b);}
+function logPdf_weibull(x,k,lam){return Math.log(k)-Math.log(lam)+(k-1)*Math.log(x/lam)-Math.pow(x/lam,k);}
+function logPdf_pareto(x,a,xm){return x<xm?-Infinity:Math.log(a)+a*Math.log(xm)-(a+1)*Math.log(x);}
+function logPdf_burr(x,c,k){const xc=Math.pow(x,c);return Math.log(c)+Math.log(k)+(c-1)*Math.log(x)-Math.log(1+xc)*(k+1);}
+function logPdf_invgaussian(x,mu,lam){return 0.5*(Math.log(lam)-Math.log(2*Math.PI)-3*Math.log(x))-lam*(x-mu)**2/(2*mu*mu*x);}
+function logPdf_beta(x,a,b){if(x<=0||x>=1)return -Infinity;return (a-1)*Math.log(x)+(b-1)*Math.log(1-x)-betaln(a,b);}
+
+// ── CDFs for KS test and plots
+function cdf_normal(x,mu,sig){return 0.5*(1+erf((x-mu)/(sig*Math.SQRT2)));}
+function cdf_lognormal(x,mu,sig){if(x<=0)return 0;return 0.5*(1+erf((Math.log(x)-mu)/(sig*Math.SQRT2)));}
+function cdf_exp(x,lam){return x<0?0:1-Math.exp(-lam*x);}
+function cdf_gamma(x,a,b){return x<=0?0:incgamma(a,x/b);}
+function cdf_weibull(x,k,lam){return x<0?0:1-Math.exp(-Math.pow(x/lam,k));}
+function cdf_pareto(x,a,xm){return x<xm?0:1-Math.pow(xm/x,a);}
+function cdf_burr(x,c,k){return 1-Math.pow(1/(1+Math.pow(x,c)),k);}
+function cdf_invgaussian(x,mu,lam){
+  const t=Math.sqrt(lam/x);
+  return cdf_normal(t*(x/mu-1),0,1)+Math.exp(2*lam/mu)*cdf_normal(-t*(x/mu+1),0,1);
+}
+function cdf_beta(x,a,b){
+  if(x<=0)return 0;if(x>=1)return 1;
+  return incbeta(x,a,b);
+}
+function incbeta(x,a,b){
+  // simple numerical integration for beta CDF
+  const n=200,dx=x/n;
+  let s=0;
+  for(let i=0;i<n;i++){const xi=dx*(i+0.5);s+=Math.pow(xi,a-1)*Math.pow(1-xi,b-1)*dx;}
+  return s/Math.exp(betaln(a,b));
+}
+function erf(x){
+  const t=1/(1+0.3275911*Math.abs(x));
+  const p=t*(0.254829592+t*(-0.284496736+t*(1.421413741+t*(-1.453152027+t*1.061405429))));
+  return (1-p*Math.exp(-x*x))*Math.sign(x||1);
+}
+function pdf_from_id(id,params){
+  return x => {
+    switch(id){
+      case 'normal': return Math.exp(logPdf_normal(x,params.mu,params.sigma));
+      case 'lognormal': return x>0?Math.exp(logPdf_lognormal(x,params.mu,params.sigma)):0;
+      case 'exponential': return x>=0?Math.exp(logPdf_exp(x,params.lambda)):0;
+      case 'gamma': return x>0?Math.exp(logPdf_gamma(x,params.alpha,params.beta)):0;
+      case 'weibull': return x>0?Math.exp(logPdf_weibull(x,params.k,params.lambda)):0;
+      case 'pareto': return x>=params.xm?Math.exp(logPdf_pareto(x,params.alpha,params.xm)):0;
+      case 'burr': return x>0?Math.exp(logPdf_burr(x,params.c,params.k)):0;
+      case 'invgaussian': return x>0?Math.exp(logPdf_invgaussian(x,params.mu,params.lambda)):0;
+      case 'beta': return (x>0&&x<1)?Math.exp(logPdf_beta(x,params.alpha,params.beta)):0;
+    }
+    return 0;
+  };
+}
+function cdf_from_id(id,params){
+  return x => {
+    switch(id){
+      case 'normal': return cdf_normal(x,params.mu,params.sigma);
+      case 'lognormal': return cdf_lognormal(x,params.mu,params.sigma);
+      case 'exponential': return cdf_exp(x,params.lambda);
+      case 'gamma': return cdf_gamma(x,params.alpha,params.beta);
+      case 'weibull': return cdf_weibull(x,params.k,params.lambda);
+      case 'pareto': return cdf_pareto(x,params.alpha,params.xm);
+      case 'burr': return cdf_burr(x,params.c,params.k);
+      case 'invgaussian': return cdf_invgaussian(x,params.mu,params.lambda);
+      case 'beta': return cdf_beta(x,params.alpha,params.beta);
+    }
+    return 0;
+  };
+}
+
+// ── KS test
+function ksTest(data, id, params) {
+  const n = data.length;
+  const sorted = [...data].sort((a,b)=>a-b);
+  const cdfFn = cdf_from_id(id,params);
+  let D = 0;
+  for(let i=0;i<n;i++){
+    const Fn = (i+1)/n;
+    const F = cdfFn(sorted[i]);
+    D = Math.max(D, Math.abs(Fn-F), Math.abs(i/n-F));
+  }
+  // p-value approximation (Smirnov)
+  const sqn = Math.sqrt(n);
+  const lam = (sqn + 0.12 + 0.11/sqn)*D;
+  let pval = 0;
+  for(let j=1;j<=50;j++) pval+=2*(-1)**(j+1)*Math.exp(-2*j*j*lam*lam);
+  pval = Math.max(0, Math.min(1, pval));
+  return {stat:D, pval};
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// RENDER RESULTS
+// ═══════════════════════════════════════════════════════════════════
+
+function renderResults() {
+  const main = document.getElementById('main-area');
+  document.getElementById('welcome-msg') && document.getElementById('welcome-msg').remove();
+  main.innerHTML = '';
+
+  const data = parsedData;
+  const n = data.length;
+  const m = mean(data), s = stdev(data);
+  const skew_val = data.reduce((a,v)=>a+((v-m)/s)**3,0)/n;
+  const kurt_val = data.reduce((a,v)=>a+((v-m)/s)**4,0)/n - 3;
+
+  // Stats row
+  const statsDiv = document.createElement('div');
+  statsDiv.className = 'card';
+  statsDiv.innerHTML = `
+    <div class="card-title">Estatísticas descritivas <span class="ct-sub">n = ${n}</span></div>
+    <div class="stats-row">
+      <div class="stat-chip">Média <span class="sv">${fmt4(m)}</span></div>
+      <div class="stat-chip">Mediana <span class="sv">${fmt4(data[Math.floor(n/2)])}</span></div>
+      <div class="stat-chip">DP <span class="sv">${fmt4(s)}</span></div>
+      <div class="stat-chip">Mín <span class="sv">${fmt4(data[0])}</span></div>
+      <div class="stat-chip">Máx <span class="sv">${fmt4(data[n-1])}</span></div>
+      <div class="stat-chip">Assimetria <span class="sv">${fmt4(skew_val)}</span></div>
+      <div class="stat-chip">Curtose (exc.) <span class="sv">${fmt4(kurt_val)}</span></div>
+      <div class="stat-chip">CV <span class="sv">${fmt4(s/m*100)}%</span></div>
+    </div>
+  `;
+  main.appendChild(statsDiv);
+
+  // Ranking
+  const valid = fitResults.filter(r=>!r.error&&isFinite(r.aic));
+  const errors = fitResults.filter(r=>r.error);
+  const higherIsBetter = sortBy === 'll';
+  const sorted = [...valid].sort((a,b) => higherIsBetter ? b[sortBy]-a[sortBy] : a[sortBy]-b[sortBy]);
+
+  const rankCard = document.createElement('div');
+  rankCard.className = 'card';
+  const KS_ALPHA = 0.05;
+  rankCard.innerHTML = `
+    <div class="card-title">Ranking de ajuste <span class="ct-sub">ordenado por ${sortBy.toUpperCase()}</span> <button class="btn-sm" onclick="exportRanking()" style="margin-left:auto">⬇ CSV</button></div>
+    ${errors.length?`<div style="font-size:11px;color:var(--muted);margin-bottom:8px">Distribuições com erro: ${errors.map(e=>`${e.dist.name} (${e.error})`).join(', ')}</div>`:''}
+    <div class="tbl-wrap">
+    <table class="rank-tbl" id="rank-tbl">
+      <thead><tr>
+        <th style="text-align:center">Rank</th>
+        <th>Distribuição</th>
+        <th>Parâmetros</th>
+        <th>Log-L</th>
+        <th title="Akaike Information Criterion — menor = melhor">AIC</th>
+        <th title="Bayesian Information Criterion — menor = melhor">BIC</th>
+        <th title="Estatística KS — menor = melhor">KS</th>
+        <th title="p-valor KS (H0: dados seguem a distribuição)">p-KS</th>
+        <th title="KS rejeitado ao nível 5%">KS 5%</th>
+      </tr></thead>
+      <tbody>
+        ${sorted.map((r,i)=>{
+          const isFirst = i===0;
+          const pFail = r.ks_pval < KS_ALPHA;
+          const distCfg = DISTS.find(d=>d.id===r.dist.id);
+          const pstr = Object.entries(r.params).map(([k,v])=>`${k}=${fmt4(v)}`).join(', ');
+          return `<tr class="${isFirst?'best':''}">
+            <td style="text-align:center"><span class="rank-badge ${isFirst?'r1':''}">${i+1}</span></td>
+            <td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${distCfg.color};margin-right:6px"></span>${r.dist.name}</td>
+            <td class="mono" style="font-size:10px">${pstr}</td>
+            <td class="mono">${r.ll.toFixed(2)}</td>
+            <td class="mono">${r.aic.toFixed(2)}</td>
+            <td class="mono">${r.bic.toFixed(2)}</td>
+            <td class="mono">${r.ks_stat.toFixed(4)}</td>
+            <td class="mono">${r.ks_pval.toFixed(3)}</td>
+            <td>${pFail?'<span class="tag tag-fail">Rejeita</span>':'<span class="tag tag-ok">Não rejeita</span>'}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table></div>
+    <div style="font-size:11px;color:var(--muted);margin-top:8px">AIC/BIC: menor = melhor ajuste penalizado pela complexidade. KS H₀: dados seguem a distribuição — rejeitar ao 5% sugere ajuste inadequado.</div>
+  `;
+  main.appendChild(rankCard);
+
+  // Charts
+  const chartsCard = document.createElement('div');
+  chartsCard.className = 'card';
+  chartsCard.innerHTML = `
+    <div class="card-title">Diagnóstico visual</div>
+    <div class="charts-grid">
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">Histograma + PDFs ajustadas</div>
+        <div style="position:relative"><canvas class="fit-chart" id="chart-hist" height="220"></canvas></div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">ECDF + CDFs ajustadas</div>
+        <div style="position:relative"><canvas class="fit-chart" id="chart-cdf" height="220"></canvas></div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">QQ-Plot — melhor ajuste</div>
+        <div style="position:relative"><canvas class="fit-chart" id="chart-qq" height="220"></canvas></div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em">PP-Plot — melhor ajuste</div>
+        <div style="position:relative"><canvas class="fit-chart" id="chart-pp" height="220"></canvas></div>
+      </div>
+    </div>
+    <div id="chart-legend" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px"></div>
+  `;
+  main.appendChild(chartsCard);
+
+  setTimeout(() => {
+    drawHistogram(data, sorted);
+    drawCDF(data, sorted);
+    if(sorted.length) {
+      drawQQ(data, sorted[0]);
+      drawPP(data, sorted[0]);
+    }
+    buildLegend(sorted);
+  }, 0);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// CANVAS CHARTS
+// ═══════════════════════════════════════════════════════════════════
+
+const PAD = {top:14, right:20, bottom:40, left:56};
+const isDark = () => {
+  const t = document.documentElement.getAttribute('data-theme');
+  if(t==='dark') return true; if(t==='light') return false;
+  return window.matchMedia('(prefers-color-scheme:dark)').matches;
+};
+
+function setupCanvas(id, H) {
+  const c = document.getElementById(id);
+  const W = c.offsetWidth || c.parentElement.offsetWidth || 400;
+  c.width = W * devicePixelRatio; c.height = H * devicePixelRatio;
+  c.style.height = H + 'px';
+  const ctx = c.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  return {ctx, W, H};
+}
+
+function drawAxes(ctx, W, H, xMin, xMax, yMin, yMax, xLabel, yLabel, logY=false) {
+  const dark = isDark();
+  const colGrid = dark?'#21262d':'#f0f0f0';
+  const colAxis = dark?'#8b949e':'#57606a';
+  ctx.font = `10px Inter,sans-serif`;
+  ctx.fillStyle = colAxis;
+
+  // Y ticks
+  const yTicks = 5;
+  for(let i=0;i<=yTicks;i++){
+    const vy = yMin + (yMax-yMin)*(i/yTicks);
+    const py = PAD.top + (1-i/yTicks)*(H-PAD.top-PAD.bottom);
+    ctx.beginPath(); ctx.strokeStyle=colGrid; ctx.lineWidth=1;
+    ctx.moveTo(PAD.left,py); ctx.lineTo(W-PAD.right,py); ctx.stroke();
+    const label = logY ? (vy>0?Math.exp(vy).toFixed(2):'0') : fmtAxis(vy);
+    ctx.textAlign='right'; ctx.textBaseline='middle';
+    ctx.fillText(label, PAD.left-4, py);
+  }
+  // X ticks
+  const xTicks = 6;
+  for(let i=0;i<=xTicks;i++){
+    const vx = xMin + (xMax-xMin)*(i/xTicks);
+    const px = PAD.left + (i/xTicks)*(W-PAD.left-PAD.right);
+    ctx.beginPath(); ctx.strokeStyle=colGrid; ctx.lineWidth=1;
+    ctx.moveTo(px,PAD.top); ctx.lineTo(px,H-PAD.bottom); ctx.stroke();
+    ctx.textAlign='center'; ctx.textBaseline='top';
+    ctx.fillText(fmtAxis(vx), px, H-PAD.bottom+5);
+  }
+  ctx.textAlign='center'; ctx.textBaseline='bottom'; ctx.fillStyle=colAxis;
+  ctx.fillText(xLabel, W/2, H-1);
+  ctx.save(); ctx.translate(11, H/2); ctx.rotate(-Math.PI/2);
+  ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(yLabel,0,0);
+  ctx.restore();
+}
+
+function fmtAxis(v) {
+  if(Math.abs(v)>=10000) return (v/1000).toFixed(0)+'k';
+  if(Math.abs(v)>=1000) return (v/1000).toFixed(1)+'k';
+  if(Math.abs(v)>=100) return v.toFixed(0);
+  if(Math.abs(v)>=10) return v.toFixed(1);
+  return v.toFixed(2);
+}
+
+function drawHistogram(data, sorted) {
+  const {ctx, W, H} = setupCanvas('chart-hist', 220);
+  const showDensity = document.getElementById('density-toggle').checked;
+  const bins = nBins;
+  const xMin = data[0], xMax = data[data.length-1];
+  const bw = (xMax-xMin)/bins;
+
+  // Build histogram
+  const hist = Array(bins).fill(0);
+  data.forEach(v => {
+    const b = Math.min(bins-1, Math.floor((v-xMin)/bw));
+    hist[b]++;
+  });
+  const counts = hist;
+  const maxCount = Math.max(...counts);
+  const maxDensity = showDensity ? maxCount/(data.length*bw) : maxCount;
+
+  // PDF lines
+  const nPts = 200;
+  const xs = Array.from({length:nPts+1},(_,i)=>xMin+(xMax-xMin)*i/nPts);
+  const pdfs = sorted.map(r => xs.map(x=>pdf_from_id(r.dist.id,r.params)(x)));
+  const maxPdf = showDensity ? Math.max(...pdfs.flat().filter(isFinite), 0) : 0;
+  const yMax = Math.max(maxDensity, maxPdf)*1.1;
+  const yMin = 0;
+
+  const cx = x => PAD.left + (x-xMin)/(xMax-xMin)*(W-PAD.left-PAD.right);
+  const cy = y => PAD.top + (1-(y-yMin)/(yMax-yMin))*(H-PAD.top-PAD.bottom);
+
+  const dark = isDark();
+  const colBg = dark?'rgba(30,41,59,0.4)':'rgba(100,116,139,0.12)';
+
+  drawAxes(ctx,W,H,xMin,xMax,yMin,yMax,'Valor',showDensity?'Densidade':'Contagem');
+
+  // Bars
+  ctx.fillStyle = colBg;
+  counts.forEach((c,i) => {
+    const bLeft = xMin+i*bw, bRight=bLeft+bw;
+    const val = showDensity ? c/(data.length*bw) : c;
+    ctx.fillRect(cx(bLeft), cy(val), cx(bRight)-cx(bLeft)-1, cy(0)-cy(val));
+    ctx.strokeStyle = dark?'#30363d':'#d0d7de'; ctx.lineWidth=0.5;
+    ctx.strokeRect(cx(bLeft), cy(val), cx(bRight)-cx(bLeft)-1, cy(0)-cy(val));
+  });
+
+  // PDF lines
+  if(showDensity) {
+    sorted.forEach((r,ri) => {
+      const color = r.dist.color;
+      ctx.beginPath(); ctx.strokeStyle=color; ctx.lineWidth=2;
+      ctx.setLineDash([]);
+      let first=true;
+      xs.forEach((x,i)=>{
+        const y=pdfs[ri][i]; if(!isFinite(y)||y<0) return;
+        const px=cx(x), py=cy(y);
+        if(first){ctx.moveTo(px,py);first=false;}else ctx.lineTo(px,py);
+      });
+      ctx.stroke();
+    });
+  }
+}
+
+function drawCDF(data, sorted) {
+  const {ctx, W, H} = setupCanvas('chart-cdf', 220);
+  const showEcdf = document.getElementById('ecdf-toggle').checked;
+  const n = data.length;
+  const xMin = data[0], xMax = data[n-1];
+  const cx = x => PAD.left + (x-xMin)/(xMax-xMin)*(W-PAD.left-PAD.right);
+  const cy = y => PAD.top + (1-y)*(H-PAD.top-PAD.bottom);
+
+  const dark = isDark();
+  const colAxis = dark?'#8b949e':'#57606a';
+
+  drawAxes(ctx,W,H,xMin,xMax,0,1,'Valor','F(x)');
+
+  // ECDF
+  if(showEcdf){
+    ctx.beginPath(); ctx.strokeStyle=colAxis; ctx.lineWidth=1.5; ctx.setLineDash([4,3]);
+    ctx.moveTo(cx(xMin),cy(0));
+    data.forEach((v,i)=>{const F=(i+1)/n;ctx.lineTo(cx(v),cy(F));if(i<n-1)ctx.lineTo(cx(data[i+1]),cy(F));});
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  // CDF lines
+  const nPts = 200;
+  const xs = Array.from({length:nPts+1},(_,i)=>xMin+(xMax-xMin)*i/nPts);
+  sorted.forEach(r => {
+    const cdfFn = cdf_from_id(r.dist.id, r.params);
+    ctx.beginPath(); ctx.strokeStyle=r.dist.color; ctx.lineWidth=2; ctx.setLineDash([]);
+    let first=true;
+    xs.forEach(x=>{
+      const y=cdfFn(x);
+      if(!isFinite(y)) return;
+      const px=cx(x), py=cy(Math.max(0,Math.min(1,y)));
+      if(first){ctx.moveTo(px,py);first=false;}else ctx.lineTo(px,py);
+    });
+    ctx.stroke();
+  });
+}
+
+function drawQQ(data, r) {
+  const {ctx, W, H} = setupCanvas('chart-qq', 220);
+  const n = data.length;
+  const cdfFn = cdf_from_id(r.dist.id, r.params);
+
+  // Theoretical quantiles via inversion (numerical)
+  const qs = data.map((_,i)=>{
+    const p=(i+0.5)/n;
+    return quantileFromCdf(cdfFn, p, data[0], data[n-1]*2);
+  });
+
+  const qMin=qs[0], qMax=qs[n-1];
+  const dMin=data[0], dMax=data[n-1];
+  const xMin=qMin, xMax=qMax, yMin=dMin, yMax=dMax;
+
+  const cx = x => PAD.left + (x-xMin)/(xMax-xMin)*(W-PAD.left-PAD.right);
+  const cy = y => PAD.top + (1-(y-yMin)/(yMax-yMin))*(H-PAD.top-PAD.bottom);
+
+  drawAxes(ctx,W,H,xMin,xMax,yMin,yMax,'Quantis teóricos','Quantis observados');
+
+  // 45° reference line
+  const dark = isDark();
+  ctx.beginPath(); ctx.strokeStyle=dark?'#30363d':'#d0d7de'; ctx.lineWidth=1; ctx.setLineDash([6,3]);
+  ctx.moveTo(cx(xMin),cy(yMin)); ctx.lineTo(cx(xMax),cy(yMax)); ctx.stroke(); ctx.setLineDash([]);
+
+  // Points
+  ctx.fillStyle=r.dist.color;
+  data.forEach((v,i)=>{
+    ctx.beginPath(); ctx.arc(cx(qs[i]),cy(v),3,0,2*Math.PI); ctx.fill();
+  });
+
+  // Label
+  const colMuted = dark?'#8b949e':'#57606a';
+  ctx.fillStyle=colMuted; ctx.font='10px Inter,sans-serif'; ctx.textAlign='left'; ctx.textBaseline='top';
+  ctx.fillText(r.dist.name, PAD.left+4, PAD.top+4);
+}
+
+function drawPP(data, r) {
+  const {ctx, W, H} = setupCanvas('chart-pp', 220);
+  const n = data.length;
+  const cdfFn = cdf_from_id(r.dist.id, r.params);
+
+  const pts = data.map((v,i)=>({
+    empirical:(i+0.5)/n,
+    theoretical:Math.max(0,Math.min(1,cdfFn(v)))
+  }));
+
+  const dark = isDark();
+  drawAxes(ctx,W,H,0,1,0,1,'F(x) teórico','F(x) empírico');
+
+  ctx.beginPath(); ctx.strokeStyle=dark?'#30363d':'#d0d7de'; ctx.lineWidth=1; ctx.setLineDash([6,3]);
+  ctx.moveTo(PAD.left,H-PAD.bottom); ctx.lineTo(W-PAD.right,PAD.top); ctx.stroke(); ctx.setLineDash([]);
+
+  const cx = x => PAD.left+x*(W-PAD.left-PAD.right);
+  const cy = y => PAD.top+(1-y)*(H-PAD.top-PAD.bottom);
+
+  ctx.fillStyle=r.dist.color;
+  pts.forEach(p=>{ ctx.beginPath(); ctx.arc(cx(p.theoretical),cy(p.empirical),3,0,2*Math.PI); ctx.fill(); });
+
+  const colMuted = dark?'#8b949e':'#57606a';
+  ctx.fillStyle=colMuted; ctx.font='10px Inter,sans-serif'; ctx.textAlign='left'; ctx.textBaseline='top';
+  ctx.fillText(r.dist.name, PAD.left+4, PAD.top+4);
+}
+
+function quantileFromCdf(cdfFn, p, lo, hi) {
+  // Binary search for quantile
+  let a=lo, b=hi;
+  for(let i=0;i<60;i++){
+    const m=(a+b)/2;
+    if(cdfFn(m)<p) a=m; else b=m;
+    if(b-a<1e-8) break;
+  }
+  return (a+b)/2;
+}
+
+function buildLegend(sorted) {
+  const el = document.getElementById('chart-legend');
+  if(!el) return;
+  el.innerHTML='<span style="font-size:11px;color:var(--muted);margin-right:4px">—</span>';
+  sorted.forEach(r=>{
+    const span=document.createElement('span');
+    span.style.cssText='display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)';
+    span.innerHTML=`<span style="width:16px;height:2px;background:${r.dist.color};display:inline-block;border-radius:1px"></span>${r.dist.name}`;
+    el.appendChild(span);
+  });
+  const ecdfSpan=document.createElement('span');
+  const dark=isDark();
+  ecdfSpan.style.cssText='display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)';
+  ecdfSpan.innerHTML=`<span style="width:16px;height:0;border-top:2px dashed ${dark?'#8b949e':'#57606a'};display:inline-block"></span>ECDF`;
+  el.appendChild(ecdfSpan);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// EXPORT
+// ═══════════════════════════════════════════════════════════════════
+
+window.exportRanking = function() {
+  const tbl = document.getElementById('rank-tbl');
+  if(!tbl) return;
+  const rows=Array.from(tbl.querySelectorAll('tr'));
+  const csv=rows.map(r=>Array.from(r.querySelectorAll('th,td')).map(c=>{
+    const t=c.innerText.replace(/\n/g,' ').trim();
+    return t.includes(',')||t.includes('"')?`"${t.replace(/"/g,'""')}"`:t;
+  }).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,﻿'+encodeURIComponent(csv);
+  a.download='distribution_ranking.csv'; a.click();
+};
+
+// ── Helpers
+function fmt4(v){ return isFinite(v)?v.toFixed(4):'—'; }
+
+// ── Resize
+const ro=new ResizeObserver(()=>{if(fitResults.length)renderResults();});
+ro.observe(document.getElementById('main-area'));
+</script>
+</body>
+</html>
