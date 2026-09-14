@@ -66,8 +66,9 @@ select:focus,input:focus{border-color:var(--accent)}
 .sidebar hr{border:none;border-top:1px solid var(--border);margin:16px 0}
 
 /* ── Tabs ────────────────────────────────────────────────────────────── */
-.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:20px}
-.tab-btn{background:none;border:none;padding:8px 16px;color:var(--muted);font-size:13px;font-weight:500;border-bottom:2px solid transparent;transition:color .15s,border-color .15s}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:20px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{background:none;border:none;padding:8px 16px;color:var(--muted);font-size:13px;font-weight:500;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;white-space:nowrap;flex-shrink:0}
 .tab-btn:hover{color:var(--text)}
 .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
 .tab-pane{display:none}
@@ -90,8 +91,14 @@ select:focus,input:focus{border-color:var(--accent)}
 .explain strong{color:var(--text)}
 .explain code{font-family:var(--font-num);background:var(--border);padding:1px 5px;border-radius:3px;font-size:11px}
 
+/* ── Small warning + export button ───────────────────────────────────── */
+.small-warn{background:rgba(251,146,60,0.1);border-left:3px solid #f97316;padding:8px 12px;border-radius:var(--r);font-size:0.85rem;margin-bottom:12px}
+.btn-sm{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer}
+.btn-sm:hover{background:var(--border)}
+
 /* ── Tables ──────────────────────────────────────────────────────────── */
-.tbl-wrap{overflow-x:auto}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tbl-wrap table{width:auto;min-width:100%}
 table{width:100%;border-collapse:collapse;font-size:12px;font-family:var(--font-num)}
 th{background:var(--surface2);color:var(--muted);font-weight:600;text-transform:uppercase;font-size:10px;letter-spacing:.05em;padding:7px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--border)}
 th:first-child{text-align:left}
@@ -107,6 +114,20 @@ tr:hover td{background:var(--surface2)}
 .delta-pos{color:var(--green)!important}
 .delta-neg{color:var(--red)!important}
 
+/* ── Legend table ───────────────────────────────────────────────────── */
+.legend-tbl{width:100%;border-collapse:collapse;margin-top:8px;font-size:11.5px}
+.legend-tbl th{background:var(--surface2);color:var(--muted);font-weight:600;text-align:left;padding:5px 8px;border-bottom:1px solid var(--border)}
+.legend-tbl td{padding:4px 8px;border-bottom:1px solid var(--border);color:var(--text);text-align:left;white-space:normal}
+.legend-tbl td:first-child{white-space:nowrap;font-weight:500}
+.legend-tbl tr:last-child td{border-bottom:none}
+.legend-tbl tr:hover td{background:var(--surface2)}
+
+/* ── Interpretation box ─────────────────────────────────────────────── */
+.interp-box{padding:12px 16px;border-radius:6px;font-size:12.5px;line-height:1.6;margin-bottom:0;border-left:3px solid}
+.interp-ok{background:rgba(63,185,80,0.08);border-color:var(--green);color:var(--text)}
+.interp-warn{background:rgba(210,153,34,0.1);border-color:var(--accent2);color:var(--text)}
+.interp-alert{background:rgba(248,81,73,0.08);border-color:var(--red);color:var(--text)}
+
 /* ── Heatmap ─────────────────────────────────────────────────────────── */
 .heatmap-wrap{overflow-x:auto}
 .heatmap{display:grid;gap:2px}
@@ -120,26 +141,155 @@ tr:hover td{background:var(--surface2)}
 .chart-wrap{position:relative;height:240px;margin-top:4px}
 
 /* ── Method select per lag ───────────────────────────────────────────── */
-.method-select{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:4px;padding:2px 4px;font-size:11px;font-family:var(--font-ui)}
+.method-select{background:var(--surface2);border:1.5px solid var(--border);color:var(--text);border-radius:4px;padding:3px 6px;font-size:12px;font-family:var(--font-ui);min-width:90px;cursor:pointer}
+.method-select.changed{border-color:var(--accent);background:rgba(45,212,191,.08);color:var(--accent);font-weight:600}
+.ldf-result{font-family:var(--font-num);font-size:13px;font-weight:700;color:var(--accent);padding:2px 0}
+.ldf-delta{font-family:var(--font-num);font-size:10px;padding:1px 5px;border-radius:3px}
+.ldf-delta.higher{background:rgba(248,81,73,.12);color:var(--red)}
+.ldf-delta.lower{background:rgba(63,185,80,.12);color:var(--green)}
+.ldf-delta.same{background:transparent;color:var(--muted)}
+
+/* ── Triangle info card ──────────────────────────────────────────────── */
+.tri-info{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 12px;margin-top:8px;font-size:11px;line-height:1.6;display:none}
+.tri-info.show{display:block}
+.tri-info-lob{font-weight:600;color:var(--text);font-size:12px;margin-bottom:4px}
+.tri-info-source{color:var(--muted);font-size:10px;margin-bottom:6px}
+.tail-badge{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:10px;margin-bottom:6px}
+.tail-short{background:rgba(63,185,80,.15);color:#3fb950}
+.tail-medium{background:rgba(68,147,248,.15);color:#4493f8}
+.tail-long{background:rgba(245,158,11,.15);color:#f59e0b}
+.tail-vlong{background:rgba(248,81,73,.15);color:#f85149}
+.tri-chars{list-style:none;padding:0;margin:4px 0 0}
+.tri-chars li{color:var(--muted);padding:1px 0}
+.tri-chars li::before{content:"· ";color:var(--accent)}
+.tri-use{color:var(--muted);font-size:10.5px;margin-top:6px;font-style:italic;border-top:1px solid var(--border);padding-top:5px}
+
+/* ── Report button ───────────────────────────────────────────────────── */
+.report-btn{width:100%;margin-top:14px;background:var(--accent);color:#0d1117;border:none;border-radius:6px;padding:8px 12px;font-size:12px;font-weight:700;letter-spacing:.02em;cursor:pointer;transition:opacity .15s}
+.report-btn:hover{opacity:.85}
+.report-btn:active{opacity:.7}
+
+/* ── Triangle filters ──────────────────────────────────────────────────── */
+.chip-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;margin-top:4px}
+.tri-chip{background:var(--surface2);border:1px solid var(--border);color:var(--muted);border-radius:12px;padding:2px 8px;font-size:10px;font-weight:500;cursor:pointer;transition:all .12s}
+.tri-chip:hover{border-color:var(--accent);color:var(--text)}
+.tri-chip.active{background:var(--accent);border-color:var(--accent);color:#0d1117;font-weight:700}
+.pair-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;background:rgba(68,147,248,.15);border:1px solid rgba(68,147,248,.3);color:#4493f8;border-radius:10px;padding:2px 8px;margin-top:5px;width:100%}
+
+/* ── Mobile hamburger ─────────────────────────────────────────────────── */
+.top-modnav{display:flex;align-items:center;gap:2px;padding:0 16px;height:38px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:101;overflow-x:auto}
+.top-modnav .mnlogo{font-weight:700;font-size:13px;letter-spacing:-.3px;margin-right:8px;flex-shrink:0}.top-modnav .mnlogo span{color:var(--accent)}
+.top-modnav a{display:flex;align-items:center;gap:5px;padding:4px 11px;border-radius:6px;font-size:12px;font-weight:500;text-decoration:none;color:var(--muted);white-space:nowrap;transition:background .12s,color .12s}
+.top-modnav a:hover{background:var(--surface2);color:var(--text)}
+.top-modnav a.active{background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent);font-weight:600}
+.mob-bar{display:none;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:38px;z-index:100}
+.mob-bar .logo{margin:0;font-size:14px}
+.mob-bar .logo-sub{display:none}
+.ham-btn{background:none;border:1px solid var(--border);border-radius:6px;color:var(--text);padding:5px 9px;font-size:18px;cursor:pointer;line-height:1}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200}
+.sidebar-overlay.open{display:block}
+.sidebar-drawer{position:fixed;top:0;left:-280px;width:260px;height:100%;background:var(--surface);border-right:1px solid var(--border);z-index:300;overflow-y:auto;padding:16px 14px;transition:left .25s}
+.sidebar-drawer.open{left:0}
+.drawer-close{float:right;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;margin-bottom:8px}
 
 /* ── Responsive ──────────────────────────────────────────────────────── */
 @media(max-width:640px){
-  .sidebar{width:100%;min-width:unset;height:auto;border-right:none;border-bottom:1px solid var(--border)}
-  .shell{flex-direction:column}
-  .main{padding:12px}
+  .shell{flex-direction:column;height:auto}
+  .sidebar{display:none}
+  .mob-bar{display:flex}
+  .main{padding:12px;overflow-y:unset;overflow-x:hidden}
+  .card{min-width:0}
 }
 </style>
 </head>
 <body>
+
+<!-- ── Module nav (todas as telas) ─────────────────────────────────── -->
+<div class="top-modnav">
+  <div class="mnlogo">Reserving <span>Toolkit</span></div>
+  <a href="index.html" class="active">📐 P&C Reservas</a>
+  <a href="life.html">❤️ Seguro de Vida</a>
+  <a href="mortality.html">🔬 Tábuas</a>
+  <a href="fitting.html">📊 Distribution Fitting</a>
+</div>
+
+<!-- ── Mobile top bar ───────────────────────────────────────────────── -->
+<div class="mob-bar">
+  <div>
+    <div class="logo" style="margin-bottom:0">Reserving Toolkit</div>
+  </div>
+  <button class="ham-btn" id="ham-btn" aria-label="Abrir painel">☰</button>
+</div>
+<div class="sidebar-overlay" id="sbar-overlay"></div>
+<nav class="sidebar-drawer" id="sbar-drawer">
+  <button class="drawer-close" id="sbar-close" aria-label="Fechar">×</button>
+  <!-- conteúdo injetado por JS -->
+</nav>
+
 <div class="shell">
 
-<!-- ── Sidebar ──────────────────────────────────────────────────────── -->
-<nav class="sidebar">
+<!-- ── Sidebar desktop ──────────────────────────────────────────────── -->
+<nav class="sidebar" id="sidebar-desktop">
   <div class="logo">Reserving Toolkit</div>
   <div class="logo-sub">Ferramenta didática de reservas</div>
 
-  <div class="ctrl-label">Triângulo</div>
+  <div style="font-size:11px;color:var(--text-muted);line-height:1.5;margin-bottom:12px">
+    <strong style="color:var(--text)">Como usar</strong><br>
+    1. Escolha um <strong>triângulo</strong> de dados.<br>
+    2. Explore a aba <strong>Chain Ladder</strong> — ajuste o método por lag.<br>
+    3. Compare a incerteza em <strong>Mack</strong> (analítico) e <strong>Bootstrap</strong> (simulação).<br>
+    4. Veja o efeito do a priori em <strong>BF</strong>.<br>
+    5. Consolide tudo em <strong>Comparação</strong>.
+  </div>
+  <hr>
+
+  <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:12px">
+    <a href="mortality.html" style="display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:6px;background:color-mix(in srgb,var(--accent) 10%,transparent);border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);color:var(--accent);font-size:11px;font-weight:500;text-decoration:none">
+      <span>🔬</span><span>Mortality Explorer</span><span style="margin-left:auto;font-size:10px;opacity:.7">→</span>
+    </a>
+    <a href="life.html" style="display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:6px;background:color-mix(in srgb,var(--accent) 10%,transparent);border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);color:var(--accent);font-size:11px;font-weight:500;text-decoration:none">
+      <span>❤️</span><span>Seguro de Vida</span><span style="margin-left:auto;font-size:10px;opacity:.7">→</span>
+    </a>
+    <a href="fitting.html" style="display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:6px;background:color-mix(in srgb,var(--accent) 10%,transparent);border:1px solid color-mix(in ssgb,var(--accent) 25%,transparent);color:var(--accent);font-size:11px;font-weight:500;text-decoration:none">
+      <span>📊</span><span>Distribution Fitting</span><span style="margin-left:auto;font-size:10px;opacity:.7">→</span>
+    </a>
+  </div>
+
+  <div class="ctrl-label">Tipo de dado</div>
+  <div class="chip-row" id="type-chips">
+    <button class="tri-chip active" data-type="all">Todos</button>
+    <button class="tri-chip" data-type="incurred">Sinistros</button>
+    <button class="tri-chip" data-type="paid">Pagos</button>
+    <button class="tri-chip" data-type="paired">Par P/I</button>
+  </div>
+  <div class="ctrl-label" style="margin-top:8px">Ramo</div>
+  <div class="chip-row" id="cat-chips">
+    <button class="tri-chip active" data-cat="all">Todos</button>
+    <button class="tri-chip" data-cat="benchmark">Benchmark</button>
+    <button class="tri-chip" data-cat="auto">Auto</button>
+    <button class="tri-chip" data-cat="liability">RC/Liab</button>
+    <button class="tri-chip" data-cat="wkcomp">WC</button>
+    <button class="tri-chip" data-cat="medmal">Med Mal</button>
+    <button class="tri-chip" data-cat="naic">NAIC</button>
+    <button class="tri-chip" data-cat="quarterly">Trimestral</button>
+  </div>
+  <div class="ctrl-label" style="margin-top:8px">País / Mercado</div>
+  <div class="chip-row" id="country-chips">
+    <button class="tri-chip active" data-country="all">Todos</button>
+    <button class="tri-chip" data-country="us">EUA</button>
+    <button class="tri-chip" data-country="brasil">Brasil 🇧🇷</button>
+    <button class="tri-chip" data-country="australia">Austrália 🇦🇺</button>
+    <button class="tri-chip" data-country="germany">Alemanha 🇩🇪</button>
+    <button class="tri-chip" data-country="uk">UK 🇬🇧</button>
+    <button class="tri-chip" data-country="france">França 🇫🇷</button>
+    <button class="tri-chip" data-country="lloyds">Lloyd's</button>
+  </div>
+  <div class="ctrl-label" style="margin-top:8px">Triângulo</div>
   <select id="tri-select"></select>
+  <div id="pair-badge" class="pair-badge" style="display:none">🔀 Tem par pago/incorrido — ver aba Split</div>
+  <div id="tri-info" class="tri-info"></div>
+
+  <button class="report-btn" id="report-btn">📄 Gerar Relatório</button>
 
   <hr>
 
@@ -176,6 +326,56 @@ tr:hover td{background:var(--surface2)}
     <label><input type="radio" name="elr-mode" value="manual"> Manual</label>
   </div>
   <input type="number" id="elr-manual" value="0.70" step="0.01" min="0.01" max="9" style="margin-top:8px">
+
+  <hr>
+
+  <div class="ctrl-label">Ensemble — modo de pesos</div>
+  <div class="radio-group">
+    <label><input type="radio" name="ens-mode" value="auto" checked> Automático (maturidade)</label>
+    <label><input type="radio" name="ens-mode" value="manual"> Manual</label>
+  </div>
+  <div id="ens-manual-weights" style="display:none;margin-top:8px">
+    <div class="ctrl-label" style="margin-top:6px">CL %</div>
+    <input type="number" id="ens-w-cl" value="33" min="0" max="100" step="1">
+    <div class="ctrl-label" style="margin-top:6px">BF %</div>
+    <input type="number" id="ens-w-bf" value="33" min="0" max="100" step="1">
+    <div class="ctrl-label" style="margin-top:6px">Benktander %</div>
+    <input type="number" id="ens-w-bk" value="34" min="0" max="100" step="1">
+    <div class="explain" style="margin-top:6px;font-size:11px">Os três valores são normalizados para somar 100%.</div>
+  </div>
+
+  <hr>
+
+  <div class="ctrl-label">Validação — holdout k</div>
+  <select id="val-k">
+    <option value="1" selected>1 diagonal (1 período)</option>
+    <option value="2">2 diagonais (2 períodos)</option>
+    <option value="3">3 diagonais (3 períodos)</option>
+  </select>
+  <div class="explain" style="margin-top:6px;font-size:11px">Remove as últimas k diagonais e compara CL vs. valores reais removidos.</div>
+
+  <hr>
+
+  <div class="ctrl-label">Bootstrap — simulações</div>
+  <select id="boot-nsim">
+    <option value="200">200 (rápido)</option>
+    <option value="500" selected>500</option>
+    <option value="1000">1.000</option>
+    <option value="2000">2.000 (lento)</option>
+  </select>
+  <div class="ctrl-label" style="margin-top:10px">Semente aleatória</div>
+  <input type="number" id="boot-seed" value="42" min="0" max="99999" style="margin-top:4px">
+
+  <hr>
+  <details style="margin-top:4px">
+    <summary style="cursor:pointer;font-size:12px;color:var(--muted);padding:4px 0;list-style:none">📂 Carregar CSV</summary>
+    <div style="margin-top:8px">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Cole um triângulo CSV (1ª linha = cabeçalho com lags, 1ª col = origin):</div>
+      <textarea id="csv-input" rows="5" style="width:100%;box-sizing:border-box;font-size:11px;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:4px;resize:vertical;font-family:monospace" placeholder="lag,12,24,36&#10;2019,1000,1500,&#10;2020,1200,,&#10;2021,,,"></textarea>
+      <button id="csv-load-btn" style="margin-top:4px;width:100%;padding:5px;background:var(--accent);color:#000;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600">Carregar triângulo</button>
+      <div id="csv-status" style="font-size:11px;margin-top:4px;color:var(--muted)"></div>
+    </div>
+  </details>
 </nav>
 
 <!-- ── Main ─────────────────────────────────────────────────────────── -->
@@ -184,28 +384,49 @@ tr:hover td{background:var(--surface2)}
     <button class="tab-btn active" data-tab="cl">📐 Chain Ladder</button>
     <button class="tab-btn" data-tab="bf">🔮 Bornhuetter-Ferguson</button>
     <button class="tab-btn" data-tab="compare">📊 Comparação</button>
+    <button class="tab-btn" data-tab="mack">📏 Mack</button>
+    <button class="tab-btn" data-tab="bootstrap">🎲 Bootstrap</button>
+    <button class="tab-btn" data-tab="ensemble">⚖️ Ensemble</button>
+    <button class="tab-btn" data-tab="validation">🔬 Validação</button>
+    <button class="tab-btn" id="mcl-tab-btn" data-tab="mcl" style="display:none">🔗 Munich CL</button>
+    <button class="tab-btn" data-tab="clark">📈 Clark GC</button>
+    <button class="tab-btn" data-tab="compare2">↔️ Lado a Lado</button>
+    <button class="tab-btn" id="bs-tab-btn" data-tab="bs" style="display:none">🛡️ Berquist-Sherman</button>
+    <button class="tab-btn" id="split-tab-btn" data-tab="split" style="display:none">🔀 Pago / Incorrido</button>
   </div>
 
   <!-- ── Tab CL ── -->
   <div id="tab-cl" class="tab-pane active">
     <div class="explain">
-      <strong>Chain Ladder</strong> é o método mais usado em reservas de seguros.
-      Olha como as perdas cresceram de um período para o próximo em anos passados,
-      calcula um "fator de crescimento" médio e aplica nos anos mais novos que ainda
-      não terminaram de se desenvolver. A tabela abaixo mostra todos os métodos
-      possíveis para calcular cada fator — você pode misturar um método por lag.
+      <strong>Chain Ladder (CL)</strong> é o método de referência em reservas de seguros. A premissa: o padrão de desenvolvimento histórico se repete. Para cada transição de lag, calcula um <strong>fator de desenvolvimento</strong> (LDF — Link Development Factor) e o aplica ao último valor conhecido de cada ano de origin.<br><br>
+      <strong>Conceitos-chave:</strong><br>
+      <strong>Origin</strong> = ano em que os sinistros ocorreram (ou foram avisados). <strong>Lag</strong> = maturidade em meses/anos. <strong>CDF</strong> = fator acumulado do lag atual até o ultimate. <strong>Ultimate</strong> = valor final esperado quando 100% dos sinistros forem pagos. <strong>IBNR</strong> (Incurred But Not Reported) = Ultimate − já reportado.
     </div>
     <div class="metrics" id="cl-metrics"></div>
+    <div id="cl-small-warn" class="small-warn" style="display:none">⚠️ <strong>Triângulo pequeno</strong> — menos de 5 anos de origem ou lags. Os métodos estatísticos (Mack, Bootstrap) podem ser instáveis. Interprete os resultados com cautela e prefira o CL básico como referência.</div>
     <div class="card">
       <div class="section-title">Tabela diagnóstica — todos os métodos de fator</div>
       <div class="explain">
-        Cada linha é uma transição de lag. <strong>cv%</strong> mede a dispersão dos fatores individuais
-        entre os anos de origem — quanto maior, mais impacta a escolha do método.
-        <strong>log-normal?</strong> verde = sim (prefira <code>geo</code>), vermelho = não.
-        Na coluna <strong>Usar</strong> você escolhe o método para aquele lag específico.
+        Cada linha é uma transição de lag (ex.: 12→24 meses). Escolha o <strong>Método ativo</strong> em cada lag — o seletor muda de cor quando difere do padrão global. <strong>LDF</strong> mostra o fator resultante do método escolhido. <strong>Δ vs. vw</strong> mostra quanto o LDF difere do volume-weighted (verde = LDF menor = reserva menor; vermelho = LDF maior = reserva maior). <strong>CDF acum.</strong> = fator cumulativo daquele lag até o ultimate.<br>
+        <strong>cv%</strong> &lt; 10% → qualquer método converge. 10–25% → prefira <code>medial</code>. &gt; 25% → investigue outliers. <strong>Log-normal ✓</strong> → prefira <code>geo</code>.<br>
+        <strong>Bootstrap CI [P25–P75]</strong>: intervalo de confiança do LDF via reamostragem de resíduos (200 sims). ±% = amplitude relativa do intervalo — se &gt;10%, o fator é instável e o método selecionado tem alto impacto no resultado.
       </div>
       <div class="tbl-wrap"><table id="diag-table"></table></div>
+      <div class="explain" style="margin-top:12px">
+        <strong>Guia de escolha de método por lag:</strong><br>
+        <table class="legend-tbl"><thead><tr><th>Método</th><th>Quando usar</th><th>Característica</th></tr></thead><tbody>
+        <tr><td><code>vw</code></td><td>Padrão, dados normais</td><td>Pondera por volume — anos grandes têm mais peso. Estável.</td></tr>
+        <tr><td><code>simple</code></td><td>Dados homogêneos</td><td>Média aritmética simples dos fatores individuais.</td></tr>
+        <tr><td><code>medial</code></td><td>Suspeita de outliers</td><td>Remove o maior e o menor fator antes de calcular a média.</td></tr>
+        <tr><td><code>geo</code></td><td>cv% alto, distribuição log-normal</td><td>Média geométrica — adequada quando os fatores se multiplicam.</td></tr>
+        <tr><td><code>last3</code></td><td>Tendência recente diferente do histórico</td><td>Usa só os 3 anos mais recentes — mais reativo a mudanças.</td></tr>
+        <tr><td><code>ls</code></td><td>Dados com heteroscedasticidade</td><td>Mínimos quadrados ponderados — ajuste de regressão.</td></tr>
+        <tr><td><code>p25/p50/p75</code></td><td>Cenários conservador / neutro / liberal</td><td>Percentis da distribuição dos fatores individuais.</td></tr>
+        </tbody></table>
+        <strong>cv%</strong> &lt; 10% → qualquer método converge. 10–25% → prefira <code>vw</code> ou <code>medial</code>. &gt; 25% → investigue outliers, considere <code>medial</code> ou <code>last3</code>.
+      </div>
     </div>
+    <div id="cl-interp" style="margin-bottom:16px"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
       <div class="card" style="margin-bottom:0">
         <div class="section-title">Triângulo</div>
@@ -224,6 +445,22 @@ tr:hover td{background:var(--surface2)}
         <strong>IBNR%</strong> = % do ultimate que ainda não emergiu.
       </div>
       <div class="tbl-wrap"><table id="cl-result-table"></table></div>
+      <div style="margin-top:8px"><button class="btn-sm" onclick="exportTableCsv('cl-result-table','ibnr_cl.csv')">⬇ Exportar CSV</button></div>
+      <div style="margin-top:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <label style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;cursor:pointer">
+          <input type="checkbox" id="tail-toggle"> Aplicar fator de cauda paramétrico (exp. decay)
+        </label>
+        <span id="tail-info" style="font-size:11px;color:var(--muted)"></span>
+      </div>
+      <div class="explain" style="margin-top:12px">
+        <strong>Legenda das colunas:</strong>
+        <strong>Reportado</strong> = último valor conhecido (diagonal mais recente do triângulo).
+        <strong>CDF</strong> = fator acumulado até o ultimate (ex.: 2,0 = ainda há o dobro a reportar).
+        <strong>Ultimate</strong> = Reportado × CDF.
+        <strong>IBNR</strong> = Ultimate − Reportado (o que falta reservar).
+        <strong>IBNR%</strong> = percentual do ultimate ainda não reportado — anos novos têm IBNR% alto, anos maduros têm IBNR% baixo.
+        <strong>Boot P25/P75/P90</strong> = intervalos de confiança do IBNR por origin via Bootstrap (200 simulações). P25–P75 = faixa interquartil; P90 = reserva com 90% de confiança. IBNR CL fora do intervalo [P25, P75] indica modelo instável para aquele origin.
+      </div>
       <div class="chart-wrap" style="height:200px;margin-top:16px"><canvas id="cl-ibnr-chart"></canvas></div>
     </div>
   </div>
@@ -231,13 +468,22 @@ tr:hover td{background:var(--surface2)}
   <!-- ── Tab BF ── -->
   <div id="tab-bf" class="tab-pane">
     <div class="explain">
-      <strong>Bornhuetter-Ferguson</strong> resolve um problema do CL: para anos jovens
-      com poucos dados, o CL amplifica demais as incertezas. O BF combina o que já
-      aconteceu com uma <strong>expectativa a priori</strong> sobre as perdas totais:
-      <code>Ultimate = Reportado + (% não reportado × Perda esperada a priori)</code><br>
-      Quanto mais maduro o ano (mais % reportado), mais o BF se comporta como o CL.
+      <strong>Bornhuetter-Ferguson (BF)</strong> resolve um problema fundamental do CL: anos jovens têm poucos dados observados, então qualquer ruído nos primeiros lags é amplificado enormemente pelo CDF alto. O BF âncora esse resultado com um <strong>a priori</strong> — uma estimativa da perda esperada antes de ver os dados:<br><br>
+      <code>Ultimate BF = Reportado + % não reportado × (Prêmio × ELR)</code><br><br>
+      <strong>ELR</strong> (Expected Loss Ratio) = a expectativa a priori de perdas como % do prêmio.<br>
+      <strong>% não reportado</strong> = 1 − 1/CDF (quanto do ultimate ainda falta emergir).<br><br>
+      <strong>Quando preferir BF ao CL?</strong><br>
+      • Anos de origin com menos de 36 meses de maturidade (IBNR% &gt; 60%).<br>
+      • Quando o CDF é &gt; 3× (incerteza muito alta no CL).<br>
+      • Quando há conhecimento externo confiável sobre a sinistralidade esperada.<br><br>
+      <strong>Variantes:</strong><br>
+      <strong>BF padrão</strong> = usa o a priori diretamente. <strong>Benktander 1</strong> = substitui o a priori pelo ultimate BF (uma iteração — fica entre BF e CL). <strong>Benktander 2</strong> = mais uma iteração. <strong>Credibilidade</strong> = pondera CL e BF pelo % já reportado (matematicamente = Benktander 1).
     </div>
     <div class="metrics" id="bf-metrics"></div>
+    <div id="bf-interp" style="margin-bottom:12px"></div>
+    <div id="bf-prem-warn" class="explain" style="background:rgba(251,191,36,0.12);border-left:3px solid #f59e0b;padding:8px 12px;margin-bottom:12px;font-size:0.85rem">
+      ⚠️ Este triângulo não tem prêmios ganhos cadastrados. O BF usará prêmio = 1 por origin — o ELR resultante estará em unidades absolutas (não é %). Para benchmarks clássicos isso é esperado; para um portfólio real, carregue prêmios via CSV ou confirme que o triângulo já inclui a coluna <code>earned_premiums</code>.
+    </div>
     <div class="card">
       <div class="section-title">Passo a passo do cálculo</div>
       <div class="explain">
@@ -253,18 +499,119 @@ tr:hover td{background:var(--surface2)}
     <div class="card">
       <div class="section-title">Resumo BF vs CL por Origin</div>
       <div class="tbl-wrap"><table id="bf-result-table"></table></div>
+      <div style="margin-top:8px"><button class="btn-sm" onclick="exportTableCsv('bf-result-table','ibnr_bf.csv')">⬇ Exportar CSV</button></div>
       <div class="chart-wrap" style="height:200px;margin-top:16px"><canvas id="bf-ibnr-chart"></canvas></div>
     </div>
     <div class="card" id="bf-variant-explain"></div>
   </div>
 
+  <!-- ── Tab Mack ── -->
+  <div id="tab-mack" class="tab-pane">
+    <div class="explain">
+      <strong>Método de Mack (1993)</strong> calcula o erro padrão do IBNR do Chain Ladder de forma analítica
+      — sem simulação. Ele mede duas fontes de incerteza:<br>
+      <strong>① Incerteza de parâmetro</strong>: os fatores f_j são estimados com dados limitados.<br>
+      <strong>② Covariância entre origins</strong>: origins que compartilham o mesmo lag têm incertezas correlacionadas.<br>
+      O resultado é um <strong>erro padrão (SE)</strong> e um intervalo de confiança <strong>lognormal</strong> para cada origin e o total.
+      O CV% (coeficiente de variação) indica o quão incerto é o IBNR: &lt;15% = confortável, 15–30% = atenção, &gt;30% = alta incerteza.
+    </div>
+    <div class="metrics" id="mack-metrics"></div>
+    <div id="mack-interp" style="margin-bottom:16px"></div>
+    <div class="card">
+      <div class="section-title">Erro padrão por origin</div>
+      <div class="explain">
+        <strong>Legenda das colunas:</strong><br>
+        <strong>IBNR</strong> = reserva estimada pelo CL (ponto central).<br>
+        <strong>Erro Padrão (SE)</strong> = desvio padrão analítico do IBNR — calculado pela fórmula de Mack, incorpora incerteza dos fatores e correlação entre origins.<br>
+        <strong>CV%</strong> = SE / IBNR × 100. Interprete assim: <span class="cv-ok">▪ &lt;15% confortável</span> — <span class="cv-med">▪ 15–30% atenção</span> — <span class="cv-high">▪ &gt;30% alta incerteza</span> (anos jovens com CDF alto tendem a ter CV% alto).<br>
+        <strong>IC 90% inf / sup</strong> = intervalo de confiança lognormal de 90%. Interpretação: "há 90% de probabilidade de o IBNR real cair entre esses dois valores." A lognormal é sempre positiva e assimétrica para a direita — reflete melhor a realidade do que uma normal simétrica.<br>
+        <strong>IC 95% sup</strong> = limite conservador. Reguladores frequentemente exigem reservas nessa faixa.
+      </div>
+      <div class="tbl-wrap"><table id="mack-table"></table></div>
+    </div>
+    <div class="card">
+      <div class="section-title">σ² por lag — variância do processo</div>
+      <div class="explain">
+        σ²_j mede a volatilidade dos fatores individuais em torno do fator médio no lag j.<br>
+        <strong>σ² alto</strong> = os fatores variam muito de um origin para outro nessa transição — a projeção nesse lag é imprecisa. Considere usar <code>medial</code> ou <code>p50</code> para suavizar outliers.<br>
+        <strong>σ² decrescente</strong> (do lag mais novo para o mais velho) é o comportamento esperado: o triângulo fica mais estável conforme amadurece. Se σ² crescer, investigue dados anômalos.<br>
+        A última linha é <em>extrapolada</em> pela regra de Mack (min do penúltimo, do antepenúltimo e da razão quadrática).
+      </div>
+      <div class="tbl-wrap"><table id="mack-sigma-table"></table></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Intervalo de confiança por origin (IC 90% lognormal)</div>
+      <div class="explain">
+        As barras mostram o intervalo inferior e superior para cada origin. Origins com barras muito largas têm alta incerteza — priorize revisão manual nesses anos. O IBNR CL é o ponto central.
+      </div>
+      <div class="chart-wrap" style="height:220px"><canvas id="mack-ic-chart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Testes diagnósticos de Mack</div>
+      <div class="explain">
+        <strong>Teste de Spearman (Mack 1994):</strong> correlação de postos entre fatores de desenvolvimento individuais de lags adjacentes. |r| &gt; 0,5 indica dependência estrutural — o pressuposto de independência entre lags pode estar violado.
+      </div>
+      <div id="mack-diag-content"><div class="explain" style="color:var(--muted)">Carregue um triângulo para ver os diagnósticos.</div></div>
+    </div>
+  </div>
+
+  <!-- ── Tab Bootstrap ── -->
+  <div id="tab-bootstrap" class="tab-pane">
+    <div class="explain">
+      <strong>Bootstrap do Chain Ladder</strong> (England &amp; Verrall, 2002) gera uma distribuição completa do IBNR por simulação — sem assumir normalidade. O algoritmo em 3 passos:<br>
+      <strong>①</strong> Ajusta CL, calcula <strong>resíduos de Pearson</strong> r[i,j] = (observado − ajustado) / √ajustado. Esses resíduos capturam toda a variação não explicada pelo modelo.<br>
+      <strong>②</strong> Reamostra esses resíduos com reposição, reconstrói o triângulo e reajusta o CL. Esse passo captura a <em>incerteza de parâmetro</em> (incerteza sobre os fatores f_j).<br>
+      <strong>③</strong> Adiciona <em>variabilidade do processo</em> via distribuição Gamma (overdispersed-Poisson): mesmo com os fatores corretos, os sinistros individuais são aleatórios.<br><br>
+      <strong>Bootstrap vs Mack:</strong> Mack é analítico e rápido (segunda ordem). Bootstrap é mais geral — captura assimetrias, caudas pesadas e não requer as pressuposições de Mack. O CV% do Bootstrap tende a ser maior porque inclui variabilidade do processo explicitamente.
+    </div>
+    <div class="metrics" id="boot-metrics"></div>
+    <div id="boot-interp" style="margin-bottom:16px"></div>
+    <div class="card">
+      <div class="section-title">Histograma do IBNR simulado</div>
+      <div class="explain">
+        Cada barra = quantas simulações caíram naquela faixa de IBNR. Uma distribuição simétrica e estreita indica incerteza baixa. Distribuição assimétrica à direita (cauda longa) indica risco de subreserva — anos jovens tendem a produzir esse formato.
+      </div>
+      <div class="chart-wrap" style="height:260px"><canvas id="boot-hist-chart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Tabela de percentis</div>
+      <div class="explain">
+        <strong>Como usar os percentis na prática:</strong><br>
+        <strong>P50</strong> = mediana — metade das simulações ficou abaixo. Serve como estimativa central alternativa ao CL.<br>
+        <strong>P75</strong> = reserva com 75% de confiança — cobriria 3 de cada 4 cenários simulados.<br>
+        <strong>P90</strong> = reserva com 90% de confiança — padrão common em exigências de capital e solvência (ex.: Solvência II).<br>
+        <strong>P95–P99</strong> = cenários de cauda — úteis para teste de estresse e VaR.<br>
+        <strong>vs. CL base</strong> = diferença em valor absoluto entre o percentil e o IBNR do CL original. Percentis sistematicamente acima do CL indicam que o CL pode estar subreservando.
+      </div>
+      <div class="tbl-wrap"><table id="boot-pct-table"></table></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Faixa interquartil por origin (P25–P50–P75)</div>
+      <div class="explain">
+        Mostra a <strong>incerteza por year of origin</strong>. Origins com barras largas (P75 muito maior que P25) são as que mais contribuem para a incerteza total — priorize revisão de hipóteses nesses anos. Origins já maduras (IBNR% baixo) terão faixas estreitas.
+      </div>
+      <div class="chart-wrap" style="height:200px"><canvas id="boot-origin-chart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Fan chart — bandas de percentis por origin (P5 / P25 / P50 / P75 / P95)</div>
+      <div class="explain">Visualiza a distribuição completa do IBNR por ano de origem. Quanto mais largas as bandas, maior a incerteza naquele origin. Origins jovens tipicamente têm bandas mais largas.</div>
+      <div class="chart-wrap" style="height:280px"><canvas id="boot-fan-chart"></canvas></div>
+    </div>
+  </div>
+
   <!-- ── Tab Compare ── -->
   <div id="tab-compare" class="tab-pane">
     <div class="explain">
-      <strong>CL</strong> é sempre a âncora — o que os dados dizem sem informação externa.
-      <strong>BF</strong> puxa na direção do a priori. <strong>Benktander</strong> fica entre BF e CL
-      (cada iteração se aproxima mais do CL). <strong>Credibilidade</strong> pondera CL e BF
-      pelo % já reportado de cada origin — matematicamente equivalente ao Benktander 1.
+      <strong>Como reconciliar os métodos:</strong><br>
+      <strong>CL</strong> = âncora — o que os dados históricos dizem, sem informação externa. Use quando o padrão de desenvolvimento é estável e há muitos anos de dados.<br>
+      <strong>BF</strong> = puxa para o a priori (ELR). Quanto mais jovem o origin (CDF alto, % não reportado alto), mais o BF difere do CL — e mais confiável ele tende a ser nesse caso.<br>
+      <strong>Benktander</strong> = compromisso: cada iteração aproxima BF do CL. Com 2 iterações o resultado está muito próximo do CL; com 1 iteração está a meio caminho.<br>
+      <strong>Credibilidade</strong> = pondera CL e BF pelo % já reportado de cada origin (matematicamente = Benktander 1).<br><br>
+      <strong>Regras práticas de seleção:</strong><br>
+      • Se CL ≈ BF (diferença &lt;5%): dados maduros, ELR coerente — use CL.<br>
+      • Se BF &lt; CL significativamente em anos jovens: CL pode estar superestimando (considere BF ou Benktander).<br>
+      • Se BF &gt; CL em anos jovens: o a priori pode estar pessimista — revise o ELR.<br>
+      • Para relatório regulatório: adote o mais conservador justificado pelos dados.
     </div>
     <div class="metrics" id="compare-metrics"></div>
     <div class="card">
@@ -276,6 +623,177 @@ tr:hover td{background:var(--surface2)}
       <div class="tbl-wrap"><table id="compare-table"></table></div>
     </div>
   </div>
+
+  <!-- ── Tab Ensemble ── -->
+  <div id="tab-ensemble" class="tab-pane">
+    <div class="explain">
+      <strong>Ensemble</strong> combina CL, BF e Benktander num único IBNR ponderado — reduzindo a dependência de qualquer método único e tornando a reserva mais robusta a erros de premissas.<br><br>
+      <strong>Modo automático (credibilidade por maturidade):</strong><br>
+      Para cada origin i: w_CL[i] = % desenvolvido (= 1/CDF), w_BF[i] = % não desenvolvido (= 1−1/CDF).<br>
+      Origins jovens (CDF alto, poucas diagonais): peso maior no BF — o prior domina quando os dados são escassos.<br>
+      Origins maduros (CDF próximo de 1): peso maior no CL — os dados falam por si.<br>
+      <em>Matematicamente equivalente ao Benktander 1 quando w_BK = 0.</em><br><br>
+      <strong>Modo manual:</strong> o usuário define os pesos globais (aplicados a todos os origins). Útil quando há julgamento atuarial sobre qual método merece mais crédito para <em>este</em> triângulo.
+    </div>
+    <div class="metrics" id="ens-metrics"></div>
+    <div id="ens-interp" style="margin-bottom:16px"></div>
+    <div class="card">
+      <div class="section-title">IBNR por method e origin</div>
+      <div class="explain">
+        <strong>Pesos</strong> mostram como o ensemble foi calculado para cada origin.<br>
+        <strong>Δ vs CL</strong> = diferença entre Ensemble e CL — positivo significa que o ensemble reserva mais do que o CL puro.<br>
+        Origens com pesos muito diferentes entre CL e BF são as que mais dependem da premissa do ELR — revise esses anos com cuidado.
+      </div>
+      <div class="tbl-wrap"><table id="ens-table"></table></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Comparação por origin</div>
+      <div class="explain">Barras mostram CL, BF e Ensemble lado a lado. O Ensemble (teal) deve ficar entre CL e BF — se estiver fora dessa faixa, verifique os pesos.</div>
+      <div class="chart-wrap" style="height:240px"><canvas id="ens-chart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Sensibilidade — peso do CL</div>
+      <div class="explain">Mostra como o IBNR ensemble total varia conforme o peso do CL aumenta de 0% a 100% (BF recebe o complemento, Benktander = 0). Ajuda a entender quanto o total depende da escolha do método.</div>
+      <div class="chart-wrap" style="height:200px"><canvas id="ens-sensitivity-chart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ── Tab Validação ── -->
+  <div id="tab-validation" class="tab-pane">
+    <div class="explain">
+      <strong>Validação por diagonal holdout</strong> — a única forma objetiva de avaliar se o CL é um bom modelo para <em>este</em> triângulo específico.<br><br>
+      <strong>Como funciona:</strong> remove as últimas k anti-diagonais (simulando uma avaliação k períodos antes), ajusta o CL no triângulo truncado, projeta o próximo valor e compara com o valor real que estava no triângulo original.<br><br>
+      <strong>Métricas:</strong><br>
+      <strong>MAPE</strong> = erro absoluto médio em % — quanto o CL erra em módulo. &lt;5% = excelente, 5–15% = aceitável, &gt;15% = revise o modelo.<br>
+      <strong>Bias</strong> = erro médio com sinal — positivo significa que o CL sistematicamente superestima; negativo que subestima.<br>
+      <strong>RMSE%</strong> = raiz do MSE em % — penaliza erros grandes mais do que o MAPE.<br><br>
+      <strong>Limitações:</strong> holdout com k=1 testa apenas a última transição; k=2 testa duas. Triângulos pequenos (n&lt;5) têm poucos pontos de validação — interprete com cautela.
+    </div>
+    <div class="metrics" id="val-metrics"></div>
+    <div id="val-interp" style="margin-bottom:16px"></div>
+    <div class="card">
+      <div class="section-title">Predição vs. Real por origin</div>
+      <div class="explain">
+        <strong>Previsto CL</strong> = valor projetado pelo CL no triângulo truncado para o próximo lag.<br>
+        <strong>Atual</strong> = valor real que estava na diagonal removida.<br>
+        <strong>Erro%</strong> = (previsto − atual) / atual × 100. Verde &lt;5%, amarelo 5–15%, vermelho &gt;15%.
+      </div>
+      <div class="tbl-wrap"><table id="val-table"></table></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Erro% por origin</div>
+      <div class="explain">
+        Barras verdes = erro &lt;5%. Barras amarelas = 5–15%. Barras vermelhas = &gt;15%.<br>
+        Barra acima do zero = CL superestimou. Barra abaixo = CL subestimou.<br>
+        Um padrão sistemático (todas barras no mesmo lado) indica <strong>bias</strong> estrutural.
+      </div>
+      <div class="chart-wrap" style="height:220px"><canvas id="val-error-chart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ── Tab Split Pago/Incorrido ── -->
+  <div id="tab-split" class="tab-pane">
+    <div class="explain">
+      <strong>Split IBNR: Pago vs. Incorrido</strong> — analisa dois triângulos complementares para decompor o IBNR em partes:<br><br>
+      <strong>Case Reserves (OS)</strong> = Inc atual − Pago atual: valor já reservado em sinistros abertos (provisão de IBNR avisados).<br>
+      <strong>IBNR Pago</strong> = Ult. Pago − Pago atual: tudo que ainda será desembolsado (inclui OS + sinistros futuros não avisados).<br>
+      <strong>IBNR Incorrido (IBNER)</strong> = Ult. Inc − Inc atual: desenvolvimento futuro dos sinistros já avisados (case reserve development).<br>
+      <strong>IBNR Puro</strong> = Ult. Pago − Inc atual: sinistros ainda não avisados — a parte "verdadeiramente" IBNR.<br><br>
+      <strong>Como as seguradoras usam isso:</strong> IBNR Puro costuma ser a parte mais incerta (não há aviso ainda); IBNER é mais controlável (caso já aberto, com estimativa inicial). Reguladores como SUSEP e NAIC exigem a decomposição separada dessas provisões.
+    </div>
+    <div class="metrics" id="split-metrics"></div>
+    <div class="card">
+      <div class="section-title">Comparação Pago × Incorrido por Origem</div>
+      <div class="explain" style="margin-top:0">
+        <strong>Δ (Inc − Pago)</strong> no IBNR: positivo = incorrido ainda tem mais a desenvolver (IBNER); negativo = incorrido acima do necessário (reserva redundante no avisado).
+      </div>
+      <div class="tbl-wrap"><table id="split-table"></table></div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="section-title" id="split-negative-ibnr-title" style="display:none;color:var(--accent2)">⚠️ Sobre IBNR Negativo</div>
+      <div id="split-negative-ibnr-box" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- ── Tab MCL ── -->
+  <div id="tab-mcl" class="tab-pane">
+    <div class="explain">
+      <strong>Munich Chain Ladder (MCL)</strong> — Quarg &amp; Mack 2004. Usa a correlação entre os fatores de desenvolvimento de sinistros pagos e incorridos para ajustar as projeções. Quando o ratio paid/incurred está baixo (claims pagos abaixo do esperado), o MCL projeta um ultimate maior para pagos. Requer triângulo par (pago + incorrido).
+    </div>
+    <div class="metrics" id="mcl-metrics"></div>
+    <div id="mcl-interp" style="margin-bottom:16px"></div>
+    <div class="card">
+      <div class="section-title">Resultado MCL por origin</div>
+      <div class="tbl-wrap"><table id="mcl-table"></table></div>
+    </div>
+    <div class="card">
+      <div class="section-title">MCL vs CL simples</div>
+      <div class="chart-wrap" style="height:260px"><canvas id="mcl-chart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ── Tab Clark ── -->
+  <div id="tab-clark" class="tab-pane">
+    <div class="explain">
+      <strong>Clark's Growth Curve (2003)</strong> — Método paramétrico que ajusta uma curva loglogística ao triângulo: <code>G(x; ω, θ) = x^ω / (x^ω + θ^ω)</code>, onde x é o lag, ω controla a forma e θ é a mediana de desenvolvimento. Parâmetros estimados por minimização de SSE ponderado. Gera um fator de cauda implícito e IBNR por origin.
+    </div>
+    <div class="metrics" id="clark-metrics"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+      <div class="card" style="margin-bottom:0">
+        <div class="section-title">Curva de crescimento ajustada</div>
+        <div class="chart-wrap" style="height:260px"><canvas id="clark-curve-chart"></canvas></div>
+      </div>
+      <div class="card" style="margin-bottom:0">
+        <div class="section-title">IBNR Clark vs CL por origin</div>
+        <div class="chart-wrap" style="height:260px"><canvas id="clark-ibnr-chart"></canvas></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">Resultado Clark por origin</div>
+      <div class="tbl-wrap"><table id="clark-table"></table></div>
+    </div>
+  </div>
+
+  <!-- ── Tab Compare2 ── -->
+  <div id="tab-compare2" class="tab-pane">
+    <div class="explain">
+      <strong>Comparação lado a lado</strong> — selecione dois triângulos e compare IBNR total, ultimate e desenvolvimento. Útil para comparar diferentes mercados, anos de avaliação ou linhas de negócio.
+    </div>
+    <div style="display:flex;gap:12px;margin-bottom:12px;align-items:center;flex-wrap:wrap">
+      <label style="font-size:12px;color:var(--muted)">Triângulo A:</label>
+      <select id="c2-tri-a" style="flex:1;min-width:140px;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:4px 8px;font-size:12px"></select>
+      <label style="font-size:12px;color:var(--muted)">Triângulo B:</label>
+      <select id="c2-tri-b" style="flex:1;min-width:140px;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:4px 8px;font-size:12px"></select>
+    </div>
+    <div class="metrics" id="c2-metrics"></div>
+    <div class="card">
+      <div class="section-title">IBNR por origin — A vs B</div>
+      <div class="chart-wrap" style="height:260px"><canvas id="c2-chart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Tabela comparativa</div>
+      <div class="tbl-wrap"><table id="c2-table"></table></div>
+    </div>
+  </div>
+
+  <!-- ── Tab Berquist-Sherman ── -->
+  <div id="tab-bs" class="tab-pane">
+    <div class="explain">
+      <strong>Berquist-Sherman (1977)</strong> — Teste de adequação das reservas de caso. Analisa se os ratios paid/incurred mudaram ao longo do tempo. Uma mudança sistemática nas diagonais indica aceleração ou desaceleração no processo de liquidação — o que invalida a hipótese de estabilidade do Chain Ladder. Requer triângulo par (pago + incorrido).
+    </div>
+    <div class="metrics" id="bs-metrics"></div>
+    <div id="bs-interp" style="margin-bottom:16px"></div>
+    <div class="card">
+      <div class="section-title">Ratios paid/incurred — diagonal vs média histórica</div>
+      <div id="bs-no-pair" class="explain">Selecione um triângulo com par pago/incorrido para análise Berquist-Sherman.</div>
+      <div class="tbl-wrap"><table id="bs-table"></table></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Tendência dos ratios na diagonal recente</div>
+      <div class="chart-wrap" style="height:240px"><canvas id="bs-chart"></canvas></div>
+    </div>
+  </div>
+
 </main>
 </div>
 
@@ -393,7 +911,9 @@ function projectTriangle(tri, ldfs) {
 }
 
 function chainLadder(tri, selectedMethods, tailFactor=1.0) {
-  const {data, lags, n, m, origins} = tri;
+  const {data, lags, origins} = tri;
+  const m=tri.m!=null?tri.m:lags.length;
+  const n=tri.n!=null?tri.n:data.length;
   const ldfs=lags.slice(0,-1).map((_,k)=>{
     const method=selectedMethods?selectedMethods[k]:'vw';
     return computeLDF(data,k,k+1,method);
@@ -422,7 +942,9 @@ function chainLadder(tri, selectedMethods, tailFactor=1.0) {
 // ── BF ──────────────────────────────────────────────────────────────────
 
 function estimateELR(tri, premiums, cdfs, latestLag, method='cape_cod') {
-  const {data, n, m} = tri;
+  const {data} = tri;
+  const m=tri.m!=null?tri.m:tri.lags.length;
+  const n=tri.n!=null?tri.n:data.length;
   const latest=data.map(row=>{for(let j=m-1;j>=0;j--) if(row[j]!=null) return row[j]; return 0;});
   const pctRep=latestLag.map(j=>cdfs[j]>0?1/cdfs[j]:1);
 
@@ -442,7 +964,9 @@ function estimateELR(tri, premiums, cdfs, latestLag, method='cape_cod') {
 }
 
 function bornhuetterFerguson(tri, premiums, elrParam, cdfs, latestLag, variant='bf', nIter=2) {
-  const {data, n, m} = tri;
+  const {data} = tri;
+  const m=tri.m!=null?tri.m:tri.lags.length;
+  const n=tri.n!=null?tri.n:data.length;
   const latest=data.map(row=>{for(let j=m-1;j>=0;j--) if(row[j]!=null) return row[j]; return 0;});
   const pctUnrep=latestLag.map(j=>1-(cdfs[j]>0?1/cdfs[j]:1));
 
@@ -529,6 +1053,574 @@ function colorForValue(val, min, max) {
 let TRIANGLES={}, currentTri=null, selectedMethods=null, charts={};
 
 // ═══════════════════════════════════════════════════════════════════════
+// TRIANGLE METADATA
+// ═══════════════════════════════════════════════════════════════════════
+
+const TRIANGLE_META = {
+  'Classic_TaylorAshe1983': {
+    lob: 'Responsabilidade Civil Geral', tail: 'Longa', tc: 'long',
+    source: 'Taylor & Ashe (1983) — ASTIN Bulletin',
+    chars: ['Triângulo de referência de toda a literatura atuarial de CL','IBNR canônico ≈ 18,68M (Mack 1993) — use para validar sua implementação','Padrão de desenvolvimento estável e decrescente, 10 origens × 10 lags'],
+    use: 'Benchmark obrigatório. Se o seu resultado diferir do canônico, há um bug.'
+  },
+  'CL_GenIns': {
+    lob: 'Seguro Geral (General Insurance)', tail: 'Longa', tc: 'long',
+    source: 'England & Verrall (2002) — British Actuarial Journal',
+    chars: ['Idêntico ao TaylorAshe — mesmos dados, nome diferente na literatura','Amplamente usado em artigos sobre Bootstrap CL e métodos estocásticos','Desenvolvimento completo para todas as 10 origens'],
+    use: 'Referência para Bootstrap e métodos estocásticos. CV% Mack ≈ 12,5%.'
+  },
+  'CL_RAA': {
+    lob: 'Resseguro — Casualty (EUA)', tail: 'Longa', tc: 'long',
+    source: 'Reinsurance Association of America (RAA)',
+    chars: ['Dados reais de resseguro de casualty nos EUA (10 × 10)','Desenvolvimento irregular — alguns anos com variação alta','Triângulo volátil: cv% alto nos lags iniciais, bom para testar robustez'],
+    use: 'Testar robustez dos métodos ante padrões irregulares. Medial e percentis tendem a ser melhores que VW.'
+  },
+  'CL_ABC': {
+    lob: 'Responsabilidade Civil (estimado)', tail: 'Longa', tc: 'long',
+    source: 'Mack (1994) — ASTIN Bulletin',
+    chars: ['Triângulo 11×11 — maior que a maioria dos benchmarks clássicos','Desenvolvimento não completo para as origens mais jovens','Padrão de crescimento acelerado nas últimas origens — verificar tail'],
+    use: 'Explorar Mack e Bootstrap em triângulos mais longos.'
+  },
+  'CL_UKMotor': {
+    lob: 'Auto Motor (UK)', tail: 'Curta', tc: 'short',
+    source: 'England & Verrall (2002) — mercado britânico',
+    chars: ['Ramo de cauda curta: 90%+ desenvolvido em 3-4 anos (7×7)','CDF perto de 1,0 para a maioria das origens — IBNR% pequeno','BF terá pouca influência — CL e BF convergem em caudas curtas'],
+    use: 'Demonstrar convergência CL/BF em ramos de cauda curta. CV% baixo esperado.'
+  },
+  'CL_MCLincurred': {
+    lob: 'Munich CL — Incorridos', tail: 'Média', tc: 'medium',
+    source: 'Quarg & Mack (2004) — Munich Re',
+    chars: ['Par incorrido do MCL — analisar junto com CL_MCLpaid (7×7)','Incorridos geralmente desenvolvem mais rápido que pagos','Usado para o Munich Chain Ladder que incorpora correlação pago/incorrido'],
+    use: 'Comparar com CL_MCLpaid. O gap pago–incorrido revela IBNR de liquidação vs. IBNR de aviso.'
+  },
+  'CL_MCLpaid': {
+    lob: 'Munich CL — Pagos', tail: 'Média', tc: 'medium',
+    source: 'Quarg & Mack (2004) — Munich Re',
+    chars: ['Par pago do MCL — analisar junto com CL_MCLincurred (7×7)','Pagos desenvolvem mais lentamente que incorridos','Razão pago/incorrido tende a 1 com a maturidade'],
+    use: 'Comparar pago vs. incorrido. Diferença sistemática indica IBNR de avisados não pagos.'
+  },
+  'CL_USAAincurred': {
+    lob: 'Auto + Casualty — USAA (incorridos)', tail: 'Longa', tc: 'long',
+    source: 'USAA Insurance — Meyers (2015)',
+    chars: ['Dados reais de seguradora militar americana (10×10)','Incorridos decrescentes em alguns anos — reversão de reserva','Padrão complexo com oscilações — bom para testar estabilidade'],
+    use: 'Testar resiliência a incorridos decrescentes. Medial pode ser mais estável que VW.'
+  },
+  'CL_USAApaid': {
+    lob: 'Auto + Casualty — USAA (pagos)', tail: 'Longa', tc: 'long',
+    source: 'USAA Insurance — Meyers (2015)',
+    chars: ['Par pago do USAAincurred (10×10)','Desenvolvimento mais suave e monotônico que o incorrido','CDF decrescente de forma esperada'],
+    use: 'Comparar com CL_USAAincurred. Diferença incorrido–pago revela dinâmica de liquidação.'
+  },
+  'CL_MW2008': {
+    lob: 'Workers Compensation (estimado)', tail: 'Longa', tc: 'long',
+    source: 'Meyers & Wacek (2008) — Reserving Study',
+    chars: ['Estudo de adequação de reservas do mercado americano (9×9)','Padrão razoavelmente estável — bom para comparação de métodos','WC com benefícios de longo prazo: pensão, reabilitação'],
+    use: 'Teste geral de metodologias. Padrão estável facilita comparação objetiva entre métodos.'
+  },
+  'CL_MW2014': {
+    lob: 'Workers Compensation (estimado)', tail: 'Muito Longa', tc: 'vlong',
+    source: 'Meyers & Wacek (2014) — Reserving Study',
+    chars: ['Triângulo muito grande: 17×17 — maior do catálogo','WC com benefícios vitalícios pode levar 15-20 anos para desenvolver','CDF das origens jovens pode ser muito alto (> 2×)','Bootstrap e Mack mostrarão incerteza elevada para origens jovens'],
+    use: 'Testar comportamento em triângulos grandes. Mack CV% alto nas origens jovens é esperado.'
+  },
+  'CL_Mortgage': {
+    lob: 'Seguro Hipotecário (Mortgage Insurance)', tail: 'Muito Longa', tc: 'vlong',
+    source: 'Literatura de mortgage insurance — padrão crise 2008',
+    chars: ['Desenvolvimento inicial extremamente volátil (primeiros 2-3 lags)','Reflete o mercado hipotecário incluindo a crise subprime de 2008','cv% altíssimo nos lags iniciais — fatores individuais muito dispersos','CDF das origens jovens pode ser extremamente alto'],
+    use: 'Caso extremo de instabilidade. BF com a priori sólido é preferível ao CL puro para origens jovens.'
+  },
+  'CL_qincurred': {
+    lob: 'Long-tail — Incorridos (trimestral)', tail: 'Muito Longa', tc: 'vlong',
+    source: 'Dados trimestrais de linha longa',
+    chars: ['Granularidade trimestral: 45 lags ≈ 11 anos de desenvolvimento','12 anos de origem (1995-2006)','Lags iniciais com muito ruído — considere last3 ou medial','Usado para estudar sazonalidade no desenvolvimento'],
+    use: 'Explorar CL em triângulos trimestrais. Compare com CL_qpaid para análise pago/incorrido.'
+  },
+  'CL_qpaid': {
+    lob: 'Long-tail — Pagos (trimestral)', tail: 'Muito Longa', tc: 'vlong',
+    source: 'Dados trimestrais de linha longa',
+    chars: ['Par pago do CL_qincurred (12 × 45 lags trimestrais)','Desenvolvimento mais lento que o incorrido','Pago começa próximo de zero e cresce monotonicamente'],
+    use: 'Comparar pago vs. incorrido em base trimestral. Gap pode indicar IBNR de avisados não pagos.'
+  },
+  'CL_M3IR5': {
+    lob: 'Responsabilidade Médica (Medical Malpractice)', tail: 'Muito Longa', tc: 'vlong',
+    source: 'Mack (1994) — Medical Malpractice study',
+    chars: ['Med Mal: sinistros podem levar 10-15 anos para liquidar (14×14)','Padrão irregular com variação alta e alguns valores decrescentes','CDF alto para a maioria das origens — grande parte ainda não desenvolvida','Ramo claims-made: trigger no aviso, não na ocorrência'],
+    use: 'Caso desafiador. BF fortemente preferido para origens jovens. Mack mostrará CV% alto.'
+  },
+};
+
+// NAIC triangles — 12 triângulos (6 ramos × 2 períodos)
+(function(){
+  const meta = {
+    ppauto:  {lob:'Auto — Private Passenger (NAIC)', tail:'Curta',   tc:'short', chars:['PPA: 80-90% desenvolvido em 3-4 anos','CDF perto de 1,0 para origens maduras — IBNR% pequeno','Método CL estável: baixa variação de fatores','Dados Schedule P do NAIC — agregado de todo o mercado americano']},
+    comauto: {lob:'Auto Comercial (NAIC)',            tail:'Média',   tc:'medium',chars:['Desenvolvimento mais lento que PPA — frota comercial tem sinistros maiores','3-5 anos para desenvolver 90%','Maior variação de fatores que PPA','Dados Schedule P do NAIC — agregado de mercado']},
+    wkcomp:  {lob:'Acidentes de Trabalho — WC (NAIC)',tail:'Longa',  tc:'long',  chars:['WC: benefícios de longo prazo — pensão, reabilitação, assistência médica','5-8+ anos para desenvolvimento completo','Sensível a mudanças legislativas e inflação médica','Dados Schedule P do NAIC — agregado de mercado']},
+    othliab: {lob:'Outros Passivos — Other Liab (NAIC)',tail:'Longa',tc:'long',  chars:['GL geral: lesão corporal, danos a terceiros','5-8 anos para desenvolver 90%','Sinistros por latência podem levar mais','Dados Schedule P do NAIC — agregado de mercado']},
+    medmal:  {lob:'Responsabilidade Médica — Med Mal (NAIC)',tail:'Muito Longa',tc:'vlong',chars:['Med Mal: cauda mais longa do mercado americano','Claims-made: trigger no aviso, não na ocorrência','8-12+ anos para desenvolvimento completo','Alta volatilidade — poucos sinistros grandes','Dados Schedule P do NAIC — agregado de mercado']},
+    prodliab:{lob:'Responsabilidade de Produto (NAIC)',tail:'Muito Longa',tc:'vlong',chars:['Latência: danos descobertos anos após o uso do produto','Claims podem levar 10-15 anos','Alta volatilidade e incerteza — ramo complexo para reservar','Dados Schedule P do NAIC — agregado de mercado']},
+  };
+  ['1988-1997','1998-2007'].forEach(period=>{
+    Object.entries(meta).forEach(([lob,m])=>{
+      const key=`NAIC_${lob}_${period}`;
+      const yr=period.split('-');
+      TRIANGLE_META[key]={
+        lob:m.lob, tail:m.tail, tc:m.tc,
+        source:`NAIC Schedule P — ${period}`,
+        chars:[...m.chars],
+        use:`Dado real de mercado. Compare os dois períodos NAIC do mesmo ramo para identificar mudanças de padrão.`
+      };
+      TRIANGLE_META[key].chars.push(`Período ${yr[0]}–${yr[1]}, 10 origens × 10 lags anuais`);
+    });
+  });
+})();
+
+// Category tags
+const TRI_CATS = {
+  'Classic_TaylorAshe1983': ['benchmark','liability','incurred'],
+  'CL_GenIns':              ['benchmark','liability','incurred','uk'],
+  'CL_RAA':                 ['benchmark','liability','incurred'],
+  'CL_ABC':                 ['benchmark','liability','incurred'],
+  'CL_UKMotor':             ['auto','incurred','uk'],
+  'CL_MCLincurred':         ['paired','incurred'],
+  'CL_MCLpaid':             ['paired','paid'],
+  'CL_USAAincurred':        ['paired','auto','liability','incurred'],
+  'CL_USAApaid':            ['paired','auto','liability','paid'],
+  'CL_MW2008':              ['wkcomp','incurred'],
+  'CL_MW2014':              ['wkcomp','incurred'],
+  'CL_Mortgage':            ['mortgage','incurred'],
+  'CL_qincurred':           ['paired','quarterly','incurred'],
+  'CL_qpaid':               ['paired','quarterly','paid'],
+  'CL_M3IR5':               ['medmal','liability','incurred'],
+};
+Object.entries(TRI_CATS).forEach(([k,cats])=>{ if(TRIANGLE_META[k]) TRIANGLE_META[k].cats=cats; });
+['ppauto','comauto','wkcomp','othliab','medmal','prodliab'].forEach(lob=>{
+  const cats={ppauto:['naic','auto','incurred'],comauto:['naic','auto','incurred'],wkcomp:['naic','wkcomp','incurred'],othliab:['naic','liability','incurred'],medmal:['naic','medmal','liability','incurred'],prodliab:['naic','liability','incurred']}[lob]||['naic','incurred'];
+  ['1988-1997','1998-2007'].forEach(p=>{ const k=`NAIC_${lob}_${p}`; if(TRIANGLE_META[k]) TRIANGLE_META[k].cats=cats; });
+});
+
+// ── CAS Schedule P (CLRD 1988-1997) — via chainladder ───────────────────────
+Object.assign(TRIANGLE_META, {
+  'CAS_othliab_incurred': {
+    lob:'Other Liability — RC Geral (EUA)', tail:'Longa', tc:'long',
+    source:'CAS Loss Reserving Database (CLRD) — via chainladder, 1988-1997',
+    chars:['Mercado total EUA — soma de todas as seguradoras Schedule P','10 anos de origem (1988-1997) × 10 lags anuais (12-120 meses)','RC Geral: lesões corporais, danos materiais, profissional','Prêmios ganhos líquidos disponíveis para Cape Cod ELR'],
+    use:'RC Geral americano pré-tort reform. Compare com BR_rc_incurred e DE_AllgHaftpflicht para diferenças entre mercados.',
+    cats:['naic','us','liability','incurred'],
+  },
+  'CAS_othliab_paid': {
+    lob:'Other Liability — RC Geral Pago (EUA)', tail:'Longa', tc:'long',
+    source:'CAS Loss Reserving Database (CLRD) — via chainladder, 1988-1997',
+    chars:['Par pago do CAS_othliab_incurred','Use Split tab para ver IBNR pago vs. IBNER vs. Pure IBNR'],
+    use:'Par pago. RC Geral tem diferença significativa entre pago e incorrido — use Split para decompor IBNR.',
+    cats:['naic','us','liability','paired','paid'],
+  },
+  'CAS_ppauto_incurred': {
+    lob:'Private Passenger Auto — RC Pessoal (EUA)', tail:'Curta', tc:'short',
+    source:'CAS Loss Reserving Database (CLRD) — via chainladder, 1988-1997',
+    chars:['Auto pessoal: o maior LOB do mercado americano (volume ~US$10bi/ano)','10×10 — desenvolvimento rápido, 80%+ em 24-36 meses','Prêmios ganhos líquidos disponíveis para Cape Cod ELR','Compare com CL_UKMotor e BR_auto_incurred'],
+    use:'Benchmark de auto pessoal americano. LDFs muito estáveis — bom para calibrar métodos. Negativo IBNR possível em anos bons.',
+    cats:['naic','us','auto','incurred'],
+  },
+  'CAS_ppauto_paid': {
+    lob:'Private Passenger Auto — Pago (EUA)', tail:'Curta', tc:'short',
+    source:'CAS Loss Reserving Database (CLRD) — via chainladder, 1988-1997',
+    chars:['Par pago do CAS_ppauto_incurred','Paid ≈ Incurred em auto curta — diferença pequena'],
+    use:'Par pago. Em auto curta paid e incurred convergem rápido — bom exemplo de baixo Case OS.',
+    cats:['naic','us','auto','paired','paid'],
+  },
+  'CAS_comauto_incurred': {
+    lob:'Commercial Auto — RC Comercial (EUA)', tail:'Curta', tc:'short',
+    source:'CAS Loss Reserving Database (CLRD) — via chainladder, 1988-1997',
+    chars:['Auto comercial: frota, caminhões, transporte de passageiros','Cauda um pouco mais longa que auto pessoal — sinistros de frota maiores','Volume ~US$650M/ano vs. US$10bi do ppauto'],
+    use:'Compare com CAS_ppauto para ver diferença de desenvolvimento entre auto pessoal e comercial.',
+    cats:['naic','us','auto','incurred'],
+  },
+  'CAS_comauto_paid': {
+    lob:'Commercial Auto — Pago (EUA)', tail:'Curta', tc:'short',
+    source:'CAS Loss Reserving Database (CLRD) — via chainladder, 1988-1997',
+    chars:['Par pago do CAS_comauto_incurred'],
+    use:'Par pago para commercial auto.',
+    cats:['naic','us','auto','paired','paid'],
+  },
+  'CAS_wkcomp_incurred': {
+    lob:'Workers Compensation — Acidente do Trabalho (EUA)', tail:'Média', tc:'medium',
+    source:'CAS Loss Reserving Database (CLRD) — via chainladder, 1988-1997',
+    chars:['WC: indenizações por acidentes do trabalho (benefícios + médico)','Cauda média — benefícios continuam por anos em casos graves','Período 1988-1997 inclui reforma (NCCI) que reduziu custos','Compare com CL_MW2008 e CL_MW2014 (Mack-Williams)'],
+    use:'Workmens Comp tem padrão de desenvolvimento diferente por jurisdição. LDFs iniciais altos, depois estáveis.',
+    cats:['naic','us','wkcomp','incurred'],
+  },
+  'CAS_wkcomp_paid': {
+    lob:'Workers Compensation — Pago (EUA)', tail:'Média', tc:'medium',
+    source:'CAS Loss Reserving Database (CLRD) — via chainladder, 1988-1997',
+    chars:['Par pago do CAS_wkcomp_incurred','WC pago desenvolve mais lento que incorrido — Case OS alto'],
+    use:'Par pago. WC tem Case OS significativo por anos — use Split para ver IBNR pago vs. Pure IBNR.',
+    cats:['naic','us','wkcomp','paired','paid'],
+  },
+  'CAS_prodliab_incurred': {
+    lob:'Products Liability — RC de Produto (EUA)', tail:'Muito Longa', tc:'vlong',
+    source:'CAS Loss Reserving Database (CLRD) — via chainladder, 1988-1997',
+    chars:['RC de produto: asbestos, tabaco, medicamentos — cauda extrema','Dados 1988-1997: impacto do asbestos ainda presente','cv% altíssimo nas origens jovens — alta incerteza','BF com prior forte recomendado para origens novas'],
+    use:'Caso extremo de cauda longa e incerteza. Volume pequeno (~US$150M), mas risco de ruína. Compare com CL_M3IR5 (med mal).',
+    cats:['naic','us','liability','incurred'],
+  },
+  'CAS_prodliab_paid': {
+    lob:'Products Liability — Pago (EUA)', tail:'Muito Longa', tc:'vlong',
+    source:'CAS Loss Reserving Database (CLRD) — via chainladder, 1988-1997',
+    chars:['Par pago do CAS_prodliab_incurred','Diferença pago vs. incorrido enorme em produtos — Case OS crítico'],
+    use:'Par pago para products liability. IBNR split mostrará Pure IBNR dominando sobre IBNER.',
+    cats:['naic','us','liability','paired','paid'],
+  },
+  'CAS_medmal_incurred': {
+    lob:'Medical Malpractice — Erro Médico (EUA)', tail:'Muito Longa', tc:'vlong',
+    source:'CAS Loss Reserving Database (CLRD) — via chainladder, 1988-1997',
+    chars:['Med mal: processos por erro médico nos EUA — jurisprudência rigorosa','Padrão incomum: sinistros INCORRIDOS caem com o tempo (reservas reduzidas)','Isso gera LDFs <1 nos lags longos — fenômeno raro','Compare com CL_M3IR5 (outro med mal, mesma característica)'],
+    use:'Caso famoso de LDF < 1.0 — IBNR pode ser negativo e é tecnicamente correto aqui (não é erro). BF não resolve sem prior correto.',
+    cats:['naic','us','medmal','liability','incurred'],
+  },
+  'CAS_medmal_paid': {
+    lob:'Medical Malpractice — Pago (EUA)', tail:'Muito Longa', tc:'vlong',
+    source:'CAS Loss Reserving Database (CLRD) — via chainladder, 1988-1997',
+    chars:['Par pago do CAS_medmal_incurred','Pago cresce monotonicamente mesmo quando incorrido cai'],
+    use:'Par pago para med mal. O contraste paid (crescente) vs. incurred (decrescente) é pedagogicamente valioso no Split tab.',
+    cats:['naic','us','medmal','liability','paired','paid'],
+  },
+});
+
+// ── Novos triângulos (SUSEP/Brasil + Internacionais) ────────────────────────
+Object.assign(TRIANGLE_META, {
+  'BR_auto_incurred': {
+    lob:'Auto Veículos (SUSEP)', tail:'Curta', tc:'short',
+    source:'SUSEP — Relatórios de Estabilidade Financeira (2015-2022)',
+    chars:['Mercado total brasileiro — todas as seguradoras','8 anos de origem (2015-2022) × 8 lags anuais','Prêmios ganhos disponíveis para Cape Cod ELR','Regulação: SUSEP/CNSP — provisão zero-floor obrigatória'],
+    use:'Referência para o mercado de auto no Brasil. Compare com benchmarks internacionais (UK Motor, DE Kfz) para ver diferenças estruturais.',
+    cats:['brasil','auto','incurred'],
+  },
+  'BR_rc_incurred': {
+    lob:'Responsabilidade Civil Geral (SUSEP)', tail:'Longa', tc:'long',
+    source:'SUSEP — Relatórios de Estabilidade Financeira (2015-2022)',
+    chars:['RC Geral: lesão corporal, danos materiais, profissional','Cauda longa — sinistros podem levar 5-8 anos para liquidar','Regulação SUSEP Grupos 0114/0115'],
+    use:'RC no Brasil tem desenvolvimento mais lento que auto. Use BF para origens jovens — a priori Cape Cod captura o crescimento do mercado.',
+    cats:['brasil','liability','incurred'],
+  },
+  'BR_dpvat_incurred': {
+    lob:'DPVAT — Seguro Obrigatório (SUSEP)', tail:'Média', tc:'medium',
+    source:'SUSEP/Consórcio Líder DPVAT (2012-2019)',
+    chars:['DPVAT: seguro obrigatório de danos pessoais em acidentes de trânsito','Pool de resseguro — todos os veículos do Brasil contribuem','Prêmio definido por regulação — sem concorrência de preço','Extinção do DPVAT em 2020 — triângulo histórico'],
+    use:'Caso único de pool obrigatório. LDFs muito estáveis — bom exemplo de triângulo com padrão previsível.',
+    cats:['brasil','auto','incurred'],
+  },
+  'AU_CTP_incurred': {
+    lob:'CTP Motor — Austrália (Zehnwirth & Barnett 2000)', tail:'Longa', tc:'long',
+    source:'Zehnwirth & Barnett (2000) — Insightful Corporation',
+    chars:['Compulsory Third Party Motor — seguro obrigatório australiano','10×10 com padrão de desenvolvimento irregular — tendências no LDF','Referência clássica para modelos com tendências (não só CL)','Alta dispersão nos primeiros lags: cv% elevado'],
+    use:'Triângulo clássico para testar modelos com tendências. Zehnwirth & Barnett (2000) mostraram que CL simples não captura o padrão — use medial ou last3.',
+    cats:['australia','auto','incurred'],
+  },
+  'AU_APRA_GL_incurred': {
+    lob:'General Liability + CTP — Austrália (APRA)', tail:'Longa', tc:'long',
+    source:'APRA Quarterly General Insurance Performance Statistics (2013-2022)',
+    chars:['Mercado australiano total — maior do que o CTP de Zehnwirth','10×10 — mercado moderno com volumes maiores','Inclui CTP + Other Bodily Injury','APRA = regulador equivalente à SUSEP no Brasil'],
+    use:'Dado regulatório recente. Compare com AU_CTP para ver evolução do mercado australiano ao longo dos anos.',
+    cats:['australia','liability','auto','incurred'],
+  },
+  'DE_KfzHaftpflicht_incurred': {
+    lob:'Kfz-Haftpflicht RC Auto — Alemanha (GDV)', tail:'Curta', tc:'short',
+    source:'GDV Statistisches Taschenbuch (compilado 2010-2023)',
+    chars:['RC Auto alemão: mercado muito maduro e regulado','Cauda curta — 80%+ desenvolvido em 3-4 anos','GDV = associação de seguradoras alemãs (equivalente à CNseg/Fenaseg)','Sistema "Kfz-Pflichtversicherung" — seguro obrigatório'],
+    use:'Benchmark de mercado europeu desenvolvido. Compare com o CL_UKMotor para ver diferenças entre UK e Alemanha.',
+    cats:['germany','auto','incurred'],
+  },
+  'DE_AllgHaftpflicht_incurred': {
+    lob:'Allgemeine Haftpflicht RC Geral — Alemanha (GDV)', tail:'Longa', tc:'long',
+    source:'GDV Statistisches Taschenbuch (compilado 2010-2023)',
+    chars:['RC Geral alemão: lesões corporais e danos materiais','Cauda longa — sinistros podem levar 8-12 anos','Mercado muito maior e mais desenvolvido que o brasileiro de RC','Volume ~4× maior que BR_rc — escala de mercado europeu'],
+    use:'Compare com BR_rc_incurred para ver diferenças estruturais Brasil vs. Alemanha em RC Geral.',
+    cats:['germany','liability','incurred'],
+  },
+  'UK_MotorBI_incurred': {
+    lob:'Motor Bodily Injury — Reino Unido (ABI)', tail:'Média', tc:'medium',
+    source:'ABI (Association of British Insurers) — Motor Claims (compilado)',
+    chars:['Motor BI: lesões corporais em acidentes de trânsito no UK','Desenvolvimento mais lento que danos materiais — 5-7 anos','ABI = associação da indústria britânica (equivalente ao CNseg)','Sistema de comum law — sinistros grandes por jurisprudência'],
+    use:'Compare com CL_UKMotor (material damage, curta) e UK_MotorBI (bodily injury, média) para ver a diferença de cauda dentro do mesmo mercado.',
+    cats:['uk','auto','incurred'],
+  },
+  'FR_RCAuto_incurred': {
+    lob:'RC Auto Corporais — França (France Assureurs)', tail:'Longa', tc:'long',
+    source:'France Assureurs (FFSA) — Statistiques de l\'assurance (compilado)',
+    chars:['Lésions corporelles: sinistros corporais de RC Auto na França','Cauda longa — sistema de indenização tabular, mas processos longos','França tem um dos maiores mercados de RC da Europa','FFSA = federação de seguradoras francesas'],
+    use:'RC Auto corporal francês tem cauda mais longa que o alemão. Compare com DE_KfzHaftpflicht e BR_rc para análise comparativa internacional.',
+    cats:['france','auto','liability','incurred'],
+  },
+  'INT_LloydsMarine_incurred': {
+    lob:'Marine Liability (P&I proxy) — Lloyd\'s', tail:'Muito Longa', tc:'vlong',
+    source:'Lloyd\'s of London Annual Market Statistics (compilado 2012-2021)',
+    chars:['Marine Liability = responsabilidade marítima (P&I clubs proxy)','Cauda extremamente longa: poluição, colisões com navios grandes','Lloyd\'s = mercado de subscrição de Londres (sindicatos)','Desenvolvimento pode levar 10-15+ anos em casos de poluição'],
+    use:'Caso extremo de cauda longa em specialty. BF com a priori forte é essencial para origens jovens. Compare com CL_M3IR5 (med mal) como outro caso de cauda muito longa.',
+    cats:['lloyds','marine','liability','incurred'],
+  },
+});
+
+// Paid ↔ Incurred pairs
+const TRIANGLE_PAIRS = {
+  'CL_MCLpaid':           'CL_MCLincurred',
+  'CL_MCLincurred':       'CL_MCLpaid',
+  'CL_USAApaid':          'CL_USAAincurred',
+  'CL_USAAincurred':      'CL_USAApaid',
+  'CL_qpaid':             'CL_qincurred',
+  'CL_qincurred':         'CL_qpaid',
+  'CAS_othliab_paid':     'CAS_othliab_incurred',
+  'CAS_othliab_incurred': 'CAS_othliab_paid',
+  'CAS_ppauto_paid':      'CAS_ppauto_incurred',
+  'CAS_ppauto_incurred':  'CAS_ppauto_paid',
+  'CAS_comauto_paid':     'CAS_comauto_incurred',
+  'CAS_comauto_incurred': 'CAS_comauto_paid',
+  'CAS_wkcomp_paid':      'CAS_wkcomp_incurred',
+  'CAS_wkcomp_incurred':  'CAS_wkcomp_paid',
+  'CAS_prodliab_paid':    'CAS_prodliab_incurred',
+  'CAS_prodliab_incurred':'CAS_prodliab_paid',
+  'CAS_medmal_paid':      'CAS_medmal_incurred',
+  'CAS_medmal_incurred':  'CAS_medmal_paid',
+};
+
+let _activeType='all', _activeCat='all', _activeCountry='all';
+
+// Country membership derived from cats (countries stored as cat tags)
+const COUNTRY_TAGS = ['brasil','australia','germany','uk','france','lloyds'];
+// US/NAIC triangles are those with 'naic' tag or no country tag at all
+function triCountry(cats) {
+  for(const c of COUNTRY_TAGS) if(cats.includes(c)) return c;
+  return 'us'; // default: US/NAIC
+}
+
+function filterTriangles() {
+  const sel = document.getElementById('tri-select');
+  const opts = Array.from(sel.options);
+  opts.forEach(opt=>{
+    const meta = TRIANGLE_META[opt.value]||{};
+    const cats = meta.cats||[];
+    const typeOk = _activeType==='all'
+      || (_activeType==='incurred' && cats.includes('incurred'))
+      || (_activeType==='paid'     && cats.includes('paid'))
+      || (_activeType==='paired'   && cats.includes('paired'));
+    const catOk = _activeCat==='all' || cats.includes(_activeCat);
+    const countryOk = _activeCountry==='all' || triCountry(cats)===_activeCountry;
+    opt.hidden = !(typeOk && catOk && countryOk);
+  });
+  const currentOpt = opts.find(o=>o.value===sel.value);
+  if(currentOpt && currentOpt.hidden){
+    const first = opts.find(o=>!o.hidden);
+    if(first){ sel.value=first.value; sel.dispatchEvent(new Event('change')); }
+  }
+}
+
+function showTriInfo(key) {
+  const el = document.getElementById('tri-info');
+  const m = TRIANGLE_META[key];
+  if (!m) { el.className='tri-info'; return; }
+  el.innerHTML = `
+    <div class="tri-info-lob">${m.lob}</div>
+    <div class="tri-info-source">${m.source}</div>
+    <span class="tail-badge tail-${m.tc}">Cauda ${m.tail}</span>
+    <ul class="tri-chars">${m.chars.map(c=>`<li>${c}</li>`).join('')}</ul>
+    ${m.use ? `<div class="tri-use">${m.use}</div>` : ''}
+  `;
+  el.className='tri-info show';
+  // Show/hide split tab button
+  const pairKey = TRIANGLE_PAIRS[key];
+  const splitBtn = document.getElementById('split-tab-btn');
+  const pairBadge = document.getElementById('pair-badge');
+  if(pairKey && TRIANGLES[pairKey]) {
+    splitBtn.style.display='';
+    pairBadge.style.display='';
+    pairBadge.textContent=`🔀 Par: ${pairKey}`;
+  } else {
+    splitBtn.style.display='none';
+    pairBadge.style.display='none';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// REPORT GENERATOR
+// ═══════════════════════════════════════════════════════════════════════
+
+function generateReport() {
+  if (!currentTri) return;
+  const tri = currentTri;
+  const key = document.getElementById('tri-select').value;
+  const meta = TRIANGLE_META[key] || {};
+  const clMethod = document.getElementById('cl-method').value;
+  const sm = selectedMethods || new Array(tri.lags.length-1).fill(clMethod);
+  const now = new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'});
+
+  // Compute all methods
+  const cl = chainLadder(tri, sm);            // {ldfs, cdfs, latest, latestLag, ultimates, ibnr, totalIBNR}
+  const mk = mackMethod(tri, sm);             // {ibnr, seOrigin, cvOrigin, totalIBNR, totalSE, totalCV, lognormalCI, z90}
+
+  // BF (Cape Cod) — premiums = latest diagonal values (exposure proxy)
+  const premiums = tri.origins.map((_,i)=>cl.latest[i]||1);
+  const elr_cc = estimateELR(tri, premiums, cl.cdfs, cl.latestLag, 'cape_cod');
+  const bf = bornhuetterFerguson(tri, premiums, elr_cc, cl.cdfs, cl.latestLag, 'bf');
+
+  // Mack CI per origin via lognormalCI built into mackMethod result
+  const z90 = mk.z90;
+  const lo90 = mk.ibnr.map((ibnrV,i)=>mk.lognormalCI(ibnrV,mk.seOrigin[i],z90)[0]);
+  const hi90 = mk.ibnr.map((ibnrV,i)=>mk.lognormalCI(ibnrV,mk.seOrigin[i],z90)[1]);
+
+  // Bootstrap (200 sims fast)
+  const seed = parseInt(document.getElementById('boot-seed').value)||42;
+  const boot = bootstrapCL(tri, 200, seed, sm); // {p50,p75,p90,p95,p99,ibnrObs,mean,std,cv}
+
+  const N  = v=>v==null||isNaN(v)?'—':Math.round(v).toLocaleString('pt-BR');
+  const P  = v=>v==null||isNaN(v)?'—':v.toFixed(1)+'%';
+  const F4 = v=>v==null||isNaN(v)?'—':v.toFixed(4);
+  const pm = v=>v>=0?`+${N(v)}`:N(v);
+
+  const totalCL   = cl.totalIBNR;
+  const totalBF   = bf.totalIBNR;
+  const totalMack = mk.totalIBNR;
+  const totalSE   = mk.totalSE;
+  const cvMack    = mk.totalCV;
+
+  // Row / header builders
+  const row = (cells, cls='') => `<tr class="${cls}">${cells.map((c,i)=>`<td style="${i===0?'text-align:left':''}">${c??'—'}</td>`).join('')}</tr>`;
+  const th  = labels => `<tr>${labels.map((l,i)=>`<th style="${i===0?'text-align:left':'text-align:right'}">${l}</th>`).join('')}</tr>`;
+
+  // CL IBNR rows
+  const clRows = tri.origins.map((o,i)=>
+    row([o, N(cl.latest[i]), N(cl.ultimates[i]), N(cl.ibnr[i])])
+  ).join('');
+  const clTotal = row(['TOTAL',
+    N(tri.origins.reduce((s,_,i)=>s+cl.latest[i],0)),
+    N(tri.origins.reduce((s,_,i)=>s+cl.ultimates[i],0)),
+    `<strong>${N(totalCL)}</strong>`],'tot');
+
+  // Mack rows
+  const mkRows = tri.origins.map((o,i)=>{
+    const ibnrV=mk.ibnr[i], se=mk.seOrigin[i], cv=mk.cvOrigin[i];
+    return row([o, N(ibnrV), N(se), isNaN(cv)?'—':P(cv), isNaN(lo90[i])?'—':N(lo90[i]), isNaN(hi90[i])?'—':N(hi90[i])]);
+  }).join('');
+  const mkTotal = row(['TOTAL',`<strong>${N(totalMack)}</strong>`, N(totalSE), P(cvMack),'',''],'tot');
+
+  // BF rows
+  const bfRows = tri.origins.map((o,i)=>{
+    const bfi=bf.ibnr[i], cli=cl.ibnr[i], delta=bfi-cli;
+    const col = Math.abs(cli)>0&&delta>0.01*Math.abs(cli)?'#3fb950':Math.abs(cli)>0&&delta<-0.01*Math.abs(cli)?'#f85149':'inherit';
+    return `<tr><td style="text-align:left">${o}</td><td>${N(cli)}</td><td>${N(bfi)}</td><td style="color:${col}">${pm(delta)}</td></tr>`;
+  }).join('');
+  const bfTotal = row(['TOTAL',N(totalCL),`<strong>${N(totalBF)}</strong>`,pm(totalBF-totalCL)],'tot');
+
+  // LDF rows — compute cv% inline from data
+  const ldfRows = cl.ldfs.map((f,k)=>{
+    const factors=[];
+    for(let i=0;i<tri.n;i++){const a=tri.data[i][k],b=tri.data[i][k+1];if(a!=null&&b!=null&&a>0)factors.push(b/a);}
+    const mn=factors.length?factors.reduce((s,v)=>s+v,0)/factors.length:NaN;
+    const std=factors.length>=2?Math.sqrt(factors.reduce((s,v)=>s+(v-mn)**2,0)/(factors.length-1)):NaN;
+    const cv=isNaN(mn)||mn===0?NaN:std/mn*100;
+    return row([`${tri.lags[k]}→${tri.lags[k+1]||'Ult'}`, F4(f), isNaN(cv)?'—':P(cv), sm[k]||clMethod]);
+  }).join('');
+
+  // Bootstrap percentiles
+  const bPcts = [{p:50,v:boot.p50},{p:75,v:boot.p75},{p:90,v:boot.p90},{p:95,v:boot.p95},{p:99,v:boot.p99}];
+
+  const tailColors={'short':'#3fb950','medium':'#4493f8','long':'#f59e0b','vlong':'#f85149'};
+  const tc = meta.tc||'long';
+
+  const html = `<!doctype html><html lang="pt-BR"><head>
+<meta charset="UTF-8"><title>Relatório de Reservas — ${key}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,Helvetica,sans-serif;font-size:10pt;color:#1f2328;background:#fff;padding:20mm 22mm}
+h1{font-size:16pt;color:#0d1117;border-bottom:3px solid #2dd4bf;padding-bottom:8px;margin-bottom:16px}
+h2{font-size:11pt;font-weight:700;color:#0d1117;margin:20px 0 8px;padding-left:8px;border-left:3px solid #2dd4bf}
+h3{font-size:10pt;font-weight:600;color:#555;margin:14px 0 6px}
+table{width:100%;border-collapse:collapse;margin-bottom:8px;font-size:9pt}
+th{background:#f0f2f5;font-weight:700;text-align:right;padding:5px 8px;border:1px solid #d0d7de;font-size:8pt;text-transform:uppercase;letter-spacing:.04em}
+th:first-child{text-align:left}
+td{padding:4px 8px;text-align:right;border:1px solid #d0d7de}
+td:first-child{text-align:left;font-weight:500}
+tr.tot td{font-weight:700;background:#f6f8fa}
+.meta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0 20px}
+.meta-box{border:1px solid #d0d7de;border-radius:6px;padding:8px 12px}
+.meta-box .lbl{font-size:7.5pt;text-transform:uppercase;letter-spacing:.06em;color:#636c76;margin-bottom:2px}
+.meta-box .val{font-size:14pt;font-weight:700;color:#0d1117;font-family:monospace}
+.badge{display:inline-block;font-size:7.5pt;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:10px;border:1px solid}
+.summary-row{display:flex;gap:16px;align-items:flex-start;margin-bottom:16px}
+.summary-tbl{flex:1}
+.note{font-size:8pt;color:#636c76;margin-top:4px;font-style:italic}
+.footer{margin-top:30px;padding-top:10px;border-top:1px solid #d0d7de;font-size:8pt;color:#636c76;text-align:center}
+@media print{body{padding:10mm 12mm}h2{page-break-before:always}h2:first-of-type{page-break-before:avoid}}
+</style></head><body>
+<h1>Relatório de Reservas — ${key}</h1>
+
+<div style="margin-bottom:16px;font-size:9pt;color:#636c76">
+  <strong style="color:#1f2328">${meta.lob||key}</strong> &nbsp;|&nbsp;
+  <span class="badge" style="color:${tailColors[tc]};border-color:${tailColors[tc]}">Cauda ${meta.tail||'?'}</span>
+  &nbsp;|&nbsp; ${meta.source||''} &nbsp;|&nbsp; Gerado em ${now} pelo Reserving Toolkit
+</div>
+
+<div class="meta-grid">
+  <div class="meta-box"><div class="lbl">IBNR Chain Ladder</div><div class="val">${N(totalCL)}</div></div>
+  <div class="meta-box"><div class="lbl">IBNR Mack (Médio)</div><div class="val">${N(totalMack)}</div></div>
+  <div class="meta-box"><div class="lbl">IBNR BF (Cape Cod)</div><div class="val">${N(totalBF)}</div></div>
+  <div class="meta-box"><div class="lbl">Mack SE</div><div class="val">${N(totalSE)}</div></div>
+  <div class="meta-box"><div class="lbl">Mack CV%</div><div class="val">${P(cvMack)}</div></div>
+  <div class="meta-box"><div class="lbl">Bootstrap P90</div><div class="val">${N(boot.pcts[90])}</div></div>
+</div>
+
+<h2>1. Chain Ladder — Fatores de Desenvolvimento (LDFs)</h2>
+<p class="note">Método padrão selecionado: <strong>${clMethod}</strong>. Podem variar por lag se sobrescritos manualmente.</p>
+<table>
+  <thead>${th(['Transição','LDF','cv%','Método'])}</thead>
+  <tbody>${ldfRows}</tbody>
+</table>
+
+<h2>2. Chain Ladder — IBNR por Origem</h2>
+<table>
+  <thead>${th(['Origem','Já Reportado','Ultimate','IBNR'])}</thead>
+  <tbody>${clRows}${clTotal}</tbody>
+</table>
+
+<h2>3. Mack — Incerteza (Análítico)</h2>
+<p class="note">Método de Mack (1993): calcula o erro padrão analítico via resíduos de Pearson. IC Lognormal 90%.</p>
+<table>
+  <thead>${th(['Origem','IBNR','SE','CV%','IC 90% — Inferior','IC 90% — Superior'])}</thead>
+  <tbody>${mkRows}</tbody>
+</table>
+<p class="note">Total: IBNR <strong>${N(totalMack)}</strong> | SE <strong>${N(totalSE)}</strong> | CV% <strong>${P(cvMack)}</strong></p>
+
+<h2>4. Bootstrap — Distribuição Simulada (200 sims)</h2>
+<p class="note">Bootstrap England & Verrall (2002): reamostragem de resíduos de Pearson + variabilidade do processo (overdispersed Poisson).</p>
+<table>
+  <thead>${th(['Percentil','IBNR Simulado','vs. CL base','% acima do base'])}</thead>
+  <tbody>${bPcts.map(({p,v})=>`<tr><td style="text-align:left">P${p}</td><td>${N(v)}</td><td>${pm(v-totalCL)}</td><td>${P((v/totalCL-1)*100)}</td></tr>`).join('')}</tbody>
+</table>
+
+<h2>5. Bornhuetter-Ferguson vs. Chain Ladder</h2>
+<p class="note">ELR Cape Cod estimado: <strong>${elr_cc.toFixed(4)}</strong>. BF usa CL para % não desenvolvido e ELR como a priori.</p>
+<table>
+  <thead>${th(['Origem','IBNR CL','IBNR BF','Δ (BF − CL)'])}</thead>
+  <tbody>${bfRows}${bfTotal}</tbody>
+</table>
+
+${meta.chars ? `<h2>6. Características do Triângulo</h2>
+<p class="note">Fonte: ${meta.source}</p>
+<ul style="font-size:9pt;color:#636c76;padding-left:18px;line-height:1.8">
+  ${meta.chars.map(c=>`<li>${c}</li>`).join('')}
+</ul>
+${meta.use?`<p class="note" style="margin-top:8px">${meta.use}</p>`:''}` : ''}
+
+<div class="footer">
+  Reserving Toolkit &nbsp;|&nbsp; Triângulo: ${key} &nbsp;|&nbsp; Método: ${clMethod} &nbsp;|&nbsp; ${now}<br>
+  CL (Taylor &amp; Ashe / Chain Ladder), Mack (1993), Bootstrap (England &amp; Verrall 2002), BF (Bornhuetter &amp; Ferguson 1972).
+</div>
+</body></html>`;
+
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  window.open(url,'_blank');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // UI BUILDERS
 // ═══════════════════════════════════════════════════════════════════════
 
@@ -536,8 +1628,28 @@ function buildMetric(label, value, cls='') {
   return `<div class="metric"><div class="metric-label">${label}</div><div class="metric-value ${cls}">${value}</div></div>`;
 }
 
+function buildInterpretation(lines, level='ok') {
+  // level: 'ok' | 'warn' | 'alert'
+  return `<div class="interp-box interp-${level}">${lines.join('<br>')}</div>`;
+}
+
+function exportTableCsv(tableId, filename) {
+  const tbl=document.getElementById(tableId);
+  if(!tbl) return;
+  const rows=Array.from(tbl.querySelectorAll('tr'));
+  const csv=rows.map(r=>Array.from(r.querySelectorAll('th,td')).map(c=>{
+    const t=c.innerText.replace(/\n/g,' ').trim();
+    return t.includes(',')||t.includes('"')?`"${t.replace(/"/g,'""')}"`:t;
+  }).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,﻿'+encodeURIComponent(csv);
+  a.download=filename;
+  a.click();
+}
+
 function buildHeatmap(tri, projected) {
-  const {data, lags, origins, m} = tri;
+  const {data, lags, origins} = tri;
+  const m=tri.m!=null?tri.m:lags.length;
   const flat=[...data.flat().filter(v=>v!=null), ...(projected?projected.flat().filter(v=>v!=null):[])];
   const minV=Math.min(...flat), maxV=Math.max(...flat);
 
@@ -661,28 +1773,97 @@ function methodOptions(selected) {
 function renderCL() {
   const tri=currentTri;
   if(!tri) return;
+  const warnEl=document.getElementById('cl-small-warn');
+  if(warnEl) warnEl.style.display=(tri.origins.length<5||tri.lags.length<5)?'':'none';
   const diag=factorDiagnostics(tri, selectedMethods);
-  // Sync selectedMethods from diag
   if(!selectedMethods) selectedMethods=diag.map(r=>r.selected);
 
-  const cl=chainLadder(tri, selectedMethods);
+  const useTail=document.getElementById('tail-toggle')?.checked;
+  const tailFit=fitExponentialTail(diag.map(r=>r.factors?.['vw']||1.0));
+  const tailF=(useTail&&tailFit)?tailFit.tailFactor:1.0;
+  const tailInfoEl=document.getElementById('tail-info');
+  if(tailInfoEl){
+    if(tailFit&&tailFit.tailFactor!==1.0) tailInfoEl.textContent=`Tail: ×${tailFit.tailFactor.toFixed(4)} (a=${tailFit.a.toFixed(3)}, b=${tailFit.b.toFixed(3)})${tailFit.note?' — '+tailFit.note:''}`;
+    else if(tailFit) tailInfoEl.textContent=`Tail: ×${tailFit.tailFactor.toFixed(4)} (ajuste exp. decay)`;
+    else tailInfoEl.textContent='Dados insuficientes para ajuste de cauda';
+  }
+
+  const cl=chainLadder(tri, selectedMethods, tailF);
+
+  // Bootstrap CI — fast 200-sim run for LDF and IBNR CIs in the CL tab
+  const _bSeed=parseInt(document.getElementById('boot-seed').value)||42;
+  const bootCI=bootstrapCL(tri,200,_bSeed,selectedMethods);
 
   // Metrics
   document.getElementById('cl-metrics').innerHTML=
     buildMetric('IBNR Total', fmt(cl.totalIBNR), 'blue')+
+    buildMetric('Bootstrap P50', fmt(bootCI.p50), 'green')+
+    buildMetric('Bootstrap P90', fmt(bootCI.p90), 'amber')+
     buildMetric('Ultimate Total', fmt(cl.totalUltimate))+
-    buildMetric('IBNR %', fmtPct(cl.totalIBNR/cl.totalUltimate*100), 'amber');
+    buildMetric('IBNR %', fmtPct(cl.totalIBNR/cl.totalUltimate*100), 'amber')+
+    (useTail&&tailFit?buildMetric('Tail Factor','×'+tailFit.tailFactor.toFixed(4),'accent'):'');
 
-  // Diagnostic table
-  const methods=['vw','simple','medial','geo','last3','ls','p25','p50','p75'];
-  let tbl=`<thead><tr><th>Lag</th>${methods.map(m=>`<th>${m}</th>`).join('')}<th>n</th><th>cv%</th><th>log-normal?</th><th>Usar</th></tr></thead><tbody>`;
+  // Dynamic interpretation
+  const clInterpEl=document.getElementById('cl-interp');
+  if(clInterpEl){
+    const totalIBNRpct=cl.totalUltimate>0?cl.totalIBNR/cl.totalUltimate*100:0;
+    const highCVlags=diag.filter(r=>r.cv>25).map(r=>r.label);
+    const mixedMethods=[...new Set(diag.map(r=>r.selected))];
+    const lines=[];
+    let level='ok';
+    if(totalIBNRpct>50){level='warn';lines.push(`⚠️ <strong>IBNR% alto (${totalIBNRpct.toFixed(1)}%)</strong> — mais da metade do ultimate ainda não emergiu. O triângulo tem anos jovens com alto CDF; o CL é mais sensível a erros nos primeiros lags.`);}
+    else{lines.push(`ℹ️ <strong>IBNR% = ${totalIBNRpct.toFixed(1)}%</strong> do ultimate total ainda a reservar.`);}
+    if(highCVlags.length>0){level='warn';lines.push(`Lags com cv% &gt; 25%: <strong>${highCVlags.join(', ')}</strong> — fatores instáveis. Considere <code>medial</code> ou <code>last3</code> para esses lags.`);}
+    const negOrigins=tri.origins.filter((_,i)=>cl.ibnr[i]<0);
+    if(negOrigins.length>0){
+      if(level!=='alert') level='warn';
+      lines.push(`⚠️ <strong>IBNR negativo em: ${negOrigins.join(', ')}</strong> — o reportado já supera o ultimate projetado pelo CL. Causa típica: LDF próximo de 1,0 com desenvolvimento favorável recente. Ver aba <strong>🔀 Pago / Incorrido</strong> para explicação completa e alternativas (BF, zero-floor, método medial).`);
+    }
+    if(mixedMethods.length>1) lines.push(`Métodos mistos em uso: <strong>${mixedMethods.join(', ')}</strong>.`);
+    else lines.push(`Método uniforme: <strong>${mixedMethods[0]||'vw'}</strong> em todos os lags.`);
+    clInterpEl.innerHTML=buildInterpretation(lines, level);
+  }
+
+  // Diagnostic table — compact: show selected LDF and delta vs vw
+  const defaultMethod = document.getElementById('cl-method').value;
+  let tbl=`<thead><tr>
+    <th>Lag</th>
+    <th>n obs.</th>
+    <th title="Coeficiente de variação dos fatores individuais">cv%</th>
+    <th>Log-normal?</th>
+    <th>Método ativo</th>
+    <th title="LDF do método selecionado">LDF</th>
+    <th title="Intervalo de confiança bootstrap [P25–P75] do LDF via reamostragem de resíduos (200 sims)">Bootstrap CI [P25–P75]</th>
+    <th title="Diferença do LDF selecionado vs. volume-weighted">Δ vs. vw</th>
+    <th>CDF acum.</th>
+  </tr></thead><tbody>`;
   diag.forEach((row,k)=>{
     const cvCls=row.cv>20?'cv-high':row.cv>10?'cv-med':'cv-ok';
-    const ln=row.lognorm===null?'—':row.lognorm?'<span class="lognorm">✓ sim</span>':'<span class="cv-high">✗ não</span>';
-    tbl+=`<tr><td>${row.label}</td>`;
-    methods.forEach(m=>tbl+=`<td>${isNaN(row.factors[m])?'—':row.factors[m].toFixed(5)}</td>`);
-    tbl+=`<td>${row.n}</td><td class="${cvCls}">${isNaN(row.cv)?'—':row.cv.toFixed(1)+'%'}</td><td>${ln}</td>`;
-    tbl+=`<td data-k="${k}">${methodOptions(selectedMethods[k]||'vw')}</td></tr>`;
+    const ln=row.lognorm===null?'—':row.lognorm?'<span class="lognorm">✓</span>':'<span class="cv-high">✗</span>';
+    const selM = selectedMethods[k]||'vw';
+    const selLDF = row.factors[selM];
+    const vwLDF = row.factors['vw'];
+    const isChanged = selM !== defaultMethod;
+    const delta = isNaN(selLDF)||isNaN(vwLDF)?NaN:selLDF-vwLDF;
+    const deltaCls = isNaN(delta)||Math.abs(delta)<0.00005?'same':delta>0?'higher':'lower';
+    const deltaStr = isNaN(delta)||Math.abs(delta)<0.00005?'=vw':(delta>0?'+':'')+delta.toFixed(4);
+    const lci = bootCI.ldfPct[k];
+    const ciWidth = lci&&!isNaN(lci.p25)&&!isNaN(lci.p75)?(lci.p75-lci.p25)/lci.p50*100:NaN;
+    const ciWidthCls = isNaN(ciWidth)?'':ciWidth>10?'cv-high':ciWidth>5?'cv-med':'cv-ok';
+    const ciStr = lci&&!isNaN(lci.p25)?`<span style="font-family:var(--font-num);font-size:11px;color:var(--muted)">${lci.p25.toFixed(4)} – ${lci.p75.toFixed(4)}</span><span class="${ciWidthCls}" style="font-size:10px;margin-left:4px">${isNaN(ciWidth)?'':'(±'+ciWidth.toFixed(1)+'%)'}</span>`:'—';
+    tbl+=`<tr>
+      <td>${row.label}</td>
+      <td>${row.n}</td>
+      <td class="${cvCls}">${isNaN(row.cv)?'—':row.cv.toFixed(1)+'%'}</td>
+      <td>${ln}</td>
+      <td data-k="${k}"><select class="method-select${isChanged?' changed':''}" onchange="onLagMethodChange(this)">${
+        ['vw','simple','medial','geo','last3','ls','p25','p50','p75'].map(o=>`<option value="${o}"${o===selM?' selected':''}>${o}</option>`).join('')
+      }</select></td>
+      <td><div class="ldf-result">${isNaN(selLDF)?'—':selLDF.toFixed(5)}</div></td>
+      <td>${ciStr}</td>
+      <td><span class="ldf-delta ${deltaCls}">${deltaStr}</span></td>
+      <td style="color:var(--muted);font-family:var(--font-num);font-size:11px">${isNaN(cl.cdfs[k])?'—':cl.cdfs[k].toFixed(4)}</td>
+    </tr>`;
   });
   tbl+=`</tbody>`;
   document.getElementById('diag-table').innerHTML=tbl;
@@ -692,12 +1873,14 @@ function renderCL() {
   buildDevChart(tri, cl.projected);
 
   // Result table
-  let rt=`<thead><tr><th>Origin</th><th>Reportado</th><th>Ultimate CL</th><th>IBNR</th><th>IBNR%</th></tr></thead><tbody>`;
+  let rt=`<thead><tr><th>Origin</th><th>Reportado</th><th>Ultimate CL</th><th>IBNR</th><th>IBNR%</th><th title="IBNR bootstrap P25 (200 sims)">Boot P25</th><th title="IBNR bootstrap P75 (200 sims)">Boot P75</th><th title="IBNR bootstrap P90 (200 sims)">Boot P90</th></tr></thead><tbody>`;
   tri.origins.forEach((orig,i)=>{
     const pct=cl.ultimates[i]>0?cl.ibnr[i]/cl.ultimates[i]*100:0;
-    rt+=`<tr><td>${orig}</td><td>${fmt(cl.latest[i])}</td><td>${fmt(cl.ultimates[i])}</td><td>${fmt(cl.ibnr[i])}</td><td>${fmtPct(pct)}</td></tr>`;
+    const ibnrNeg=cl.ibnr[i]<0;
+    const op=bootCI.originPct[i];
+    rt+=`<tr><td>${orig}</td><td>${fmt(cl.latest[i])}</td><td>${fmt(cl.ultimates[i])}</td><td class="${ibnrNeg?'cv-high':''}" title="${ibnrNeg?'IBNR negativo: reportado supera o ultimate projetado. Use BF ou zero-floor.':''}">${fmt(cl.ibnr[i])}</td><td>${fmtPct(pct)}</td><td style="color:var(--muted)">${op?fmt(op.p25):'—'}</td><td style="color:var(--muted)">${op?fmt(op.p75):'—'}</td><td style="color:var(--accent2)">${op?fmt(op.p90):'—'}</td></tr>`;
   });
-  rt+=`<tr class="total-row"><td>TOTAL</td><td>${fmt(cl.latest.reduce((s,v)=>s+v,0))}</td><td>${fmt(cl.totalUltimate)}</td><td>${fmt(cl.totalIBNR)}</td><td>${fmtPct(cl.totalIBNR/cl.totalUltimate*100)}</td></tr></tbody>`;
+  rt+=`<tr class="total-row"><td>TOTAL</td><td>${fmt(cl.latest.reduce((s,v)=>s+v,0))}</td><td>${fmt(cl.totalUltimate)}</td><td>${fmt(cl.totalIBNR)}</td><td>${fmtPct(cl.totalIBNR/cl.totalUltimate*100)}</td><td style="color:var(--muted)">${fmt(bootCI.qTotal(0.25))}</td><td style="color:var(--muted)">${fmt(bootCI.qTotal(0.75))}</td><td style="color:var(--accent2)">${fmt(bootCI.p90)}</td></tr></tbody>`;
   document.getElementById('cl-result-table').innerHTML=rt;
 
   buildIBNRChart('cl-ibnr-chart', tri.origins, cl.ibnr, '#4493f8');
@@ -719,7 +1902,9 @@ function renderBF() {
   const tri=currentTri;
   if(!tri) return;
   const cl=chainLadder(tri, selectedMethods);
-  const premiums=new Array(tri.n).fill(1.0);
+  const ep=tri.earned_premiums||{};
+  const hasPremiums=Object.keys(ep).length>0;
+  const premiums=tri.origins.map(o=>ep[String(o)]||1.0);
   const elrParam=getELRParam();
   const [variant, nIter]=getBFVariantParams();
 
@@ -732,6 +1917,32 @@ function renderBF() {
     buildMetric('Ultimate BF', fmt(bf.totalUltimate))+
     buildMetric('ELR usado', elrVal.toFixed(4), 'amber')+
     buildMetric('Δ vs CL', fmtSign(delta), delta>=0?'green':'red');
+
+  const bfWarn=document.getElementById('bf-prem-warn');
+  if(bfWarn) bfWarn.style.display=hasPremiums?'none':'';
+
+  // BF interpretation
+  const bfInterpEl=document.getElementById('bf-interp');
+  if(bfInterpEl){
+    const lines=[];
+    let level='ok';
+    const deltaPct=cl.totalIBNR>0?delta/cl.totalIBNR*100:0;
+    if(Math.abs(delta)<1){
+      lines.push(`ℹ️ BF e CL produzem IBNR muito próximos (Δ = ${fmtSign(delta)}) — o a priori confirma o padrão histórico.`);
+    } else if(delta<0){
+      level='warn';
+      lines.push(`✅ <strong>BF é mais conservador que CL</strong> (${fmtSign(delta)}, ${deltaPct.toFixed(1)}% menos). O ELR a priori está reduzindo a reserva dos anos jovens — adequado quando o CL está superestimando por instabilidade nos primeiros lags.`);
+    } else {
+      level='warn';
+      lines.push(`⚠️ <strong>BF é mais agressivo que CL</strong> (+${fmt(delta)}, +${deltaPct.toFixed(1)}%). O ELR a priori está elevando a reserva dos anos jovens — verifique se o ELR é razoável para este portfólio.`);
+    }
+    // Which origins are most BF-dominated (high % unreported)
+    const youngOrigins=tri.origins.filter((_,i)=>bf.pctUnrep[i]>0.5);
+    if(youngOrigins.length>0) lines.push(`Anos com &gt; 50% ainda não reportado (a priori domina): <strong>${youngOrigins.join(', ')}</strong>.`);
+    const matureOrigins=tri.origins.filter((_,i)=>bf.pctUnrep[i]<0.1);
+    if(matureOrigins.length>0) lines.push(`Anos maduros (&lt; 10% não reportado, dados dominam): <strong>${matureOrigins.join(', ')}</strong> — BF ≈ CL aqui.`);
+    bfInterpEl.innerHTML=buildInterpretation(lines,level);
+  }
 
   // Step-by-step table
   let st=`<thead><tr><th>Origin</th><th>① Prêmio</th><th>② ELR</th><th>③ Esperado</th><th>④ CDF</th><th>⑤ % rep.</th><th>⑥ % não rep.</th><th>⑦ IBNR BF</th><th>⑧ Reportado</th><th>⑨ Ultimate BF</th></tr></thead><tbody>`;
@@ -777,7 +1988,8 @@ function renderCompare() {
   const tri=currentTri;
   if(!tri) return;
   const cl=chainLadder(tri, selectedMethods);
-  const premiums=new Array(tri.n).fill(1.0);
+  const ep=tri.earned_premiums||{};
+  const premiums=tri.origins.map(o=>ep[String(o)]||1.0);
   const elrParam=getELRParam();
 
   const comp=compareVariants(tri,premiums,elrParam,cl.cdfs,cl.latestLag);
@@ -800,11 +2012,1255 @@ function renderCompare() {
   document.getElementById('compare-table').innerHTML=ct;
 }
 
+// ═══════════════════════════════════════════════════════════════════════
+// MACK'S METHOD
+// ═══════════════════════════════════════════════════════════════════════
+
+function mackMethod(tri, selectedMethods) {
+  const cl = chainLadder(tri, selectedMethods);
+  const {data, lags, origins} = tri;
+  const nLags = lags.length;
+
+  // Volume-weighted LDFs (always vw for Mack residuals)
+  const ldfs = {};
+  for(let k=0; k<nLags-1; k++){
+    let sa=0, sb=0;
+    for(let i=0;i<tri.n;i++){
+      const a=data[i][k], b=data[i][k+1];
+      if(a!=null&&b!=null&&a>0){sa+=a;sb+=b;}
+    }
+    ldfs[k] = sa>0 ? sb/sa : NaN;
+  }
+
+  // σ²_j per lag
+  const sigma2 = [];
+  for(let k=0; k<nLags-1; k++){
+    const fj = ldfs[k];
+    let s=0, n=0;
+    for(let i=0;i<tri.n;i++){
+      const a=data[i][k], b=data[i][k+1];
+      if(a!=null&&b!=null&&a>0){s+=a*(b/a-fj)**2;n++;}
+    }
+    sigma2[k] = n>=2 ? s/(n-1) : NaN;
+  }
+  // Extrapolate last sigma2 if needed
+  const validSig = sigma2.filter(v=>!isNaN(v));
+  if(validSig.length>=2){
+    const s2=validSig[validSig.length-1], s3=validSig[validSig.length-2];
+    sigma2[nLags-1] = Math.min(s3, s2, s3>0 ? s2*s2/s3 : s2);
+  } else if(validSig.length===1){
+    sigma2[nLags-1] = validSig[0];
+  }
+
+  // Column sums of known data
+  const colSums = lags.map((_,k)=>{
+    let s=0;
+    for(let i=0;i<tri.n;i++) if(data[i][k]!=null) s+=data[i][k];
+    return s;
+  });
+
+  // Full projected triangle (latest * CDF)
+  // Use CL CDFs
+  const cdfs = cl.cdfs;  // array indexed by lag k (CDF to ultimate from lag k)
+
+  // For each origin, last known column index
+  const lastKnownIdx = origins.map((_,i)=>{
+    let last=0;
+    for(let k=0;k<nLags;k++) if(data[i][k]!=null) last=k;
+    return last;
+  });
+
+  // Projected value at lag k for origin i
+  function projected(i, k){
+    const lk = lastKnownIdx[i];
+    if(k<=lk) return data[i][k];
+    // project forward
+    let v = data[i][lk];
+    for(let j=lk; j<k; j++) v *= (ldfs[j]||1);
+    return v;
+  }
+
+  // MSE per origin
+  const mseOrigin = origins.map((_,i)=>{
+    const lk = lastKnownIdx[i];
+    if(lk >= nLags-1) return 0;  // fully developed
+    const cUlt = projected(i, nLags-1);
+    if(!cUlt || cUlt===0) return 0;
+    let acc=0;
+    for(let k=lk; k<nLags-1; k++){
+      const fj = ldfs[k]||1;
+      const s2j = sigma2[k]||0;
+      if(isNaN(s2j)||fj===0) continue;
+      const cij = projected(i, k);
+      const Sj = colSums[k];
+      if(!cij||cij===0) continue;
+      acc += (s2j/fj**2) * (1/cij + (Sj>0 ? 1/Sj : 0));
+    }
+    return cUlt**2 * acc;
+  });
+
+  // Total MSE with covariance
+  let totalMSE = mseOrigin.reduce((s,v)=>s+v,0);
+  for(let a=0;a<origins.length;a++){
+    for(let b=a+1;b<origins.length;b++){
+      const ti=lastKnownIdx[a], tj=lastKnownIdx[b];
+      const startK=Math.max(ti,tj);
+      const cUltA=projected(a,nLags-1), cUltB=projected(b,nLags-1);
+      if(!cUltA||!cUltB) continue;
+      let cov=0;
+      for(let k=startK; k<nLags-1; k++){
+        const fj=ldfs[k]||1, s2j=sigma2[k]||0;
+        const Sj=colSums[k];
+        if(isNaN(s2j)||fj===0||Sj===0) continue;
+        cov += s2j/(fj**2*Sj);
+      }
+      totalMSE += 2*cUltA*cUltB*cov;
+    }
+  }
+
+  const seOrigin = mseOrigin.map(v=>Math.sqrt(Math.max(v,0)));
+  const ibnr = cl.ibnr;
+  const cvOrigin = ibnr.map((v,i)=> v!==0 ? seOrigin[i]/Math.abs(v)*100 : NaN);
+  const totalSE = Math.sqrt(Math.max(totalMSE,0));
+  const totalIBNR = cl.totalIBNR;
+  const totalCV = totalIBNR!==0 ? totalSE/Math.abs(totalIBNR)*100 : NaN;
+
+  // Lognormal CI
+  function lognormalCI(ibnrVal, seVal, z){
+    if(ibnrVal<=0||seVal<=0) return [NaN,NaN];
+    const cv2=(seVal/ibnrVal)**2;
+    const sig2=Math.log(1+cv2);
+    const mu=Math.log(ibnrVal)-sig2/2;
+    const sig=Math.sqrt(sig2);
+    return [Math.exp(mu-z*sig), Math.exp(mu+z*sig)];
+  }
+  const z90=1.6449, z95=1.9600;
+
+  return {ibnr, seOrigin, cvOrigin, sigma2, colSums, totalIBNR, totalSE, totalCV,
+          lognormalCI, z90, z95, cl};
+}
+
+function renderMack(){
+  const tri=currentTri; if(!tri) return;
+  const diagElEarly=document.getElementById('mack-diag-content');
+  if(diagElEarly) diagElEarly.innerHTML='<div class="explain" style="color:var(--muted)">Calculando...</div>';
+  const mk=mackMethod(tri, selectedMethods);
+  const {ibnr,seOrigin,cvOrigin,sigma2,totalIBNR,totalSE,totalCV,lognormalCI,z90,z95}=mk;
+  const nLags=tri.lags.length;
+
+  // Interpretation box
+  const interpEl=document.getElementById('mack-interp');
+  if(interpEl){
+    let level='ok', lines=[];
+    if(totalCV<15){
+      level='ok';
+      lines=[`✅ <strong>Incerteza baixa</strong> — CV total ${totalCV.toFixed(1)}% &lt; 15%. O CL está bem suportado pelos dados; os fatores são estáveis.`];
+    } else if(totalCV<30){
+      level='warn';
+      lines=[`⚠️ <strong>Incerteza moderada</strong> — CV total ${totalCV.toFixed(1)}%. Verifique os anos com CV% individual mais alto — podem ter CDF elevado ou poucos dados.`,
+             `Considere usar a metodologia BF para os origins mais jovens, e adicionar margem de segurança sobre o IC 90%.`];
+    } else {
+      level='alert';
+      lines=[`🔴 <strong>Alta incerteza</strong> — CV total ${totalCV.toFixed(1)}% &gt; 30%. O triângulo tem dados escassos ou padrão de desenvolvimento instável.`,
+             `O IC 90% é muito amplo — o IBNR pontual do CL tem pouca confiabilidade. Prefira métodos alternativos (BF, Benktander) para anos jovens.`,
+             `Revise os σ² por lag: se algum lag tem σ² muito alto, o método de fator para aquele lag precisa ser revisado.`];
+    }
+    const highCVorigins=mk.cl.origins.filter((_,i)=>cvOrigin[i]>30);
+    if(highCVorigins.length>0) lines.push(`Origins com CV% &gt; 30%: <strong>${highCVorigins.join(', ')}</strong> — priorize revisão.`);
+    interpEl.innerHTML=buildInterpretation(lines, level);
+  }
+
+  // Metrics
+  const cvClass = totalCV<15?'green':totalCV<30?'amber':'red';
+  document.getElementById('mack-metrics').innerHTML=
+    buildMetric('IBNR Total', fmt(totalIBNR), 'accent') +
+    buildMetric('Erro Padrão', fmt(totalSE), 'blue') +
+    buildMetric('CV% Total', totalCV.toFixed(1)+'%', cvClass) +
+    buildMetric('IC 90% sup', fmt(lognormalCI(totalIBNR,totalSE,z90)[1]), 'purple');
+
+  // Main table
+  let ht=`<thead><tr><th>Origin</th><th>IBNR</th><th>Erro Padrão</th><th>CV%</th><th>IC 90% inf</th><th>IC 90% sup</th><th>IC 95% sup</th></tr></thead><tbody>`;
+  tri.origins.forEach((orig,i)=>{
+    const cv=cvOrigin[i];
+    const cvCls=isNaN(cv)?'':cv<15?'cv-ok':cv<30?'cv-med':'cv-high';
+    const [lo90,hi90]=lognormalCI(ibnr[i],seOrigin[i],z90);
+    const [lo95,hi95]=lognormalCI(ibnr[i],seOrigin[i],z95);
+    ht+=`<tr><td>${orig}</td><td>${fmt(ibnr[i])}</td><td>${fmt(seOrigin[i])}</td>
+      <td class="${cvCls}">${isNaN(cv)?'—':cv.toFixed(1)+'%'}</td>
+      <td>${isNaN(lo90)?'—':fmt(lo90)}</td><td>${isNaN(hi90)?'—':fmt(hi90)}</td>
+      <td>${isNaN(hi95)?'—':fmt(hi95)}</td></tr>`;
+  });
+  const [lo90t,hi90t]=lognormalCI(totalIBNR,totalSE,z90);
+  const [_,hi95t]=lognormalCI(totalIBNR,totalSE,z95);
+  const cvtCls=totalCV<15?'cv-ok':totalCV<30?'cv-med':'cv-high';
+  ht+=`<tr class="total-row"><td>TOTAL</td><td>${fmt(totalIBNR)}</td><td>${fmt(totalSE)}</td>
+    <td class="${cvtCls}">${totalCV.toFixed(1)}%</td>
+    <td>${fmt(lo90t)}</td><td>${fmt(hi90t)}</td><td>${fmt(hi95t)}</td></tr></tbody>`;
+  document.getElementById('mack-table').innerHTML=ht;
+
+  // Sigma table
+  let st=`<thead><tr><th>Lag</th><th>σ²</th><th>σ</th><th>n obs.</th></tr></thead><tbody>`;
+  for(let k=0;k<nLags-1;k++){
+    let n=0;
+    tri.data.forEach(row=>{if(row[k]!=null&&row[k+1]!=null)n++;});
+    st+=`<tr><td>${tri.lags[k]}→${tri.lags[k+1]}</td><td>${isNaN(sigma2[k])?'extrap.':sigma2[k].toFixed(0)}</td><td>${isNaN(sigma2[k])?'—':Math.sqrt(sigma2[k]).toFixed(0)}</td><td>${n}</td></tr>`;
+  }
+  st+=`</tbody>`;
+  document.getElementById('mack-sigma-table').innerHTML=st;
+
+  // IC bar chart
+  const lo90s=tri.origins.map((_,i)=>lognormalCI(ibnr[i],seOrigin[i],z90)[0]);
+  const hi90s=tri.origins.map((_,i)=>lognormalCI(ibnr[i],seOrigin[i],z90)[1]);
+  const ctx=document.getElementById('mack-ic-chart').getContext('2d');
+  if(window._mackChart) window._mackChart.destroy();
+  window._mackChart=new Chart(ctx,{type:'bar',data:{
+    labels:tri.origins,
+    datasets:[
+      {label:'IC 90% sup',data:hi90s,backgroundColor:'rgba(196,132,252,0.35)',borderColor:'#c084fc',borderWidth:1},
+      {label:'IBNR CL',data:ibnr,backgroundColor:'rgba(45,212,191,0.7)',borderColor:'#2dd4bf',borderWidth:1},
+      {label:'IC 90% inf',data:lo90s,backgroundColor:'rgba(196,132,252,0.15)',borderColor:'rgba(196,132,252,0.5)',borderWidth:1},
+    ]
+  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{color:'#7d8590',font:{size:11}}}},scales:{x:{ticks:{color:'#7d8590'},grid:{color:'#21262d'}},y:{ticks:{color:'#7d8590'},grid:{color:'#21262d'}}}}});
+
+  // Mack diagnostics
+  const diag=mackDiagnostics(tri);
+  const diagEl=document.getElementById('mack-diag-content');
+  if(diagEl){
+    const spRows=diag.spearman.map((r,j)=>{
+      if(r===null) return '';
+      const abs=Math.abs(r),flagged=abs>0.5;
+      return `<tr><td>${tri.lags[j]}→${tri.lags[j+1]}</td><td style="color:${flagged?'var(--red)':'var(--green)'};font-weight:600">${r.toFixed(3)}</td><td>${flagged?'⚠️ Dependência suspeita':'✅ OK'}</td></tr>`;
+    }).join('');
+    diagEl.innerHTML=`<div class="tbl-wrap"><table>
+      <thead><tr><th>Lag pair</th><th>r Spearman</th><th>Diagnóstico</th></tr></thead>
+      <tbody>${spRows||'<tr><td colspan="3" style="color:var(--muted)">Dados insuficientes para o teste</td></tr>'}</tbody>
+    </table></div>
+    <div class="explain" style="margin-top:8px;font-size:12px">|r| &lt; 0,3 = independência OK &nbsp;|&nbsp; 0,3–0,5 = atenção &nbsp;|&nbsp; &gt; 0,5 = dependência estrutural — pressuposto de Mack violado.</div>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// BOOTSTRAP
+// ═══════════════════════════════════════════════════════════════════════
+
+// Simple seeded PRNG (mulberry32)
+function makePRNG(seed){
+  let s=seed>>>0;
+  return function(){
+    s+=0x6d2b79f5; let t=s;
+    t=(t^t>>>15)*((t|1)+0x3d4c5b16);
+    t^=t+((t^t>>>7)*(t|0x3ade3a13));
+    return ((t^t>>>14)>>>0)/4294967296;
+  };
+}
+
+function bootstrapCL(tri, nSim, seed, selectedMethods){
+  const rng=makePRNG(seed);
+  const cl=chainLadder(tri, selectedMethods);
+  const {data, lags, origins} = tri;
+  const nLags=lags.length;
+
+  // Volume-weighted LDFs base
+  const ldfsBase={};
+  for(let k=0;k<nLags-1;k++){
+    let sa=0,sb=0;
+    for(let i=0;i<tri.n;i++){const a=data[i][k],b=data[i][k+1];if(a!=null&&b!=null&&a>0){sa+=a;sb+=b;}}
+    ldfsBase[k]=sa>0?sb/sa:NaN;
+  }
+
+  // Fitted values and Pearson residuals
+  const fitted=[];  // {i,k,m,c1}
+  const residuals=[];
+  for(let k=0;k<nLags-1;k++){
+    const fj=ldfsBase[k];
+    for(let i=0;i<tri.n;i++){
+      const a=data[i][k],b=data[i][k+1];
+      if(a!=null&&b!=null&&a>0){
+        const m=fj*a;
+        fitted.push({i,k,m,c1:b});
+        const r=m>0?(b-m)/Math.sqrt(m):0;
+        residuals.push(r);
+      }
+    }
+  }
+  const nRes=residuals.length;
+  const nParams=nLags-1;
+  const scale=Math.sqrt(nRes/Math.max(nRes-nParams,1));
+
+  // Last known index per origin
+  const lastKnown=origins.map((_,i)=>{let l=0;for(let k=0;k<nLags;k++)if(data[i][k]!=null)l=k;return l;});
+
+  // Phi for process variance (variance of residuals)
+  const meanR=residuals.reduce((s,v)=>s+v,0)/nRes;
+  const phi=residuals.reduce((s,v)=>s+(v-meanR)**2,0)/Math.max(nRes-1,1);
+
+  const simTotal=new Array(nSim);
+  const simByOrigin=origins.map(()=>new Array(nSim));
+  const ldfSims=Array.from({length:nLags-1},()=>new Array(nSim));
+
+  for(let s=0;s<nSim;s++){
+    // Resample residuals
+    const resSample=residuals.map(()=>{
+      const idx=Math.floor(rng()*nRes);
+      return residuals[idx]*scale;
+    });
+
+    // Reconstruct bootstrap triangle
+    const dataB=data.map(row=>[...row]);
+    fitted.forEach(({i,k,m},fi)=>{
+      const r=resSample[fi];
+      dataB[i][k+1]=Math.max(m+r*Math.sqrt(Math.max(m,0)),0.01);
+    });
+
+    // Refit LDFs on bootstrap triangle
+    const ldfsB={};
+    for(let k=0;k<nLags-1;k++){
+      let sa=0,sb=0,cnt=0;
+      for(let i=0;i<tri.n;i++){
+        const a=data[i][k],b=dataB[i][k+1];
+        if(a!=null&&b!=null&&a>0){sa+=a;sb+=b;cnt++;}
+      }
+      ldfsB[k]=cnt>0&&sa>0?sb/sa:ldfsBase[k];
+      ldfSims[k][s]=ldfsB[k];
+    }
+
+    // Project IBNR per origin
+    let totalB=0;
+    origins.forEach((_,i)=>{
+      const lk=lastKnown[i];
+      if(lk>=nLags-1){simByOrigin[i][s]=0;return;}
+      const cLast=data[i][lk];
+      let cUlt=cLast;
+      for(let k=lk;k<nLags-1;k++) cUlt*=(ldfsB[k]||1);
+      let ibnrB=Math.max(cUlt-cLast,0);
+      // Process variance (gamma)
+      if(ibnrB>0&&phi>0){
+        const shape=ibnrB/phi;
+        // gamma approx using Box-Muller + gamma (simple approximation via sum of exponentials)
+        // For simplicity: use normal approx when shape>10, else log-normal approx
+        if(shape>5){
+          // Normal approx: gamma(shape,scale) ~ N(shape*scale, shape*scale^2)
+          const u1=rng(),u2=rng();
+          const z=Math.sqrt(-2*Math.log(Math.max(u1,1e-10)))*Math.cos(2*Math.PI*u2);
+          ibnrB=Math.max(ibnrB+z*Math.sqrt(phi*ibnrB),0);
+        } else {
+          // Log-normal match
+          const cv2=phi/ibnrB;
+          const sig2=Math.log(1+cv2);
+          const mu=Math.log(ibnrB)-sig2/2;
+          const u1=rng(),u2=rng();
+          const z=Math.sqrt(-2*Math.log(Math.max(u1,1e-10)))*Math.cos(2*Math.PI*u2);
+          ibnrB=Math.max(Math.exp(mu+z*Math.sqrt(sig2)),0);
+        }
+      }
+      simByOrigin[i][s]=ibnrB;
+      totalB+=ibnrB;
+    });
+    simTotal[s]=totalB;
+  }
+
+  const pcts=[0.01,0.05,0.1,0.25,0.5,0.75,0.9,0.95,0.99];
+  const sortedTotal=[...simTotal].sort((a,b)=>a-b);
+  function qTotal(p){const idx=(p*(nSim-1));const lo=Math.floor(idx),hi=Math.ceil(idx);return sortedTotal[lo]+(sortedTotal[hi]-sortedTotal[lo])*(idx-lo);}
+
+  const mean_=simTotal.reduce((s,v)=>s+v,0)/nSim;
+  const std_=Math.sqrt(simTotal.reduce((s,v)=>s+(v-mean_)**2,0)/nSim);
+
+  const originPct=origins.map((_,i)=>{
+    const s=[...simByOrigin[i]].sort((a,b)=>a-b);
+    function q(p){const idx=p*(nSim-1);const lo=Math.floor(idx),hi=Math.ceil(idx);return s[lo]+(s[hi]-s[lo])*(idx-lo);}
+    return {p5:q(0.05),p25:q(0.25),p50:q(0.5),p75:q(0.75),p90:q(0.9),p95:q(0.95)};
+  });
+
+  const ldfPct=Array.from({length:nLags-1},(_,k)=>{
+    const sv=[...ldfSims[k]].sort((a,b)=>a-b);
+    function q(p){const idx=p*(nSim-1);const lo=Math.floor(idx),hi=Math.ceil(idx);return sv[lo]+(sv[hi]-sv[lo])*(idx-lo);}
+    return {p10:q(0.1),p25:q(0.25),p50:q(0.5),p75:q(0.75),p90:q(0.9)};
+  });
+
+  return {simTotal,sortedTotal,qTotal,mean:mean_,std:std_,cv:std_/Math.abs(mean_)*100,
+          p50:qTotal(0.5),p75:qTotal(0.75),p90:qTotal(0.9),p95:qTotal(0.95),p99:qTotal(0.99),
+          ibnrObs:cl.totalIBNR, originPct, ldfPct, origins};
+}
+
+function renderBootstrap(){
+  const tri=currentTri; if(!tri) return;
+  const nSim=parseInt(document.getElementById('boot-nsim').value)||500;
+  const seed=parseInt(document.getElementById('boot-seed').value)||42;
+  const bt=bootstrapCL(tri, nSim, seed, selectedMethods);
+  const {mean,std,cv,p50,p75,p90,p95,p99,ibnrObs,simTotal,qTotal,originPct}=bt;
+
+  const cvCls=cv<15?'green':cv<30?'amber':'red';
+
+  // Interpretation box
+  const bootInterpEl=document.getElementById('boot-interp');
+  if(bootInterpEl){
+    const p90pct=ibnrObs>0?(p90-ibnrObs)/ibnrObs*100:NaN;
+    const p50bias=ibnrObs>0?(bt.p50-ibnrObs)/ibnrObs*100:NaN;
+    let level='ok', lines=[];
+    if(cv<15){
+      level='ok';
+      lines=[`✅ <strong>Distribuição concentrada</strong> — CV ${cv.toFixed(1)}%. O IBNR simulado tem dispersão baixa; o CL é uma estimativa confiável.`];
+    } else if(cv<30){
+      level='warn';
+      lines=[`⚠️ <strong>Dispersão moderada</strong> — CV ${cv.toFixed(1)}%. Para fins regulatórios, recomenda-se reservar pelo P75–P90 em vez do CL base.`];
+    } else {
+      level='alert';
+      lines=[`🔴 <strong>Alta dispersão</strong> — CV ${cv.toFixed(1)}%. A distribuição é ampla; o IBNR do CL pode diferir significativamente do valor real.`];
+    }
+    if(!isNaN(p50bias)&&Math.abs(p50bias)>5){
+      const dir=p50bias>0?'acima':'abaixo';
+      lines.push(`Mediana simulada (P50) está ${Math.abs(p50bias).toFixed(1)}% ${dir} do IBNR CL — indica ${p50bias>0?'possível subreserva do CL':'CL pode estar superestimando'}.`);
+    }
+    if(!isNaN(p90pct)){
+      lines.push(`P90 = CL base + ${p90pct.toFixed(1)}% — essa é a margem de segurança para cobrir 90% dos cenários simulados.`);
+    }
+    lines.push(`Simulações: <strong>${nSim.toLocaleString('pt-BR')}</strong> | Semente: ${seed} (fixe a semente para resultados reproduzíveis).`);
+    bootInterpEl.innerHTML=buildInterpretation(lines, level);
+  }
+
+  document.getElementById('boot-metrics').innerHTML=
+    buildMetric('IBNR obs (CL)', fmt(ibnrObs), 'accent') +
+    buildMetric('Média simulada', fmt(mean), 'blue') +
+    buildMetric('Desvio padrão', fmt(std), cvCls) +
+    buildMetric('P90', fmt(p90), 'purple');
+
+  // Percentile table
+  const pRows=[
+    ['P1',qTotal(0.01)],['P5',qTotal(0.05)],['P10',qTotal(0.1)],
+    ['P25',qTotal(0.25)],['P50',p50],['P75',p75],
+    ['P90',p90],['P95',p95],['P99',p99],
+  ];
+  let pt=`<thead><tr><th>Percentil</th><th>IBNR simulado</th><th>vs. CL base</th><th>% acima base</th></tr></thead><tbody>`;
+  pRows.forEach(([label,val])=>{
+    const d=val-ibnrObs;
+    const pct=ibnrObs?d/Math.abs(ibnrObs)*100:NaN;
+    pt+=`<tr><td>${label}</td><td>${fmt(val)}</td><td class="${d>=0?'delta-pos':'delta-neg'}">${fmtSign(d)}</td><td class="${d>=0?'delta-pos':'delta-neg'}">${isNaN(pct)?'—':pct.toFixed(1)+'%'}</td></tr>`;
+  });
+  pt+=`</tbody>`;
+  document.getElementById('boot-pct-table').innerHTML=pt;
+
+  // Histogram
+  const bins=30;
+  const minV=simTotal.reduce((a,b)=>Math.min(a,b));
+  const maxV=simTotal.reduce((a,b)=>Math.max(a,b));
+  const binW=(maxV-minV)/bins;
+  const counts=new Array(bins).fill(0);
+  const binLabels=[];
+  for(let b=0;b<bins;b++) binLabels.push(fmt(minV+b*binW));
+  simTotal.forEach(v=>{
+    const idx=Math.min(Math.floor((v-minV)/binW),bins-1);
+    counts[idx]++;
+  });
+  const ctxH=document.getElementById('boot-hist-chart').getContext('2d');
+  if(window._bootHistChart) window._bootHistChart.destroy();
+  window._bootHistChart=new Chart(ctxH,{
+    type:'bar',
+    data:{labels:binLabels,datasets:[{
+      label:'Frequência',
+      data:counts,
+      backgroundColor:'rgba(45,212,191,0.5)',
+      borderColor:'#2dd4bf',borderWidth:1
+    }]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},annotation:{annotations:{}}},
+      scales:{x:{ticks:{color:'#7d8590',maxTicksLimit:8},grid:{color:'#21262d'}},
+              y:{ticks:{color:'#7d8590'},grid:{color:'#21262d'}}}}
+  });
+
+  // Origin IQR chart
+  const p25s=tri.origins.map((_,i)=>originPct[i].p25);
+  const p50s=tri.origins.map((_,i)=>originPct[i].p50);
+  const p75s=tri.origins.map((_,i)=>originPct[i].p75);
+  const ctxO=document.getElementById('boot-origin-chart').getContext('2d');
+  if(window._bootOriginChart) window._bootOriginChart.destroy();
+  window._bootOriginChart=new Chart(ctxO,{type:'bar',data:{
+    labels:tri.origins,
+    datasets:[
+      {label:'P75',data:p75s,backgroundColor:'rgba(196,132,252,0.4)',borderColor:'#c084fc',borderWidth:1},
+      {label:'P50',data:p50s,backgroundColor:'rgba(45,212,191,0.7)',borderColor:'#2dd4bf',borderWidth:1},
+      {label:'P25',data:p25s,backgroundColor:'rgba(45,212,191,0.2)',borderColor:'rgba(45,212,191,0.5)',borderWidth:1},
+    ]
+  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{color:'#7d8590',font:{size:11}}}},scales:{x:{ticks:{color:'#7d8590'},grid:{color:'#21262d'}},y:{ticks:{color:'#7d8590'},grid:{color:'#21262d'}}}}});
+
+  // Fan chart
+  const p5s=tri.origins.map((_,i)=>originPct[i].p5);
+  const p95s=tri.origins.map((_,i)=>originPct[i].p95);
+  const ctxF=document.getElementById('boot-fan-chart').getContext('2d');
+  if(window._bootFanChart) window._bootFanChart.destroy();
+  window._bootFanChart=new Chart(ctxF,{type:'bar',data:{
+    labels:tri.origins,
+    datasets:[
+      {label:'P95',data:p95s,backgroundColor:'rgba(248,81,73,0.15)',borderColor:'rgba(248,81,73,0.4)',borderWidth:1},
+      {label:'P75',data:p75s,backgroundColor:'rgba(196,132,252,0.3)',borderColor:'#c084fc',borderWidth:1},
+      {label:'P50',data:p50s,backgroundColor:'rgba(45,212,191,0.65)',borderColor:'#2dd4bf',borderWidth:2},
+      {label:'P25',data:p25s,backgroundColor:'rgba(45,212,191,0.2)',borderColor:'rgba(45,212,191,0.4)',borderWidth:1},
+      {label:'P5',data:p5s,backgroundColor:'rgba(63,185,80,0.1)',borderColor:'rgba(63,185,80,0.3)',borderWidth:1},
+    ]
+  },options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top',labels:{color:'#7d8590',font:{size:10}}}},
+    scales:{x:{ticks:{color:'#7d8590'},grid:{color:'#21262d'}},y:{ticks:{color:'#7d8590'},grid:{color:'#21262d'}}}}});
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ENSEMBLE
+// ═══════════════════════════════════════════════════════════════════════
+
+function computeEnsemble(tri, mode, wCL, wBF, wBK) {
+  const cl = chainLadder(tri, selectedMethods);
+  const ep=tri.earned_premiums||{};
+  const premiums = tri.origins.map(o=>ep[String(o)]||1.0);
+  const elrParam = getELRParam();
+
+  const bfRes  = bornhuetterFerguson(tri, premiums, elrParam, cl.cdfs, cl.latestLag, 'bf');
+  const bkRes  = bornhuetterFerguson(tri, premiums, elrParam, cl.cdfs, cl.latestLag, 'benktander', 1);
+
+  const origins = tri.origins;
+  const ensIBNR = [], wByOrigin = [];
+
+  origins.forEach((_, i) => {
+    let wc, wb, wk;
+    if (mode === 'auto') {
+      const cdf = cl.cdfs[cl.latestLag[i]] || 1;
+      wc = cdf > 0 ? 1 / cdf : 1;
+      wb = 1 - wc;
+      wk = 0;
+    } else {
+      const s = wCL + wBF + wBK || 100;
+      wc = wCL / s; wb = wBF / s; wk = wBK / s;
+    }
+    ensIBNR.push(wc * cl.ibnr[i] + wb * bfRes.ibnr[i] + wk * bkRes.ibnr[i]);
+    wByOrigin.push({wCL: wc * 100, wBF: wb * 100, wBK: wk * 100});
+  });
+
+  const totalEns = ensIBNR.reduce((s, v) => s + v, 0);
+  const allTotals = [cl.totalIBNR, bfRes.totalIBNR, bkRes.totalIBNR];
+
+  return {cl, bfRes, bkRes, ensIBNR, wByOrigin, totalEns,
+          totalCL: cl.totalIBNR, totalBF: bfRes.totalIBNR, totalBK: bkRes.totalIBNR,
+          rangeLow: Math.min(...allTotals), rangeHigh: Math.max(...allTotals)};
+}
+
+function renderEnsemble() {
+  const tri = currentTri; if (!tri) return;
+  const mode = document.querySelector('input[name="ens-mode"]:checked')?.value || 'auto';
+  const wCL = parseFloat(document.getElementById('ens-w-cl').value) || 33;
+  const wBF = parseFloat(document.getElementById('ens-w-bf').value) || 33;
+  const wBK = parseFloat(document.getElementById('ens-w-bk').value) || 34;
+
+  const en = computeEnsemble(tri, mode, wCL, wBF, wBK);
+  const {cl, bfRes, bkRes, ensIBNR, wByOrigin, totalEns, totalCL, totalBF, rangeLow, rangeHigh} = en;
+
+  const spreadPct = totalEns > 0 ? (rangeHigh - rangeLow) / totalEns * 100 : 0;
+  const deltaVsCL = totalEns - totalCL;
+  const deltaCls = deltaVsCL >= 0 ? 'amber' : 'green';
+
+  document.getElementById('ens-metrics').innerHTML =
+    buildMetric('Ensemble Total', fmt(totalEns), 'accent') +
+    buildMetric('CL Total', fmt(totalCL), 'blue') +
+    buildMetric('BF Total', fmt(totalBF), 'green') +
+    buildMetric('Δ Ensemble vs CL', fmtSign(deltaVsCL), deltaCls);
+
+  // Interpretation
+  const interpEl = document.getElementById('ens-interp');
+  if (interpEl) {
+    const lines = [];
+    let level = spreadPct < 10 ? 'ok' : spreadPct < 25 ? 'warn' : 'alert';
+    lines.push(`${spreadPct < 10 ? '✅' : spreadPct < 25 ? '⚠️' : '🔴'} <strong>Faixa entre métodos: ${spreadPct.toFixed(1)}%</strong> do Ensemble total. ${spreadPct < 10 ? 'Métodos convergem — baixa sensibilidade à escolha do método.' : spreadPct < 25 ? 'Divergência moderada — a escolha do ELR e do método influencia o resultado.' : 'Alta divergência — o ELR a priori é determinante. Revise sua premissa de ELR.'}`);
+    if (Math.abs(deltaVsCL) > 0.05 * totalCL) {
+      lines.push(`Ensemble ${deltaVsCL > 0 ? 'reserva mais' : 'reserva menos'} do que o CL puro: Δ = ${fmtSign(deltaVsCL)} (${(deltaVsCL/totalCL*100).toFixed(1)}%). ${deltaVsCL > 0 ? 'O BF/BK puxa para cima — verifique se o ELR a priori é adequado.' : 'O BF/BK puxa para baixo — o a priori está abaixo do CDF projetado.'}`);
+    } else {
+      lines.push(`Ensemble próximo do CL (Δ ${(deltaVsCL/totalCL*100).toFixed(1)}%) — o triângulo está bem desenvolvido ou o ELR converge com o CL.`);
+    }
+    if (mode === 'auto') lines.push(`Modo automático: pesos variam por origin (origem jovem → mais BF, origem madura → mais CL).`);
+    else {
+      const s = wCL + wBF + wBK || 100;
+      lines.push(`Pesos manuais: CL ${(wCL/s*100).toFixed(0)}% | BF ${(wBF/s*100).toFixed(0)}% | Benktander ${(wBK/s*100).toFixed(0)}%.`);
+    }
+    interpEl.innerHTML = buildInterpretation(lines, level);
+  }
+
+  // Table
+  let tbl = `<thead><tr><th>Origin</th><th>IBNR CL</th><th>IBNR BF</th><th>IBNR BK</th><th>w_CL%</th><th>w_BF%</th><th>Ensemble</th><th>Δ vs CL</th></tr></thead><tbody>`;
+  tri.origins.forEach((orig, i) => {
+    const delta = ensIBNR[i] - cl.ibnr[i];
+    const dCls = delta >= 0 ? 'delta-pos' : 'delta-neg';
+    tbl += `<tr>
+      <td>${orig}</td>
+      <td>${fmt(cl.ibnr[i])}</td>
+      <td>${fmt(bfRes.ibnr[i])}</td>
+      <td>${fmt(bkRes.ibnr[i])}</td>
+      <td>${wByOrigin[i].wCL.toFixed(0)}%</td>
+      <td>${wByOrigin[i].wBF.toFixed(0)}%</td>
+      <td style="color:var(--accent);font-weight:600">${fmt(ensIBNR[i])}</td>
+      <td class="${dCls}">${fmtSign(delta)}</td>
+    </tr>`;
+  });
+  const dTot = totalEns - totalCL;
+  tbl += `<tr class="total-row">
+    <td>TOTAL</td><td>${fmt(totalCL)}</td><td>${fmt(totalBF)}</td><td>${fmt(en.totalBK)}</td>
+    <td colspan="2">—</td><td>${fmt(totalEns)}</td>
+    <td class="${dTot>=0?'delta-pos':'delta-neg'}">${fmtSign(dTot)}</td>
+  </tr></tbody>`;
+  document.getElementById('ens-table').innerHTML = tbl;
+
+  // Grouped bar chart
+  const ctx = document.getElementById('ens-chart').getContext('2d');
+  if (window._ensChart) window._ensChart.destroy();
+  window._ensChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: tri.origins,
+      datasets: [
+        {label: 'CL',       data: cl.ibnr,     backgroundColor: 'rgba(68,147,248,0.6)',  borderColor: '#4493f8', borderWidth: 1},
+        {label: 'BF',       data: bfRes.ibnr,  backgroundColor: 'rgba(63,185,80,0.5)',   borderColor: '#3fb950', borderWidth: 1},
+        {label: 'Ensemble', data: ensIBNR,      backgroundColor: 'rgba(45,212,191,0.8)', borderColor: '#2dd4bf', borderWidth: 2},
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {legend: {position: 'top', labels: {color: '#7d8590', font: {size: 11}}}},
+      scales: {
+        x: {ticks: {color: '#7d8590'}, grid: {color: '#21262d'}},
+        y: {ticks: {color: '#7d8590'}, grid: {color: '#21262d'}}
+      }
+    }
+  });
+
+  // Sensitivity chart: sweep w_CL from 0→100, BF gets complement, BK=0
+  const steps = 21;
+  const sensLabels = Array.from({length: steps}, (_, k) => (k * 5) + '%');
+  const sensData = Array.from({length: steps}, (_, k) => {
+    const wc = k / (steps - 1), wb = 1 - wc;
+    return tri.origins.reduce((s, _, i) => s + wc * cl.ibnr[i] + wb * bfRes.ibnr[i], 0);
+  });
+  const ctxS = document.getElementById('ens-sensitivity-chart').getContext('2d');
+  if (window._ensSensChart) window._ensSensChart.destroy();
+  window._ensSensChart = new Chart(ctxS, {
+    type: 'line',
+    data: {
+      labels: sensLabels,
+      datasets: [{
+        label: 'IBNR Ensemble',
+        data: sensData,
+        borderColor: '#2dd4bf', backgroundColor: 'rgba(45,212,191,0.1)',
+        borderWidth: 2, pointRadius: 3, fill: true, tension: 0.3
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: {display: false},
+        tooltip: {callbacks: {label: ctx => `IBNR: ${fmt(ctx.raw)}`}}
+      },
+      scales: {
+        x: {title: {display: true, text: 'Peso CL%', color: '#7d8590'}, ticks: {color: '#7d8590'}, grid: {color: '#21262d'}},
+        y: {ticks: {color: '#7d8590'}, grid: {color: '#21262d'}}
+      }
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// VALIDATION
+// ═══════════════════════════════════════════════════════════════════════
+
+function runValidation(tri, kHoldout) {
+  const {data, lags, origins} = tri;
+  const n = tri.n!=null?tri.n:data.length;
+
+  // Build truncated triangle: remove cells where i+j >= n-kHoldout
+  const cutData = data.map((row, i) =>
+    row.map((val, j) => (i + j >= n - kHoldout ? null : val))
+  );
+  const cutTri = {...tri, data: cutData};
+
+  // Fit CL with vw on truncated triangle (validation always uses vw base)
+  const vwMethods = new Array(lags.length - 1).fill('vw');
+  const cl = chainLadder(cutTri, vwMethods);
+
+  const results = [];
+  origins.forEach((orig, i) => {
+    let lastCutIdx = -1;
+    cutData[i].forEach((val, j) => { if (val != null) lastCutIdx = j; });
+    if (lastCutIdx < 0 || lastCutIdx >= lags.length - 1) return;
+
+    const nextIdx = lastCutIdx + 1;
+    const actual = data[i][nextIdx];
+    if (actual == null || isNaN(actual)) return;
+
+    const latest = cutData[i][lastCutIdx];
+    const ldf = cl.ldfs[lastCutIdx];
+    if (!ldf || isNaN(ldf)) return;
+
+    const predicted = latest * ldf;
+    const error = (predicted - actual) / actual * 100;
+    results.push({orig, lagFrom: lags[lastCutIdx], lagTo: lags[nextIdx],
+                  actual, predicted, error});
+  });
+
+  if (results.length === 0) return null;
+
+  const mape = results.reduce((s, r) => s + Math.abs(r.error), 0) / results.length;
+  const bias = results.reduce((s, r) => s + r.error, 0) / results.length;
+  const rmse = Math.sqrt(results.reduce((s, r) => s + r.error ** 2, 0) / results.length);
+
+  return {results, mape, bias, rmse};
+}
+
+function renderValidation() {
+  const tri = currentTri;
+  if (!tri) return;
+  const k = parseInt(document.getElementById('val-k').value) || 1;
+  const vr = runValidation(tri, k);
+
+  if (!vr) {
+    document.getElementById('val-metrics').innerHTML = '';
+    document.getElementById('val-interp').innerHTML =
+      buildInterpretation([`🔴 Triângulo insuficiente para validação com k=${k}. Reduza k ou escolha um triângulo maior.`], 'alert');
+    document.getElementById('val-table').innerHTML = '';
+    return;
+  }
+
+  const {results, mape, bias, rmse} = vr;
+  const mapeClass = mape < 5 ? 'green' : mape < 15 ? 'amber' : 'red';
+
+  document.getElementById('val-metrics').innerHTML =
+    buildMetric('Origens testadas', results.length, '') +
+    buildMetric('MAPE', mape.toFixed(1) + '%', mapeClass) +
+    buildMetric('Bias', (bias >= 0 ? '+' : '') + bias.toFixed(1) + '%', Math.abs(bias) > 5 ? 'amber' : 'green') +
+    buildMetric('RMSE%', rmse.toFixed(1) + '%', mapeClass);
+
+  // Interpretation
+  let level = mape < 5 ? 'ok' : mape < 15 ? 'warn' : 'alert';
+  const lines = [];
+  if (mape < 5) {
+    lines.push(`✅ <strong>CL excelente neste triângulo</strong> — MAPE ${mape.toFixed(1)}% com k=${k} diagonal(is) removida(s). O padrão de desenvolvimento é estável.`);
+  } else if (mape < 15) {
+    lines.push(`⚠️ <strong>CL moderado</strong> — MAPE ${mape.toFixed(1)}%. O modelo funciona razoavelmente, mas há variabilidade. Para os origins com maior erro (vermelho), considere BF ou métodos robustos.`);
+  } else {
+    lines.push(`🔴 <strong>CL fraco neste triângulo</strong> — MAPE ${mape.toFixed(1)}%. O padrão de desenvolvimento é instável — CL pode gerar projeções pouco confiáveis.`);
+    lines.push(`Avalie causas: sazonalidade, mudança de processo de liquidação, dados insuficientes, ou um único ano anômalo distorcendo os fatores.`);
+  }
+
+  const absBias = Math.abs(bias);
+  if (absBias > 5) {
+    lines.push(`Bias ${bias > 0 ? 'positivo' : 'negativo'} de ${absBias.toFixed(1)}% — CL tende sistematicamente a ${bias > 0 ? 'superestimar' : 'subestimar'} o próximo valor. ${bias > 0 ? 'Considere métodos mais conservadores (medial, p50).' : 'O desenvolvimento pode estar acelerando — avalie last3.'}`);
+  } else {
+    lines.push(`Bias próximo de zero (${(bias >= 0 ? '+' : '')}${bias.toFixed(1)}%) — sem tendência sistemática de super/subestimação.`);
+  }
+
+  const highErr = results.filter(r => Math.abs(r.error) > 15).map(r => r.orig);
+  if (highErr.length > 0) lines.push(`Origins com erro &gt;15%: <strong>${highErr.join(', ')}</strong> — revisão manual recomendada.`);
+  document.getElementById('val-interp').innerHTML = buildInterpretation(lines, level);
+
+  // Table
+  let tbl = `<thead><tr><th>Origin</th><th>Lag → Lag</th><th>Atual</th><th>Previsto CL</th><th>Erro%</th><th></th></tr></thead><tbody>`;
+  results.forEach(r => {
+    const ae = Math.abs(r.error);
+    const errCls = ae < 5 ? 'cv-ok' : ae < 15 ? 'cv-med' : 'cv-high';
+    const icon = ae < 5 ? '✅' : ae < 15 ? '⚠️' : '🔴';
+    const sign = r.error >= 0 ? '+' : '';
+    tbl += `<tr>
+      <td>${r.orig}</td><td>${r.lagFrom}→${r.lagTo}</td>
+      <td>${fmt(r.actual)}</td><td>${fmt(r.predicted)}</td>
+      <td class="${errCls}">${sign}${r.error.toFixed(1)}%</td>
+      <td>${icon}</td>
+    </tr>`;
+  });
+  tbl += `<tr class="total-row">
+    <td colspan="4">Resumo (${results.length} origens)</td>
+    <td class="${mapeClass}">MAPE ${mape.toFixed(1)}%</td>
+    <td>Bias ${(bias>=0?'+':'')}${bias.toFixed(1)}%</td>
+  </tr></tbody>`;
+  document.getElementById('val-table').innerHTML = tbl;
+
+  // Error bar chart
+  const ctx = document.getElementById('val-error-chart').getContext('2d');
+  if (window._valChart) window._valChart.destroy();
+  const barColors = results.map(r =>
+    Math.abs(r.error) < 5 ? 'rgba(63,185,80,0.7)' :
+    Math.abs(r.error) < 15 ? 'rgba(245,158,11,0.7)' : 'rgba(248,81,73,0.7)'
+  );
+  window._valChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: results.map(r => r.orig),
+      datasets: [{label: 'Erro% CL', data: results.map(r => r.error),
+                  backgroundColor: barColors, borderColor: barColors.map(c=>c.replace('0.7','1')),
+                  borderWidth: 1}]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: {display: false},
+        tooltip: {callbacks: {label: ctx => `Erro: ${ctx.raw >= 0 ? '+' : ''}${ctx.raw.toFixed(1)}%`}}
+      },
+      scales: {
+        x: {ticks: {color: '#7d8590'}, grid: {color: '#21262d'}},
+        y: {ticks: {color: '#7d8590', callback: v => (v>=0?'+':'')+v+'%'}, grid: {color: '#21262d'},
+            border: {dash: [4, 2]}}
+      }
+    }
+  });
+}
+
+function renderSplit() {
+  const key = document.getElementById('tri-select').value;
+  const pairKey = TRIANGLE_PAIRS[key];
+  if(!currentTri || !pairKey || !TRIANGLES[pairKey]) {
+    document.getElementById('split-metrics').innerHTML='<div class="explain">Selecione um triângulo com par pago/incorrido (ex: CL_MCLpaid / CL_MCLincurred).</div>';
+    return;
+  }
+  const isPaid = (TRIANGLE_META[key]?.cats||[]).includes('paid');
+  const triPaid = isPaid ? currentTri : TRIANGLES[pairKey];
+  const triInc  = isPaid ? TRIANGLES[pairKey] : currentTri;
+  const sm = selectedMethods || new Array(currentTri.lags.length-1).fill(document.getElementById('cl-method').value);
+  const clP = chainLadder(triPaid, sm.slice(0, triPaid.lags.length-1));
+  const clI = chainLadder(triInc,  sm.slice(0, triInc.lags.length-1));
+  const origins = triPaid.origins;
+  const totalCaseOS   = origins.reduce((s,_,i)=>s+(clI.latest[i]-clP.latest[i]),0);
+  const totalIBNRPaid = clP.totalIBNR;
+  const totalIBNRInc  = clI.totalIBNR;
+  const totalPure     = origins.reduce((s,_,i)=>s+Math.max(clP.ultimates[i]-clI.latest[i],0),0);
+  const N=v=>v==null||isNaN(v)?'—':Math.round(v).toLocaleString('pt-BR');
+  const pm=v=>v>=0?'+'+N(v):N(v);
+  document.getElementById('split-metrics').innerHTML=
+    `<div class="metric"><div class="metric-label">Case Reserves (OS)</div><div class="metric-value" style="color:var(--blue)">${N(totalCaseOS)}</div></div>`+
+    `<div class="metric"><div class="metric-label">IBNR Pago</div><div class="metric-value" style="color:var(--accent)">${N(totalIBNRPaid)}</div></div>`+
+    `<div class="metric"><div class="metric-label">IBNR Inc (IBNER)</div><div class="metric-value" style="color:var(--purple)">${N(totalIBNRInc)}</div></div>`+
+    `<div class="metric"><div class="metric-label">IBNR Puro (estimado)</div><div class="metric-value" style="color:var(--green)">${N(totalPure)}</div></div>`;
+  let tbl=`<thead><tr>
+    <th style="text-align:left">Origem</th>
+    <th>Pago Atual</th><th>Inc Atual</th><th>Case OS</th>
+    <th>Ult. Pago</th><th>Ult. Inc</th>
+    <th>IBNR Pago</th><th>IBNR Inc (IBNER)</th><th>IBNR Puro</th><th>Δ Inc−Pago</th>
+  </tr></thead><tbody>`;
+  let hasNeg=false;
+  origins.forEach((_,i)=>{
+    const pNow=clP.latest[i], iNow=clI.latest[i];
+    const caseOS=iNow-pNow, ultP=clP.ultimates[i], ultI=clI.ultimates[i];
+    const ibnrP=clP.ibnr[i], ibnrI=clI.ibnr[i];
+    const pure=Math.max(ultP-iNow,0), delta=ibnrI-ibnrP;
+    if(ibnrP<0||ibnrI<0) hasNeg=true;
+    const negPs=ibnrP<0?'style="color:var(--red)"':'', negIs=ibnrI<0?'style="color:var(--red)"':'';
+    const dcls=delta>0?'delta-neg':delta<0?'delta-pos':'';
+    tbl+=`<tr>
+      <td style="text-align:left">${origins[i]}</td>
+      <td>${N(pNow)}</td><td>${N(iNow)}</td>
+      <td style="color:var(--blue)">${N(caseOS)}</td>
+      <td>${N(ultP)}</td><td>${N(ultI)}</td>
+      <td ${negPs}>${N(ibnrP)}</td>
+      <td style="color:var(--purple)" ${negIs}>${N(ibnrI)}</td>
+      <td style="color:var(--green)">${N(pure)}</td>
+      <td class="${dcls}">${pm(delta)}</td>
+    </tr>`;
+  });
+  tbl+=`<tr class="total-row">
+    <td style="text-align:left">TOTAL</td>
+    <td>${N(clP.latest.reduce((s,v)=>s+v,0))}</td><td>${N(clI.latest.reduce((s,v)=>s+v,0))}</td>
+    <td style="color:var(--blue)">${N(totalCaseOS)}</td>
+    <td>${N(clP.totalUltimate)}</td><td>${N(clI.totalUltimate)}</td>
+    <td>${N(totalIBNRPaid)}</td>
+    <td style="color:var(--purple)">${N(totalIBNRInc)}</td>
+    <td style="color:var(--green)">${N(totalPure)}</td>
+    <td>${pm(totalIBNRInc-totalIBNRPaid)}</td>
+  </tr></tbody>`;
+  document.getElementById('split-table').innerHTML=tbl;
+  const negBox=document.getElementById('split-negative-ibnr-box');
+  const negTitle=document.getElementById('split-negative-ibnr-title');
+  if(hasNeg){
+    negTitle.style.display=''; negBox.style.display='';
+    negBox.innerHTML=`<div class="explain" style="border-color:var(--accent2)">
+      <strong>O que significa IBNR negativo?</strong><br><br>
+      Em ramos de cauda curta (auto, por exemplo), o último valor já reportado de um ano de origem pode <em>superar</em> o que o Chain Ladder projeta como ultimate — resultando em IBNR negativo.<br><br>
+      <strong>Por que acontece?</strong><br>
+      • O LDF ficou muito próximo de 1,0 e a média ficou ligeiramente abaixo de 1 em alguns métodos<br>
+      • O ano teve desenvolvimento extraordinariamente favorável — pagamentos recentes menores que o padrão histórico esperava<br>
+      • Em incorridos: reversão de reserva (sinistros fechados por menos do que reservado)<br><br>
+      <strong>Como as seguradoras tratam isso na prática:</strong><br>
+      1. <strong>Zero-floor (mais comum no Brasil — CNSP):</strong> IBNR negativo substituído por zero. A reserva mínima é zero; não se reconhece "excesso de reserva" como ativo.<br>
+      2. <strong>BF com a priori conservador:</strong> O a priori do BF impede que o ultimate fique abaixo do já reportado — preferido para origens maduras de cauda curta.<br>
+      3. <strong>Offset / Blanket IBNR:</strong> O negativo de um ano compensa o positivo de outro — algumas seguradoras mantêm o total sem zerá-lo por origem.<br>
+      4. <strong>PFAD (Provision for Adverse Deviation):</strong> Margem explícita sobre o total — prática comum no Canada (OSFI) e UK (Lloyd's).<br>
+      5. <strong>Revise o método:</strong> Troque para <code>last3</code> ou <code>medial</code> no lag final — estabiliza fatores próximos de 1,0.
+    </div>`;
+  } else {
+    negTitle.style.display='none'; negBox.style.display='none';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// TAIL FACTOR (exponential decay fit)
+// ═══════════════════════════════════════════════════════════════════════
+
+function fitExponentialTail(ldfs, k=4) {
+  const n=ldfs.length;
+  if(n<3) return null;
+  const pts=ldfs.slice(Math.max(0,n-k)).map((v,i)=>({x:i+1,y:v-1})).filter(p=>p.y>0.0001);
+  if(pts.length<2) return null;
+  const xs=pts.map(p=>p.x), ys=pts.map(p=>Math.log(p.y));
+  const mx=xs.reduce((s,v)=>s+v,0)/xs.length, my=ys.reduce((s,v)=>s+v,0)/ys.length;
+  const cov=xs.reduce((s,v,i)=>s+(v-mx)*(ys[i]-my),0);
+  const varx=xs.reduce((s,v)=>s+(v-mx)**2,0);
+  const b_est=varx>0?-cov/varx:0;
+  const a_est=Math.exp(my+b_est*mx);
+  const tailFactor=Math.exp(a_est/Math.max(b_est,0.0001)*Math.exp(-b_est*(n+1)));
+  if(!isFinite(tailFactor)||tailFactor<1||tailFactor>3) return {a:a_est,b:b_est,tailFactor:1.0,note:'fora do intervalo razoável'};
+  return {a:a_est,b:b_est,tailFactor};
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// MACK DIAGNOSTICS
+// ═══════════════════════════════════════════════════════════════════════
+
+function rankArr(arr) {
+  const sorted=[...arr].sort((a,b)=>a-b);
+  return arr.map(v=>sorted.indexOf(v)+1);
+}
+
+function mackDiagnostics(tri) {
+  const {data,lags}=tri;
+  const n=tri.origins?tri.origins.length:data.length;
+  const spearman=[];
+  for(let j=0;j<lags.length-2;j++){
+    const pairs=[];
+    for(let i=0;i<n;i++){
+      const v1=data[i][j],v2=data[i][j+1];
+      if(v1!=null&&v2!=null&&v1>0) pairs.push({x:v1,y:v2/v1});
+    }
+    if(pairs.length<3){spearman.push(null);continue;}
+    const rx=rankArr(pairs.map(p=>p.x)),ry=rankArr(pairs.map(p=>p.y));
+    const m=pairs.length,mx=(m+1)/2,my=(m+1)/2;
+    const num=rx.reduce((s,r,i)=>s+(r-mx)*(ry[i]-my),0);
+    const d1=Math.sqrt(rx.reduce((s,r)=>s+(r-mx)**2,0));
+    const d2=Math.sqrt(ry.reduce((s,r)=>s+(r-my)**2,0));
+    spearman.push(d1*d2>0?num/(d1*d2):0);
+  }
+  return {spearman};
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// MUNICH CHAIN LADDER
+// ═══════════════════════════════════════════════════════════════════════
+
+function munichCL(triPaid,triInc) {
+  const n=triPaid.n;
+  const clP=chainLadder(triPaid,null);
+  const clI=chainLadder(triInc,null);
+  const Qratios=triPaid.origins.map((_,i)=>triPaid.lags.map((_,j)=>{
+    const p=triPaid.data[i][j],inc=triInc.data[i][j];
+    return(p!=null&&inc!=null&&inc>0)?p/inc:null;
+  }));
+  const pairs=[];
+  for(let j=0;j<triPaid.lags.length-1;j++){
+    for(let i=0;i<n-j-1;i++){
+      const q=Qratios[i][j];
+      const p0=triPaid.data[i][j],p1=triPaid.data[i][j+1];
+      const fp=(p0&&p0>0&&p1!=null)?p1/p0:null;
+      if(q!=null&&fp!=null) pairs.push({q,f:fp});
+    }
+  }
+  let lambda=0;
+  if(pairs.length>=2){
+    const mq=pairs.reduce((s,p)=>s+p.q,0)/pairs.length,mf=pairs.reduce((s,p)=>s+p.f,0)/pairs.length;
+    const num=pairs.reduce((s,p)=>s+(p.q-mq)*(p.f-mf),0);
+    const den=pairs.reduce((s,p)=>s+(p.q-mq)**2,0);
+    lambda=den>0?num/den:0;
+  }
+  const mclUltimates=triPaid.origins.map((_,i)=>{
+    const row=triPaid.data[i].filter(v=>v!=null);
+    if(!row.length) return 0;
+    const latestP=row[row.length-1];
+    const j=triPaid.data[i].filter(v=>v!=null).length-1;
+    const q=Qratios[i][j];
+    if(q==null) return clP.ultimates[i];
+    const adj=lambda*(q-0.95)*latestP;
+    return Math.max(0,clP.ultimates[i]+adj);
+  });
+  const mclIBNR=triPaid.origins.map((_,i)=>{
+    const row=triPaid.data[i].filter(v=>v!=null);
+    return Math.max(0,mclUltimates[i]-(row.length?row[row.length-1]:0));
+  });
+  return {mclUltimates,mclIBNR,clP,clI,lambda,
+          totalMCL:mclIBNR.reduce((s,v)=>s+v,0),
+          totalCL:clP.totalIBNR};
+}
+
+function renderMCL() {
+  const key=document.getElementById('tri-select').value;
+  const pairKey=TRIANGLE_PAIRS[key];
+  if(!currentTri||!pairKey||!TRIANGLES[pairKey]){
+    document.getElementById('mcl-metrics').innerHTML='<div class="explain">Selecione um triângulo com par pago/incorrido (ex.: CAS) para usar o Munich CL.</div>';
+    return;
+  }
+  const isPaid=(TRIANGLE_META[key]?.cats||[]).includes('paid');
+  const triPaid=isPaid?currentTri:TRIANGLES[pairKey];
+  const triInc=isPaid?TRIANGLES[pairKey]:currentTri;
+  const r=munichCL(triPaid,triInc);
+  const delta=r.totalMCL-r.totalCL;
+  document.getElementById('mcl-metrics').innerHTML=
+    buildMetric('IBNR MCL Total',fmt(r.totalMCL),'accent')+
+    buildMetric('IBNR CL Pago',fmt(r.totalCL),'blue')+
+    buildMetric('λ (correlação)',r.lambda.toFixed(3),'amber')+
+    buildMetric('Δ MCL vs CL',fmtSign(delta),delta>=0?'green':'red');
+  let tbl=`<thead><tr><th>Origin</th><th>Pago Atual</th><th>CL Pago IBNR</th><th>MCL IBNR</th><th>Δ</th></tr></thead><tbody>`;
+  triPaid.origins.forEach((_,i)=>{
+    const d=r.mclIBNR[i]-r.clP.ibnr[i];
+    tbl+=`<tr><td>${triPaid.origins[i]}</td><td>${fmt(r.clP.latest[i])}</td><td>${fmt(r.clP.ibnr[i])}</td><td style="color:var(--accent);font-weight:600">${fmt(r.mclIBNR[i])}</td><td class="${d>=0?'delta-pos':'delta-neg'}">${fmtSign(d)}</td></tr>`;
+  });
+  tbl+=`<tr class="total-row"><td>TOTAL</td><td></td><td>${fmt(r.totalCL)}</td><td>${fmt(r.totalMCL)}</td><td class="${delta>=0?'delta-pos':'delta-neg'}">${fmtSign(delta)}</td></tr></tbody>`;
+  document.getElementById('mcl-table').innerHTML=tbl;
+  const ctx=document.getElementById('mcl-chart').getContext('2d');
+  if(window._mclChart) window._mclChart.destroy();
+  window._mclChart=new Chart(ctx,{type:'bar',data:{
+    labels:triPaid.origins,
+    datasets:[
+      {label:'CL Pago',data:r.clP.ibnr,backgroundColor:'rgba(68,147,248,0.5)',borderColor:'#4493f8',borderWidth:1},
+      {label:'MCL',data:r.mclIBNR,backgroundColor:'rgba(45,212,191,0.7)',borderColor:'#2dd4bf',borderWidth:2}
+    ]
+  },options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top',labels:{color:'#7d8590'}}},
+    scales:{x:{ticks:{color:'#7d8590'},grid:{color:'#21262d'}},y:{ticks:{color:'#7d8590'},grid:{color:'#21262d'}}}}});
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// CLARK'S GROWTH CURVE
+// ═══════════════════════════════════════════════════════════════════════
+
+function loglogistic(x,omega,theta) {
+  if(x<=0) return 0;
+  const xo=Math.pow(x,omega),to=Math.pow(theta,omega);
+  return xo/(xo+to);
+}
+
+function fitClark(tri) {
+  const {data,lags,n}=tri;
+  const pts=[];
+  for(let i=0;i<n;i++){
+    const row=data[i].filter(v=>v!=null);
+    if(row.length<2) continue;
+    const last=row[row.length-1];
+    if(!last||last<=0) continue;
+    for(let j=0;j<row.length&&j<lags.length;j++){
+      if(data[i][j]!=null&&data[i][j]>0) pts.push({x:lags[j],y:data[i][j]/last,w:last});
+    }
+  }
+  if(pts.length<4) return null;
+  let bestOmega=1.5,bestTheta=lags[Math.floor(lags.length/2)],bestSSE=Infinity;
+  const omegaRange=[0.5,0.7,0.9,1.1,1.3,1.5,1.8,2.1,2.5,3.0];
+  const thetaRange=lags.flatMap(l=>[l*0.5,l,l*1.5,l*2]);
+  for(const omega of omegaRange){
+    for(const theta of thetaRange){
+      if(theta<=0) continue;
+      const sse=pts.reduce((s,p)=>s+p.w*(p.y-loglogistic(p.x,omega,theta))**2,0);
+      if(sse<bestSSE){bestSSE=sse;bestOmega=omega;bestTheta=theta;}
+    }
+  }
+  const ultimates=[],ibnr=[];
+  for(let i=0;i<n;i++){
+    const row=data[i].filter(v=>v!=null);
+    if(!row.length){ultimates.push(0);ibnr.push(0);continue;}
+    const latest=row[row.length-1];
+    const latestLag=lags[row.length-1];
+    const g=loglogistic(latestLag,bestOmega,bestTheta);
+    const ult=g>0.01?latest/g:latest;
+    ultimates.push(ult);
+    ibnr.push(Math.max(0,ult-latest));
+  }
+  return {omega:bestOmega,theta:bestTheta,ultimates,ibnr,
+          totalIBNR:ibnr.reduce((s,v)=>s+v,0),
+          totalUltimate:ultimates.reduce((s,v)=>s+v,0)};
+}
+
+function renderClark() {
+  const tri=currentTri; if(!tri) return;
+  const fit=fitClark(tri);
+  if(!fit){
+    document.getElementById('clark-metrics').innerHTML='<div class="explain">Triângulo insuficiente para ajuste de curva de crescimento (mínimo 4 pontos).</div>';
+    return;
+  }
+  const cl=chainLadder(tri,selectedMethods);
+  const delta=fit.totalIBNR-cl.totalIBNR;
+  document.getElementById('clark-metrics').innerHTML=
+    buildMetric('IBNR Clark Total',fmt(fit.totalIBNR),'accent')+
+    buildMetric('ω (shape)',fit.omega.toFixed(2),'blue')+
+    buildMetric('θ (mediana lag)',fit.theta.toFixed(0),'amber')+
+    buildMetric('Δ vs CL',fmtSign(delta),delta>=0?'green':'red');
+  const ctxC=document.getElementById('clark-curve-chart').getContext('2d');
+  if(window._clarkCurveChart) window._clarkCurveChart.destroy();
+  const maxLag=tri.lags[tri.lags.length-1]*1.3;
+  const curveX=Array.from({length:60},(_,i)=>Math.round((i+1)*maxLag/60));
+  const curveY=curveX.map(x=>loglogistic(x,fit.omega,fit.theta));
+  const obsX=tri.lags;
+  const obsY=obsX.map(l=>loglogistic(l,fit.omega,fit.theta));
+  window._clarkCurveChart=new Chart(ctxC,{type:'line',data:{
+    labels:curveX,
+    datasets:[
+      {label:'G(x;ω,θ)',data:curveY,borderColor:'#2dd4bf',backgroundColor:'rgba(45,212,191,0.1)',borderWidth:2,fill:true,tension:0.3,pointRadius:0},
+    ]
+  },options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top',labels:{color:'#7d8590',font:{size:10}}},
+      tooltip:{callbacks:{label:ctx=>`${(ctx.raw*100).toFixed(1)}% desenvolvido`}}},
+    scales:{
+      x:{type:'linear',ticks:{color:'#7d8590'},grid:{color:'#21262d'},title:{display:true,text:'Maturidade (meses)',color:'#7d8590'}},
+      y:{min:0,max:1,ticks:{color:'#7d8590',callback:v=>(v*100).toFixed(0)+'%'},grid:{color:'#21262d'},title:{display:true,text:'% desenvolvimento',color:'#7d8590'}}
+    }}});
+  const ctxI=document.getElementById('clark-ibnr-chart').getContext('2d');
+  if(window._clarkIbnrChart) window._clarkIbnrChart.destroy();
+  window._clarkIbnrChart=new Chart(ctxI,{type:'bar',data:{
+    labels:tri.origins,
+    datasets:[
+      {label:'CL',data:cl.ibnr,backgroundColor:'rgba(68,147,248,0.5)',borderColor:'#4493f8',borderWidth:1},
+      {label:'Clark',data:fit.ibnr,backgroundColor:'rgba(45,212,191,0.7)',borderColor:'#2dd4bf',borderWidth:2}
+    ]
+  },options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top',labels:{color:'#7d8590'}}},
+    scales:{x:{ticks:{color:'#7d8590'},grid:{color:'#21262d'}},y:{ticks:{color:'#7d8590'},grid:{color:'#21262d'}}}}});
+  let tbl=`<thead><tr><th>Origin</th><th>Reportado</th><th>Ult. Clark</th><th>IBNR Clark</th><th>IBNR CL</th><th>Δ</th></tr></thead><tbody>`;
+  tri.origins.forEach((_,i)=>{
+    const latest=tri.data[i].filter(v=>v!=null);
+    const rep=latest.length?latest[latest.length-1]:0;
+    const d=fit.ibnr[i]-cl.ibnr[i];
+    tbl+=`<tr><td>${tri.origins[i]}</td><td>${fmt(rep)}</td><td>${fmt(fit.ultimates[i])}</td><td style="color:var(--accent);font-weight:600">${fmt(fit.ibnr[i])}</td><td>${fmt(cl.ibnr[i])}</td><td class="${d>=0?'delta-pos':'delta-neg'}">${fmtSign(d)}</td></tr>`;
+  });
+  tbl+=`<tr class="total-row"><td>TOTAL</td><td></td><td>${fmt(fit.totalUltimate)}</td><td>${fmt(fit.totalIBNR)}</td><td>${fmt(cl.totalIBNR)}</td><td class="${delta>=0?'delta-pos':'delta-neg'}">${fmtSign(delta)}</td></tr></tbody>`;
+  document.getElementById('clark-table').innerHTML=tbl;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// SIDE-BY-SIDE COMPARISON
+// ═══════════════════════════════════════════════════════════════════════
+
+function renderCompare2() {
+  const kA=document.getElementById('c2-tri-a')?.value;
+  const kB=document.getElementById('c2-tri-b')?.value;
+  if(!kA||!kB||!TRIANGLES[kA]||!TRIANGLES[kB]){
+    document.getElementById('c2-metrics').innerHTML='<div class="explain">Selecione os dois triângulos para comparar.</div>';
+    return;
+  }
+  const triA=TRIANGLES[kA],triB=TRIANGLES[kB];
+  const clA=chainLadder(triA,null),clB=chainLadder(triB,null);
+  const pctDelta=clA.totalIBNR!==0?(clB.totalIBNR-clA.totalIBNR)/Math.abs(clA.totalIBNR)*100:0;
+  document.getElementById('c2-metrics').innerHTML=
+    buildMetric('IBNR A',fmt(clA.totalIBNR),'blue')+
+    buildMetric('IBNR B',fmt(clB.totalIBNR),'green')+
+    buildMetric('Δ (B−A)',fmtSign(clB.totalIBNR-clA.totalIBNR),'amber')+
+    buildMetric('Δ%',(pctDelta>=0?'+':'')+pctDelta.toFixed(1)+'%','');
+  const maxN=Math.min(triA.origins.length,triB.origins.length);
+  const labels=triA.origins.slice(0,maxN);
+  const ctx=document.getElementById('c2-chart').getContext('2d');
+  if(window._c2Chart) window._c2Chart.destroy();
+  window._c2Chart=new Chart(ctx,{type:'bar',data:{
+    labels,
+    datasets:[
+      {label:kA,data:clA.ibnr.slice(0,maxN),backgroundColor:'rgba(68,147,248,0.6)',borderColor:'#4493f8',borderWidth:1},
+      {label:kB,data:clB.ibnr.slice(0,maxN),backgroundColor:'rgba(63,185,80,0.5)',borderColor:'#3fb950',borderWidth:1}
+    ]
+  },options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top',labels:{color:'#7d8590'}}},
+    scales:{x:{ticks:{color:'#7d8590'},grid:{color:'#21262d'}},y:{ticks:{color:'#7d8590'},grid:{color:'#21262d'}}}}});
+  const allN=Math.max(triA.origins.length,triB.origins.length);
+  let tbl=`<thead><tr><th>Origin A</th><th>Ult. A</th><th>IBNR A</th><th>Origin B</th><th>Ult. B</th><th>IBNR B</th><th>Δ IBNR</th></tr></thead><tbody>`;
+  for(let i=0;i<allN;i++){
+    const oA=triA.origins[i]||'—',oB=triB.origins[i]||'—';
+    const uA=clA.ultimates[i],uB=clB.ultimates[i];
+    const iA=clA.ibnr[i],iB=clB.ibnr[i];
+    const d=(iA!=null&&iB!=null)?iB-iA:null;
+    tbl+=`<tr><td>${oA}</td><td>${uA!=null?fmt(uA):'—'}</td><td>${iA!=null?fmt(iA):'—'}</td><td>${oB}</td><td>${uB!=null?fmt(uB):'—'}</td><td>${iB!=null?fmt(iB):'—'}</td><td class="${d!=null?(d>=0?'delta-pos':'delta-neg'):''}">${d!=null?fmtSign(d):'—'}</td></tr>`;
+  }
+  tbl+=`<tr class="total-row"><td colspan="2">TOTAL A</td><td>${fmt(clA.totalIBNR)}</td><td colspan="2">TOTAL B</td><td>${fmt(clB.totalIBNR)}</td><td class="${clB.totalIBNR>=clA.totalIBNR?'delta-pos':'delta-neg'}">${fmtSign(clB.totalIBNR-clA.totalIBNR)}</td></tr></tbody>`;
+  document.getElementById('c2-table').innerHTML=tbl;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// BERQUIST-SHERMAN
+// ═══════════════════════════════════════════════════════════════════════
+
+function renderBS() {
+  const key=document.getElementById('tri-select').value;
+  const pairKey=TRIANGLE_PAIRS[key];
+  const noPair=document.getElementById('bs-no-pair');
+  const tblEl=document.getElementById('bs-table');
+  if(!currentTri||!pairKey||!TRIANGLES[pairKey]){
+    if(noPair) noPair.style.display='';
+    if(tblEl) tblEl.innerHTML='';
+    document.getElementById('bs-metrics').innerHTML='';
+    if(document.getElementById('bs-interp')) document.getElementById('bs-interp').innerHTML='';
+    return;
+  }
+  if(noPair) noPair.style.display='none';
+  const isPaid=(TRIANGLE_META[key]?.cats||[]).includes('paid');
+  const triPaid=isPaid?currentTri:TRIANGLES[pairKey];
+  const triInc=isPaid?TRIANGLES[pairKey]:currentTri;
+  const n=triPaid.n;
+  const Q=triPaid.origins.map((_,i)=>triPaid.lags.map((_,j)=>{
+    const p=triPaid.data[i][j],inc=triInc.data[i][j];
+    return(p!=null&&inc!=null&&inc>0)?p/inc:null;
+  }));
+  const qMeans=triPaid.lags.map((_,j)=>{
+    const vals=Q.map(r=>r[j]).filter(v=>v!=null);
+    return vals.length?vals.reduce((s,v)=>s+v,0)/vals.length:null;
+  });
+  const diagQ=triPaid.origins.map((_,i)=>{
+    const row=Q[i];
+    const last=row.reduce((acc,v,j)=>v!=null?j:acc,-1);
+    return last>=0?{q:row[last],lag:triPaid.lags[last],mean:qMeans[last]}:null;
+  });
+  const flags=diagQ.map(d=>d&&d.mean?Math.abs(d.q/d.mean-1)>0.1:false);
+  const flagCount=flags.filter(Boolean).length;
+  const stability=flagCount===0?'ok':flagCount<=2?'warn':'alert';
+  document.getElementById('bs-metrics').innerHTML=
+    buildMetric('Origins analisadas',n,'')+
+    buildMetric('Desvios >10%',flagCount,flagCount===0?'green':flagCount<=2?'amber':'red')+
+    buildMetric('Estabilidade',stability==='ok'?'Estável':stability==='warn'?'Atenção':'Instável',stability==='ok'?'green':stability==='warn'?'amber':'red')+
+    buildMetric('Q médio (lag 1)',qMeans[0]!=null?qMeans[0].toFixed(3):'—','');
+  const interpEl=document.getElementById('bs-interp');
+  if(interpEl){
+    const lines=[];
+    if(flagCount===0) lines.push('✅ <strong>Processo de liquidação estável</strong> — ratios paid/incurred na diagonal recente próximos das médias históricas. Hipótese de estabilidade do CL não é violada.');
+    else if(flagCount<=2) lines.push(`⚠️ <strong>${flagCount} origin(s) com desvio significativo</strong> — pode indicar aceleração ou desaceleração pontual. Verifique anos extremamente jovens (esperado) vs. anos maduros (preocupante).`);
+    else lines.push(`🔴 <strong>${flagCount} origins com desvio significativo</strong> — forte evidência de mudança no processo de liquidação. O CL baseado em padrões históricos pode estar enviesado. Considere ajuste da diagonal ou uso de BF.`);
+    interpEl.innerHTML=buildInterpretation(lines,stability);
+  }
+  let tbl=`<thead><tr><th>Origin</th><th>Q diagonal (atual)</th><th>Q médio histórico</th><th>Desvio%</th><th>Status</th></tr></thead><tbody>`;
+  triPaid.origins.forEach((_,i)=>{
+    const d=diagQ[i];
+    if(!d){tbl+=`<tr><td>${triPaid.origins[i]}</td><td colspan="4" style="color:var(--muted)">sem dado</td></tr>`;return;}
+    const dev=(d.mean&&d.mean>0)?(d.q/d.mean-1)*100:0;
+    const flagged=flags[i];
+    tbl+=`<tr><td>${triPaid.origins[i]}</td><td>${d.q.toFixed(4)}</td><td>${d.mean?d.mean.toFixed(4):'—'}</td><td class="${flagged?'cv-high':'cv-ok'}">${(dev>=0?'+':'')+dev.toFixed(1)}%</td><td>${flagged?'🔴 Desvio':'✅ OK'}</td></tr>`;
+  });
+  tbl+=`</tbody>`;
+  document.getElementById('bs-table').innerHTML=tbl;
+  const ctx=document.getElementById('bs-chart').getContext('2d');
+  if(window._bsChart) window._bsChart.destroy();
+  const validDiag=diagQ.map((d,i)=>({o:triPaid.origins[i],q:d?.q??null,m:d?.mean??null,flagged:flags[i]})).filter(d=>d.q!=null);
+  window._bsChart=new Chart(ctx,{type:'bar',data:{
+    labels:validDiag.map(d=>d.o),
+    datasets:[
+      {label:'Q diagonal (atual)',data:validDiag.map(d=>d.q),backgroundColor:validDiag.map(d=>d.flagged?'rgba(248,81,73,0.7)':'rgba(45,212,191,0.6)'),borderWidth:1},
+      {label:'Q médio histórico',data:validDiag.map(d=>d.m),type:'line',borderColor:'#f5a623',backgroundColor:'transparent',borderWidth:2,pointRadius:4,tension:0.3}
+    ]
+  },options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'top',labels:{color:'#7d8590'}}},
+    scales:{x:{ticks:{color:'#7d8590'},grid:{color:'#21262d'}},y:{ticks:{color:'#7d8590'},grid:{color:'#21262d'}}}}});
+}
+
 function renderActiveTab() {
   const active=document.querySelector('.tab-pane.active').id.replace('tab-','');
   if(active==='cl') renderCL();
   else if(active==='bf') renderBF();
   else if(active==='compare') renderCompare();
+  else if(active==='mack') renderMack();
+  else if(active==='bootstrap') renderBootstrap();
+  else if(active==='ensemble') renderEnsemble();
+  else if(active==='validation') renderValidation();
+  else if(active==='split') renderSplit();
+  else if(active==='mcl') renderMCL();
+  else if(active==='clark') renderClark();
+  else if(active==='compare2') renderCompare2();
+  else if(active==='bs') renderBS();
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -823,6 +3279,7 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
     document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+    localStorage.setItem('rv_tab', btn.dataset.tab);
     renderActiveTab();
   });
 });
@@ -830,13 +3287,140 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
 document.getElementById('tri-select').addEventListener('change', e=>{
   currentTri=TRIANGLES[e.target.value];
   selectedMethods=null;
+  localStorage.setItem('rv_tri', e.target.value);
+  showTriInfo(e.target.value);
+  const mclBtn=document.getElementById('mcl-tab-btn');
+  if(mclBtn) mclBtn.style.display=TRIANGLE_PAIRS[e.target.value]?'':'none';
+  const bsBtn=document.getElementById('bs-tab-btn');
+  if(bsBtn) bsBtn.style.display=TRIANGLE_PAIRS[e.target.value]?'':'none';
   renderActiveTab();
+});
+
+document.getElementById('report-btn').addEventListener('click', generateReport);
+
+// ── Mobile drawer ──────────────────────────────────────────────────────────
+(function(){
+  const hamBtn   = document.getElementById('ham-btn');
+  const overlay  = document.getElementById('sbar-overlay');
+  const drawer   = document.getElementById('sbar-drawer');
+  const closeBtn = document.getElementById('sbar-close');
+  const desktop  = document.getElementById('sidebar-desktop');
+
+  function openDrawer(){
+    // Clone sidebar content into drawer (excl. the close button placeholder)
+    const placeholder = drawer.querySelector('.drawer-placeholder');
+    if(!drawer.querySelector('#tri-select-clone') && desktop){
+      // Deep-clone the desktop sidebar interior (skip the first two elements: logo+sub)
+      const inner = document.createElement('div');
+      inner.className='drawer-placeholder';
+      inner.innerHTML = desktop.innerHTML;
+      // Wire up cloned controls to delegate to the real ones
+      drawer.appendChild(inner);
+      // Make all chip clicks in drawer also fire on desktop chips
+      inner.querySelectorAll('.tri-chip').forEach(chip=>{
+        chip.addEventListener('click', ()=>{
+          // Find matching chip in desktop and click it
+          const sel = chip.dataset.type ? `[data-type="${chip.dataset.type}"]`
+                    : chip.dataset.cat  ? `[data-cat="${chip.dataset.cat}"]`
+                    : chip.dataset.country ? `[data-country="${chip.dataset.country}"]` : null;
+          if(sel){
+            const real = desktop.querySelector(sel);
+            if(real) real.click();
+          }
+        });
+      });
+      // Report button in drawer
+      const rb = inner.querySelector('.report-btn');
+      if(rb) rb.addEventListener('click', ()=>{ closeDrawer(); generateReport(); });
+      // Triangle select in drawer
+      const ds = inner.querySelector('#tri-select');
+      if(ds){
+        ds.id='tri-select-drawer';
+        ds.addEventListener('change', ()=>{
+          const real = document.getElementById('tri-select');
+          if(real){ real.value=ds.value; real.dispatchEvent(new Event('change')); }
+          closeDrawer();
+        });
+        // keep in sync
+        document.getElementById('tri-select').addEventListener('change', ()=>{
+          ds.value = document.getElementById('tri-select').value;
+        });
+      }
+    }
+    drawer.classList.add('open');
+    overlay.classList.add('open');
+    document.body.style.overflow='hidden';
+  }
+  function closeDrawer(){
+    drawer.classList.remove('open');
+    overlay.classList.remove('open');
+    document.body.style.overflow='';
+  }
+  if(hamBtn){
+    hamBtn.addEventListener('click', openDrawer);
+    closeBtn.addEventListener('click', closeDrawer);
+    overlay.addEventListener('click', closeDrawer);
+  }
+})();
+
+document.getElementById('type-chips').addEventListener('click', e=>{
+  const btn=e.target.closest('.tri-chip'); if(!btn) return;
+  document.querySelectorAll('#type-chips .tri-chip').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  _activeType=btn.dataset.type;
+  filterTriangles();
+});
+
+document.getElementById('cat-chips').addEventListener('click', e=>{
+  const btn=e.target.closest('.tri-chip'); if(!btn) return;
+  document.querySelectorAll('#cat-chips .tri-chip').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  _activeCat=btn.dataset.cat;
+  filterTriangles();
+});
+
+document.getElementById('country-chips').addEventListener('click', e=>{
+  const btn=e.target.closest('.tri-chip'); if(!btn) return;
+  document.querySelectorAll('#country-chips .tri-chip').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  _activeCountry=btn.dataset.country;
+  filterTriangles();
 });
 
 document.getElementById('cl-method').addEventListener('change', ()=>{
   const m=document.getElementById('cl-method').value;
   if(currentTri) selectedMethods=new Array(currentTri.lags.length-1).fill(m);
   renderActiveTab();
+});
+
+['boot-nsim','boot-seed'].forEach(id=>{
+  document.getElementById(id)?.addEventListener('change', function(){
+    if(id==='boot-seed') localStorage.setItem('rv_seed', this.value);
+    const active=document.querySelector('.tab-pane.active').id;
+    if(active==='tab-bootstrap') renderBootstrap();
+  });
+});
+
+document.getElementById('val-k')?.addEventListener('change', ()=>{
+  const active=document.querySelector('.tab-pane.active').id;
+  if(active==='tab-validation') renderValidation();
+});
+
+// Ensemble controls
+document.querySelectorAll('input[name="ens-mode"]').forEach(r=>{
+  r.addEventListener('change', ()=>{
+    const manual = document.querySelector('input[name="ens-mode"]:checked')?.value === 'manual';
+    document.getElementById('ens-manual-weights').style.display = manual ? 'block' : 'none';
+    const active=document.querySelector('.tab-pane.active').id;
+    if(active==='tab-ensemble') renderEnsemble();
+  });
+});
+
+['ens-w-cl','ens-w-bf','ens-w-bk'].forEach(id=>{
+  document.getElementById(id)?.addEventListener('change', ()=>{
+    const active=document.querySelector('.tab-pane.active').id;
+    if(active==='tab-ensemble') renderEnsemble();
+  });
 });
 
 ['bf-variant','elr-manual'].forEach(id=>{
@@ -855,6 +3439,44 @@ document.querySelectorAll('input[name="elr-mode"]').forEach(r=>{
   });
 });
 
+document.getElementById('tail-toggle')?.addEventListener('change', ()=>{
+  if(document.querySelector('.tab-pane.active').id==='tab-cl') renderCL();
+});
+
+['c2-tri-a','c2-tri-b'].forEach(id=>{
+  document.getElementById(id)?.addEventListener('change', ()=>{
+    if(document.querySelector('.tab-pane.active').id==='tab-compare2') renderCompare2();
+  });
+});
+
+document.getElementById('csv-load-btn')?.addEventListener('click', ()=>{
+  const raw=document.getElementById('csv-input').value.trim();
+  const status=document.getElementById('csv-status');
+  if(!raw){status.textContent='Cole um CSV acima.';return;}
+  try{
+    const lines=raw.split('\n').map(l=>l.trim()).filter(l=>l);
+    const header=lines[0].split(',').map(s=>s.trim());
+    const lags=header.slice(1).map(Number).filter(v=>!isNaN(v));
+    const origins=[],data=[];
+    for(let i=1;i<lines.length;i++){
+      const cols=lines[i].split(',').map(s=>s.trim());
+      origins.push(cols[0]);
+      data.push(lags.map((_,j)=>{const v=cols[j+1];return(v===''||v===undefined||v==null)?null:parseFloat(v);}));
+    }
+    if(!origins.length||!lags.length) throw new Error('CSV inválido');
+    TRIANGLES['_custom']={origins,lags,data,n:origins.length};
+    const sel=document.getElementById('tri-select');
+    let opt=document.getElementById('_custom-opt');
+    if(!opt){opt=document.createElement('option');opt.id='_custom-opt';opt.value='_custom';sel.prepend(opt);}
+    opt.textContent=`CSV (${origins.length}×${lags.length})`;
+    sel.value='_custom';
+    currentTri=TRIANGLES['_custom'];selectedMethods=null;
+    status.style.color='var(--green)';
+    status.textContent=`✓ ${origins.length} origens × ${lags.length} lags`;
+    renderActiveTab();
+  }catch(e){status.style.color='var(--red)';status.textContent='Erro: '+e.message;}
+});
+
 // ═══════════════════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════════════════
@@ -864,18 +3486,42 @@ fetch('data/triangles.json')
   .then(d=>{
     TRIANGLES=d.triangles;
     const sel=document.getElementById('tri-select');
+    const selA=document.getElementById('c2-tri-a');
+    const selB=document.getElementById('c2-tri-b');
     Object.keys(TRIANGLES).sort().forEach(k=>{
       const opt=document.createElement('option');
       opt.value=k; opt.textContent=k;
       if(k==='Classic_TaylorAshe1983') opt.selected=true;
       sel.appendChild(opt);
+      if(selA){const o=opt.cloneNode(true);selA.appendChild(o);}
+      if(selB){const o=opt.cloneNode(true);selB.appendChild(o);}
     });
-    currentTri=TRIANGLES['Classic_TaylorAshe1983'];
-    renderCL();
+    let initKey='Classic_TaylorAshe1983';
+    const savedTri=localStorage.getItem('rv_tri');
+    if(savedTri&&TRIANGLES[savedTri]) initKey=savedTri;
+    sel.value=initKey;
+    currentTri=TRIANGLES[initKey];
+    showTriInfo(initKey);
+    const mclBtn=document.getElementById('mcl-tab-btn');
+    if(mclBtn) mclBtn.style.display=TRIANGLE_PAIRS[initKey]?'':'none';
+    const bsBtnInit=document.getElementById('bs-tab-btn');
+    if(bsBtnInit) bsBtnInit.style.display=TRIANGLE_PAIRS[initKey]?'':'none';
+    const savedSeed=localStorage.getItem('rv_seed');
+    if(savedSeed){const s=document.getElementById('boot-seed');if(s)s.value=savedSeed;}
+    const savedTab=localStorage.getItem('rv_tab');
+    if(savedTab){
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+      const btn=document.querySelector(`.tab-btn[data-tab="${savedTab}"]`);
+      if(btn&&btn.style.display!=='none'){btn.classList.add('active');document.getElementById('tab-'+savedTab)?.classList.add('active');}
+      else{document.querySelector('.tab-btn[data-tab="cl"]').classList.add('active');document.getElementById('tab-cl').classList.add('active');}
+    }
+    try{ renderActiveTab(); }
+    catch(re){ console.error('renderActiveTab error:', re.stack||re); }
   })
   .catch(e=>{
     document.querySelector('.main').innerHTML=
-      `<div class="card" style="color:var(--red)">Erro ao carregar triangles.json: ${e}<br>Rode <code>python export_json.py</code> primeiro.</div>`;
+      `<div class="card" style="color:var(--red)">Erro ao carregar triangles.json: ${e}<br><pre style="font-size:10px;overflow:auto;white-space:pre-wrap">${e.stack||''}</pre><br>Rode <code>python export_json.py</code> primeiro.</div>`;
   });
 </script>
 </body>
