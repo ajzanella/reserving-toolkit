@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 /* ── Tokens ──────────────────────────────────────────────────────────── */
 :root {
@@ -163,6 +164,13 @@ tr:hover td{background:var(--surface2)}
 .tri-chars li{color:var(--muted);padding:1px 0}
 .tri-chars li::before{content:"· ";color:var(--accent)}
 .tri-use{color:var(--muted);font-size:10.5px;margin-top:6px;font-style:italic;border-top:1px solid var(--border);padding-top:5px}
+
+/* ── Upload zone ─────────────────────────────────────────────────────── */
+.upload-zone{border:2px dashed var(--border);border-radius:6px;padding:10px 8px;text-align:center;font-size:11px;color:var(--muted);cursor:pointer;transition:border-color .15s,background .15s;margin-bottom:6px}
+.upload-zone:hover,.upload-zone.dragover{border-color:var(--accent);background:rgba(45,212,191,.05);color:var(--text)}
+.upload-zone.drop-ok{border-color:var(--green);color:var(--green)}
+.upload-zone.drop-err{border-color:var(--red);color:var(--red)}
+.upload-link{color:var(--accent);text-decoration:underline;cursor:pointer}
 
 /* ── Report button ───────────────────────────────────────────────────── */
 .report-btn{width:100%;margin-top:14px;background:var(--accent);color:#0d1117;border:none;border-radius:6px;padding:8px 12px;font-size:12px;font-weight:700;letter-spacing:.02em;cursor:pointer;transition:opacity .15s}
@@ -363,12 +371,18 @@ tr:hover td{background:var(--surface2)}
   <input type="number" id="boot-seed" value="42" min="0" max="99999" style="margin-top:4px">
 
   <hr>
-  <details style="margin-top:4px">
-    <summary style="cursor:pointer;font-size:12px;color:var(--muted);padding:4px 0;list-style:none">📂 Carregar CSV</summary>
+  <details style="margin-top:4px" id="upload-details">
+    <summary style="cursor:pointer;font-size:12px;color:var(--muted);padding:4px 0;list-style:none">📂 Carregar triângulo</summary>
     <div style="margin-top:8px">
-      <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Cole um triângulo CSV (1ª linha = cabeçalho com lags, 1ª col = origin):</div>
-      <textarea id="csv-input" rows="5" style="width:100%;box-sizing:border-box;font-size:11px;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:4px;resize:vertical;font-family:monospace" placeholder="lag,12,24,36&#10;2019,1000,1500,&#10;2020,1200,,&#10;2021,,,"></textarea>
-      <button id="csv-load-btn" style="margin-top:4px;width:100%;padding:5px;background:var(--accent);color:#000;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600">Carregar triângulo</button>
+      <div id="upload-zone" class="upload-zone" tabindex="0" role="button" aria-label="Área de upload">
+        <div style="font-size:18px;margin-bottom:4px">📄</div>
+        <div>Arraste um <strong>.csv</strong> ou <strong>.xlsx</strong> aqui</div>
+        <div style="margin-top:3px">ou <label for="file-input"><span class="upload-link">escolha o arquivo</span></label></div>
+        <input type="file" id="file-input" accept=".csv,.xlsx,.xls" style="display:none">
+      </div>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:4px">ou cole o CSV (1ª linha = lags, 1ª col = origin):</div>
+      <textarea id="csv-input" rows="4" style="width:100%;box-sizing:border-box;font-size:11px;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:4px;resize:vertical;font-family:monospace" placeholder="lag,12,24,36&#10;2019,1000,1500,&#10;2020,1200,,&#10;2021,,,"></textarea>
+      <button id="csv-load-btn" style="margin-top:4px;width:100%;padding:5px;background:var(--accent);color:#0d1117;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600">Carregar CSV colado</button>
       <div id="csv-status" style="font-size:11px;margin-top:4px;color:var(--muted)"></div>
     </div>
   </details>
@@ -3445,32 +3459,138 @@ document.getElementById('tail-toggle')?.addEventListener('change', ()=>{
   });
 });
 
-document.getElementById('csv-load-btn')?.addEventListener('click', ()=>{
-  const raw=document.getElementById('csv-input').value.trim();
-  const status=document.getElementById('csv-status');
-  if(!raw){status.textContent='Cole um CSV acima.';return;}
-  try{
-    const lines=raw.split('\n').map(l=>l.trim()).filter(l=>l);
-    const header=lines[0].split(',').map(s=>s.trim());
-    const lags=header.slice(1).map(Number).filter(v=>!isNaN(v));
-    const origins=[],data=[];
-    for(let i=1;i<lines.length;i++){
-      const cols=lines[i].split(',').map(s=>s.trim());
-      origins.push(cols[0]);
-      data.push(lags.map((_,j)=>{const v=cols[j+1];return(v===''||v===undefined||v==null)?null:parseFloat(v);}));
-    }
-    if(!origins.length||!lags.length) throw new Error('CSV inválido');
-    TRIANGLES['_custom']={origins,lags,data,n:origins.length};
-    const sel=document.getElementById('tri-select');
-    let opt=document.getElementById('_custom-opt');
-    if(!opt){opt=document.createElement('option');opt.id='_custom-opt';opt.value='_custom';sel.prepend(opt);}
-    opt.textContent=`CSV (${origins.length}×${lags.length})`;
-    sel.value='_custom';
-    currentTri=TRIANGLES['_custom'];selectedMethods=null;
-    status.style.color='var(--green)';
-    status.textContent=`✓ ${origins.length} origens × ${lags.length} lags`;
-    renderActiveTab();
-  }catch(e){status.style.color='var(--red)';status.textContent='Erro: '+e.message;}
+// ── Triangle upload helpers ──────────────────────────────────────────
+function parseCsvText(raw) {
+  const lines = raw.split('\n').map(l => l.trim()).filter(l => l);
+  if (lines.length < 2) throw new Error('CSV precisa de pelo menos 2 linhas');
+  const header = lines[0].split(',').map(s => s.trim());
+  const lags = header.slice(1).map(Number).filter(v => !isNaN(v));
+  if (!lags.length) throw new Error('1ª linha deve ter lags numéricos após a 1ª coluna');
+  const origins = [], data = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cols = lines[i].split(',').map(s => s.trim());
+    origins.push(cols[0]);
+    data.push(lags.map((_, j) => {
+      const v = cols[j + 1];
+      return (v === '' || v === undefined || v == null || v === '-' || v === 'N/A') ? null : parseFloat(v.replace(/,/g, ''));
+    }));
+  }
+  if (!origins.length) throw new Error('Nenhum origin encontrado');
+  return { origins, lags, data, n: origins.length };
+}
+
+function parseSheetData(rows) {
+  // rows = 2D array from SheetJS (array of arrays, possibly sparse)
+  if (!rows || rows.length < 2) throw new Error('Planilha com menos de 2 linhas');
+  const header = (rows[0] || []).map(c => String(c ?? '').trim());
+  const lags = header.slice(1).map(Number).filter(v => !isNaN(v) && v > 0);
+  if (!lags.length) throw new Error('1ª linha da planilha deve ter lags numéricos');
+  const origins = [], data = [];
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i] || [];
+    const origin = String(row[0] ?? '').trim();
+    if (!origin) continue;
+    origins.push(origin);
+    data.push(lags.map((_, j) => {
+      const v = row[j + 1];
+      if (v === undefined || v === null || v === '') return null;
+      const n = typeof v === 'number' ? v : parseFloat(String(v).replace(/[,\s]/g, ''));
+      return isNaN(n) ? null : n;
+    }));
+  }
+  if (!origins.length) throw new Error('Nenhum origin encontrado na planilha');
+  return { origins, lags, data, n: origins.length };
+}
+
+function applyCustomTriangle(tri, label) {
+  TRIANGLES['_custom'] = tri;
+  const sel = document.getElementById('tri-select');
+  let opt = document.getElementById('_custom-opt');
+  if (!opt) { opt = document.createElement('option'); opt.id = '_custom-opt'; opt.value = '_custom'; sel.prepend(opt); }
+  opt.textContent = `${label} (${tri.origins.length}×${tri.lags.length})`;
+  sel.value = '_custom';
+  currentTri = tri; selectedMethods = null;
+  renderActiveTab();
+}
+
+function setUploadStatus(msg, type = 'ok') {
+  const el = document.getElementById('csv-status');
+  if (!el) return;
+  el.style.color = type === 'ok' ? 'var(--green)' : 'var(--red)';
+  el.textContent = msg;
+}
+
+function setUploadZoneState(state) {
+  const z = document.getElementById('upload-zone');
+  if (!z) return;
+  z.classList.remove('dragover', 'drop-ok', 'drop-err');
+  if (state) z.classList.add(state);
+}
+
+function handleUploadedFile(file) {
+  if (!file) return;
+  const name = file.name.toLowerCase();
+  const isXlsx = name.endsWith('.xlsx') || name.endsWith('.xls');
+  const isCsv = name.endsWith('.csv');
+  if (!isXlsx && !isCsv) {
+    setUploadStatus('Formato não suportado — use .csv ou .xlsx', 'err');
+    setUploadZoneState('drop-err');
+    return;
+  }
+  const reader = new FileReader();
+  if (isCsv) {
+    reader.onload = e => {
+      try {
+        const tri = parseCsvText(e.target.result);
+        applyCustomTriangle(tri, file.name.replace(/\.csv$/i, ''));
+        setUploadStatus(`✓ ${tri.origins.length} origens × ${tri.lags.length} lags`);
+        setUploadZoneState('drop-ok');
+      } catch (err) { setUploadStatus('Erro: ' + err.message, 'err'); setUploadZoneState('drop-err'); }
+    };
+    reader.readAsText(file);
+  } else {
+    reader.onload = e => {
+      try {
+        if (typeof XLSX === 'undefined') throw new Error('SheetJS não carregou. Verifique a conexão.');
+        const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null });
+        const tri = parseSheetData(rows);
+        applyCustomTriangle(tri, file.name.replace(/\.xlsx?$/i, ''));
+        setUploadStatus(`✓ ${tri.origins.length} origens × ${tri.lags.length} lags (${wb.SheetNames[0]})`);
+        setUploadZoneState('drop-ok');
+      } catch (err) { setUploadStatus('Erro: ' + err.message, 'err'); setUploadZoneState('drop-err'); }
+    };
+    reader.readAsArrayBuffer(file);
+  }
+}
+
+// ── Upload zone events ───────────────────────────────────────────────
+const uploadZone = document.getElementById('upload-zone');
+if (uploadZone) {
+  uploadZone.addEventListener('dragover', e => { e.preventDefault(); setUploadZoneState('dragover'); });
+  uploadZone.addEventListener('dragleave', () => setUploadZoneState(null));
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault(); setUploadZoneState(null);
+    handleUploadedFile(e.dataTransfer.files[0]);
+  });
+  uploadZone.addEventListener('click', () => document.getElementById('file-input')?.click());
+  uploadZone.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') document.getElementById('file-input')?.click(); });
+}
+document.getElementById('file-input')?.addEventListener('change', e => {
+  handleUploadedFile(e.target.files[0]);
+  e.target.value = ''; // allow re-uploading same file
+});
+
+// ── CSV paste button ─────────────────────────────────────────────────
+document.getElementById('csv-load-btn')?.addEventListener('click', () => {
+  const raw = document.getElementById('csv-input').value.trim();
+  if (!raw) { setUploadStatus('Cole um CSV acima.', 'err'); return; }
+  try {
+    const tri = parseCsvText(raw);
+    applyCustomTriangle(tri, 'CSV');
+    setUploadStatus(`✓ ${tri.origins.length} origens × ${tri.lags.length} lags`);
+  } catch (e) { setUploadStatus('Erro: ' + e.message, 'err'); }
 });
 
 // ═══════════════════════════════════════════════════════════════════════
