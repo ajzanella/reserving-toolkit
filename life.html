@@ -7,11 +7,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
+/* ── Tokens ───────────────────────────────────────────────────── */
 :root {
   --bg:#f6f8fa; --surface:#fff; --surface2:#f6f8fa;
   --border:#d0d7de; --text:#24292f; --muted:#57606a;
   --accent:#0969da; --green:#1a7f37; --red:#cf222e; --amber:#9a6700;
-  --r:8px; --font:'Inter',system-ui,sans-serif; --mono:'JetBrains Mono','Fira Code',monospace;
+  --r:8px;
+  --font:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono','Fira Code',monospace;
+  --sidebar:290px;
 }
 @media(prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
@@ -25,71 +29,81 @@
   --border:#30363d;--text:#e6edf3;--muted:#8b949e;
   --accent:#58a6ff;--green:#3fb950;--red:#f85149;--amber:#e3b341;
 }
+
+/* ── Reset & body ─────────────────────────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;min-height:100vh}
-.topbar{display:flex;align-items:center;gap:10px;padding:0 20px;height:44px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* ── Module topbar ────────────────────────────────────────────── */
+.topbar{display:flex;align-items:center;gap:10px;padding:0 20px;height:44px;min-height:44px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto}
 .topbar-logo{font-weight:700;font-size:14px;letter-spacing:-.3px;flex-shrink:0}.topbar-logo span{color:var(--accent)}
-.modnav{display:flex;gap:2px;flex:1;overflow-x:auto;padding:0 8px}
+.modnav{display:flex;gap:2px;flex:1}
 .modnav a{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:6px;font-size:12px;font-weight:500;text-decoration:none;color:var(--muted);white-space:nowrap;transition:background .12s,color .12s}
 .modnav a:hover{background:var(--surface2);color:var(--text)}
 .modnav a.active{background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent);font-weight:600}
 
-/* Step header */
+/* ── Life internal tab bar ────────────────────────────────────── */
+.lt-tabs{display:flex;gap:2px;padding:0 20px;height:38px;min-height:38px;background:var(--surface);border-bottom:1px solid var(--border);align-items:flex-end;flex-shrink:0;overflow-x:auto}
+.lt-tab{background:none;border:none;border-bottom:2px solid transparent;padding:6px 14px;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap;transition:color .12s,border-color .12s;font-family:var(--font)}
+.lt-tab:hover{color:var(--text)}
+.lt-tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+
+/* ── Shell ────────────────────────────────────────────────────── */
+.shell{display:flex;flex:1;overflow:hidden}
+.panel{display:flex;flex:1;overflow:hidden}
+.panel.hidden{display:none}
+
+/* ── Sidebar ──────────────────────────────────────────────────── */
+.sidebar{width:var(--sidebar);min-width:var(--sidebar);background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;gap:14px}
+
+/* ── Main ─────────────────────────────────────────────────────── */
+.main{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px}
+
+/* ── Shared controls ──────────────────────────────────────────── */
+.ctrl-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:5px}
+.ctrl-group{display:flex;flex-direction:column;gap:3px}
+select,input[type=number]{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-size:12px;font-family:var(--font);outline:none;transition:border-color .12s}
+select:focus,input[type=number]:focus{border-color:var(--accent)}
+input[type=range]{accent-color:var(--accent)}
+.input-note{font-size:10px;color:var(--muted);margin-top:2px}
+
+/* ── Life: Steps & buttons ────────────────────────────────────── */
 .step-hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px;margin-top:4px;padding-top:10px;border-top:1px solid var(--border)}
 .step-hdr:first-child{padding-top:0;border-top:none;margin-top:0}
 .step-n{width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.step-title{font-size:11px;font-weight:600;color:var(--text)}
-.step-sub{font-size:10px;color:var(--muted)}
-/* Error inline */
-.err-inline{background:color-mix(in srgb,var(--red) 8%,var(--surface));border:1px solid color-mix(in srgb,var(--red) 20%,transparent);border-radius:var(--r);padding:10px 14px;font-size:12px;color:var(--red);display:none}
-/* Loading state */
-.btn.loading{opacity:.6;pointer-events:none}
-/* Layout */
-.shell{display:grid;grid-template-columns:290px 1fr;min-height:calc(100vh - 44px)}
-.sidebar{background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;gap:14px}
-.main{overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px}
-
-/* Controls */
-.ctrl-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:5px}
-.ctrl-group{display:flex;flex-direction:column;gap:3px}
-select,input[type=number],input[type=range]{
-  width:100%;background:var(--surface2);border:1px solid var(--border);
-  border-radius:6px;padding:6px 10px;color:var(--text);font-size:12px;
-  font-family:var(--font);outline:none;transition:border-color .12s
-}
-select:focus,input[type=number]:focus{border-color:var(--accent)}
-.range-row{display:flex;align-items:center;gap:8px}
-.range-row input{flex:1;accent-color:var(--accent);padding:0}
-.range-val{font-family:var(--mono);font-size:11px;color:var(--muted);min-width:42px;text-align:right}
-.input-note{font-size:10px;color:var(--muted);margin-top:2px}
-
-/* Buttons */
+.step-title{font-size:11px;font-weight:600;color:var(--text)}.step-sub{font-size:10px;color:var(--muted)}
 .btn{width:100%;padding:8px;border:none;border-radius:var(--r);background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .12s}
 .btn:hover{opacity:.85}
 .btn-sm{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer}
 .btn-sm:hover{background:var(--border)}
+.err-inline{background:color-mix(in srgb,var(--red) 8%,var(--surface));border:1px solid color-mix(in srgb,var(--red) 20%,transparent);border-radius:var(--r);padding:10px 14px;font-size:12px;color:var(--red);display:none}
+.range-row{display:flex;align-items:center;gap:8px}
+.range-row input{flex:1;padding:0}
+.range-val{font-family:var(--mono);font-size:11px;color:var(--muted);min-width:42px;text-align:right}
 
-/* Section toggle */
-.section-toggle{background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;padding:0;display:flex;align-items:center;gap:4px;margin-bottom:4px}
-
-/* Cards */
+/* ── Life: Cards & KPIs ───────────────────────────────────────── */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px}
 .card-title{font-size:13px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px}
 .card-title .ct-sub{font-size:11px;font-weight:400;color:var(--muted)}
-
-/* KPI grid */
 .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:4px}
 .kpi{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px}
 .kpi-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:3px}
 .kpi-value{font-family:var(--mono);font-size:18px;font-weight:500;color:var(--accent);line-height:1.2}
 .kpi-sub{font-size:10px;color:var(--muted);margin-top:2px}
-
-/* Formula callout */
 .fml{background:color-mix(in srgb,var(--amber) 8%,var(--surface));border-left:3px solid var(--amber);border-radius:4px;padding:10px 14px;margin:10px 0}
 .fml-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--amber);margin-bottom:6px}
 .fml code{font-family:var(--mono);font-size:12px;display:block;line-height:1.8;color:var(--text)}
+.explain{background:color-mix(in srgb,var(--accent) 7%,var(--surface));border-left:3px solid var(--accent);border-radius:4px;padding:10px 14px;font-size:12px;color:var(--muted);line-height:1.6}
+.explain strong{color:var(--text)}
+.sens-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.sens-chip{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;text-align:center}
+.sens-chip .sc-label{font-size:10px;color:var(--muted);margin-bottom:2px}
+.sens-chip .sc-val{font-family:var(--mono);font-size:13px;font-weight:500}
+.delta-pos{color:var(--red)}.delta-neg{color:var(--green)}
+.compare-badge{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+canvas.life-chart{display:block;width:100%}
 
-/* Tables */
+/* ── Life: Table ──────────────────────────────────────────────── */
 .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 table.res-tbl{width:100%;min-width:600px;border-collapse:collapse;font-size:12px}
 table.res-tbl th{background:var(--surface2);padding:7px 12px;text-align:right;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap}
@@ -100,49 +114,89 @@ table.res-tbl tr:last-child td{border-bottom:none;font-weight:600;background:var
 table.res-tbl tr:hover td{background:var(--surface2)}
 .pos{color:var(--green)}.neg{color:var(--red)}
 
-/* Charts */
-canvas.life-chart{display:block;width:100%}
-.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:800px){.charts-grid{grid-template-columns:1fr}}
+/* ── Mortality: Sidebar controls ──────────────────────────────── */
+.mort-sidebar{gap:18px}
+.country-list{display:flex;flex-direction:column;gap:4px}
+.country-row{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px;cursor:pointer;user-select:none;transition:background .12s}
+.country-row:hover{background:var(--surface2)}
+.country-row input[type=checkbox]{accent-color:var(--accent);width:14px;height:14px;cursor:pointer;flex-shrink:0}
+.country-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.country-flag{font-size:14px;line-height:1}
+.country-name{flex:1;font-size:12px}
+.country-e0{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.sex-row{display:flex;gap:4px}
+.sex-btn{flex:1;padding:5px 0;border:1px solid var(--border);border-radius:6px;background:var(--surface2);color:var(--muted);font-size:11px;font-weight:500;cursor:pointer;transition:all .12s;font-family:var(--font)}
+.sex-btn.active{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent)}
+.metric-pills{display:flex;gap:4px;flex-wrap:wrap}
+.metric-pill{padding:4px 10px;border:1px solid var(--border);border-radius:20px;background:var(--surface2);color:var(--muted);font-size:11px;cursor:pointer;transition:all .12s;font-family:var(--font)}
+.metric-pill.active{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent);font-weight:600}
+.age-range-row{display:flex;align-items:center;gap:8px}
+.age-range-row input[type=range]{flex:1}
+.age-range-row span{font-family:var(--mono);font-size:11px;color:var(--muted);min-width:24px;text-align:right}
+.log-toggle{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer}
 
-/* Explain box */
-.explain{background:color-mix(in srgb,var(--accent) 7%,var(--surface));border-left:3px solid var(--accent);border-radius:4px;padding:10px 14px;font-size:12px;color:var(--muted);line-height:1.6}
-.explain strong{color:var(--text)}
+/* ── Mortality: Charts & legend ───────────────────────────────── */
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px}
+.chart-header{display:flex;align-items:baseline;gap:10px;margin-bottom:12px}
+.chart-title{font-size:13px;font-weight:600}
+.chart-sub{font-size:11px;color:var(--muted)}
+canvas.mort-chart{display:block;width:100%}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
+.legend-line{width:20px;height:2px;border-radius:1px}
+.legend-line.dashed{background:repeating-linear-gradient(90deg,currentColor 0 5px,transparent 5px 8px)}
+.summary-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px}
+table.summary-tbl{width:auto;min-width:100%;border-collapse:collapse;font-size:12px;font-family:var(--mono)}
+table.summary-tbl th{background:var(--surface2);color:var(--muted);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:7px 12px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap}
+table.summary-tbl th:first-child{text-align:left}
+table.summary-tbl td{padding:6px 12px;text-align:right;border-bottom:1px solid var(--border);color:var(--text)}
+table.summary-tbl td:first-child{text-align:left;font-family:var(--font);font-size:12px}
+table.summary-tbl tr:last-child td{border-bottom:none}
+table.summary-tbl tr:hover td{background:var(--surface2)}
+.flag-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.source-note{font-size:11px;color:var(--muted);padding:8px 0}
+.loading{display:flex;align-items:center;justify-content:center;height:200px;color:var(--muted);font-size:13px}
+.error-msg{color:var(--red);padding:20px}
+#chart-tooltip{position:fixed;pointer-events:none;z-index:200;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-size:11px;box-shadow:0 4px 16px rgba(0,0,0,.2);max-width:220px;display:none}
+#chart-tooltip strong{display:block;margin-bottom:4px;font-size:12px}
+.tt-row{display:flex;justify-content:space-between;gap:12px}
+.tt-row .tt-val{font-family:var(--mono)}
 
-/* Sensitivity */
-.sens-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
-.sens-chip{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;text-align:center}
-.sens-chip .sc-label{font-size:10px;color:var(--muted);margin-bottom:2px}
-.sens-chip .sc-val{font-family:var(--mono);font-size:13px;font-weight:500}
-.delta-pos{color:var(--red)}.delta-neg{color:var(--green)}
-
-/* Compare panel */
-.compare-row{display:flex;gap:6px;align-items:center}
-.compare-badge{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-
+/* ── Responsive ───────────────────────────────────────────────── */
 @media(max-width:640px){
-  .shell{grid-template-columns:1fr}
-  .sidebar{border-right:none;border-bottom:1px solid var(--border)}
+  body{height:auto;overflow:auto}
+  .shell,.panel{flex-direction:column}
+  .sidebar{width:100%;min-width:0;border-right:none;border-bottom:1px solid var(--border)}
+  .main{overflow-y:unset}
 }
 </style>
 </head>
 <body>
 
+<!-- ── Module topbar ──────────────────────────────────────────── -->
 <div class="topbar">
   <div class="topbar-logo">Reserving <span>Toolkit</span></div>
   <nav class="modnav">
     <a href="index.html">📐 P&C Reservas</a>
     <a href="life.html" class="active">❤️ Seguro de Vida</a>
-    <a href="mortality.html">🔬 Tábuas</a>
     <a href="fitting.html">📊 Distribution Fitting</a>
   </nav>
 </div>
 
+<!-- ── Life internal tabs ─────────────────────────────────────── -->
+<div class="lt-tabs">
+  <button class="lt-tab active" data-panel="life">❤️ Projeção de Apólice</button>
+  <button class="lt-tab" data-panel="mort">🔬 Tábuas de Mortalidade</button>
+</div>
+
 <div class="shell">
-<!-- ══ SIDEBAR ══════════════════════════════════════════════════════ -->
+
+<!-- ════════════════════════════════════════════════════════════════
+     PANEL: Projeção de Apólice
+═══════════════════════════════════════════════════════════════════ -->
+<div class="panel" id="panel-life">
 <aside class="sidebar">
 
-  <!-- PASSO 1 -->
   <div>
     <div class="step-hdr">
       <span class="step-n">1</span>
@@ -160,7 +214,6 @@ canvas.life-chart{display:block;width:100%}
     </div>
   </div>
 
-  <!-- PASSO 2 -->
   <div>
     <div class="step-hdr">
       <span class="step-n">2</span>
@@ -169,16 +222,15 @@ canvas.life-chart{display:block;width:100%}
     <div class="ctrl-group">
       <div class="ctrl-label" style="margin-bottom:3px">Tábua principal</div>
       <select id="table1"><option value="">⏳ Carregando tábuas…</option></select>
-      <div class="input-note">Ex: Brasil 2022 Masc. usa dados do IBGE via HLD.</div>
+      <div class="input-note">Ex: Brasil Masc. usa dados do IBGE via HLD.</div>
     </div>
     <div class="ctrl-group" style="margin-top:8px">
-      <div class="ctrl-label" style="margin-bottom:3px">Comparar com outra tábua <em style="font-weight:400">(opcional)</em></div>
+      <div class="ctrl-label" style="margin-bottom:3px">Comparar com <em style="font-weight:400">(opcional)</em></div>
       <select id="table2"><option value="">— Nenhuma —</option></select>
-      <div class="input-note">Mostra Δ reserva lado a lado no resultado.</div>
+      <div class="input-note">Mostra Δ reserva lado a lado.</div>
     </div>
   </div>
 
-  <!-- PASSO 3 -->
   <div>
     <div class="step-hdr">
       <span class="step-n">3</span>
@@ -199,7 +251,7 @@ canvas.life-chart{display:block;width:100%}
       </div>
     </div>
     <div id="def-group" class="ctrl-group" style="display:none">
-      <div class="ctrl-label">Diferimento — d anos (fase de poupança)</div>
+      <div class="ctrl-label">Diferimento — d anos</div>
       <div class="range-row">
         <input type="range" id="def-d" min="1" max="40" value="25">
         <span class="range-val" id="def-d-val">25 anos</span>
@@ -211,7 +263,7 @@ canvas.life-chart{display:block;width:100%}
         <input type="range" id="rate-i" min="0.5" max="20" step="0.25" value="6">
         <span class="range-val" id="rate-i-val">6,00%</span>
       </div>
-      <div class="input-note">Taxa usada para descontar fluxos futuros (≈ NTNB longa).</div>
+      <div class="input-note">Taxa de desconto (≈ NTN-B longa).</div>
     </div>
     <div class="ctrl-group">
       <div class="ctrl-label">Soma segurada / benefício anual (R$)</div>
@@ -219,21 +271,20 @@ canvas.life-chart{display:block;width:100%}
     </div>
   </div>
 
-  <!-- PASSO 4 -->
   <div>
     <div class="step-hdr">
       <span class="step-n">4</span>
       <div><div class="step-title">Carregamentos</div><div class="step-sub">Opcional — para prêmio bruto</div></div>
     </div>
     <div class="ctrl-group">
-      <div class="ctrl-label">Lapse anual (cancelamentos)</div>
+      <div class="ctrl-label">Lapse anual</div>
       <div class="range-row">
         <input type="range" id="lapse" min="0" max="20" step="0.5" value="2">
         <span class="range-val" id="lapse-val">2,0%</span>
       </div>
     </div>
     <div class="ctrl-group">
-      <div class="ctrl-label">Despesa (% do prêmio bruto)</div>
+      <div class="ctrl-label">Despesa (% prêmio bruto)</div>
       <div class="range-row">
         <input type="range" id="exp-pct" min="0" max="40" step="1" value="15">
         <span class="range-val" id="exp-pct-val">15%</span>
@@ -251,33 +302,119 @@ canvas.life-chart{display:block;width:100%}
 
 </aside>
 
-<!-- ══ MAIN ══════════════════════════════════════════════════════════ -->
-<main class="main" id="main-area">
+<main class="main" id="life-main">
   <div style="padding:40px;text-align:center;color:var(--muted)">
     <div style="font-size:40px;margin-bottom:12px">❤️</div>
     <strong style="color:var(--text)">Calculadora Atuarial de Vida</strong><br>
     Configure os parâmetros e clique em <em>Calcular</em>.
   </div>
 </main>
-</div>
+</div><!-- /panel-life -->
+
+<!-- ════════════════════════════════════════════════════════════════
+     PANEL: Tábuas de Mortalidade
+═══════════════════════════════════════════════════════════════════ -->
+<div class="panel hidden" id="panel-mort">
+<aside class="sidebar mort-sidebar">
+
+  <div>
+    <div class="ctrl-label">Países</div>
+    <div class="country-list" id="country-list">
+      <div class="loading" style="height:80px;font-size:12px">Carregando…</div>
+    </div>
+  </div>
+
+  <div>
+    <div class="ctrl-label">Sexo</div>
+    <div class="sex-row">
+      <button class="sex-btn active" data-sex="M">♂ Masc.</button>
+      <button class="sex-btn active" data-sex="F">♀ Fem.</button>
+    </div>
+  </div>
+
+  <div>
+    <div class="ctrl-label">Métricas</div>
+    <div class="metric-pills">
+      <button class="metric-pill active" data-metric="qx">q(x)</button>
+      <button class="metric-pill active" data-metric="lx">l(x)</button>
+      <button class="metric-pill active" data-metric="ex">e(x)</button>
+    </div>
+  </div>
+
+  <div>
+    <div class="ctrl-label">Faixa etária</div>
+    <div class="age-range-row">
+      <span id="mort-age-min-val">0</span>
+      <input type="range" id="mort-age-min" min="0" max="100" value="0">
+    </div>
+    <div class="age-range-row" style="margin-top:4px">
+      <span id="mort-age-max-val">100</span>
+      <input type="range" id="mort-age-max" min="0" max="110" value="100">
+    </div>
+  </div>
+
+  <div>
+    <div class="ctrl-label">Escala q(x)</div>
+    <label class="log-toggle">
+      <input type="checkbox" id="log-scale" checked> Logarítmica
+    </label>
+  </div>
+
+</aside>
+
+<main class="main" id="mort-main">
+  <div class="loading" id="mort-loading">Carregando tábuas…</div>
+</main>
+</div><!-- /panel-mort -->
+
+</div><!-- /shell -->
+
+<div id="chart-tooltip"></div>
 
 <script>
-// ════════════════════════════════════════════════════════════════════
-// DATA LOADING
-// ════════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════
+// SHARED: data & helpers
+// ════════════════════════════════════════════════════════════════
 let TABLES = {};
 
+const isDark = () => {
+  const t = document.documentElement.getAttribute('data-theme');
+  if(t==='dark') return true; if(t==='light') return false;
+  return window.matchMedia('(prefers-color-scheme:dark)').matches;
+};
+
 fetch('data/mortality_tables.json')
-  .then(r=>r.json())
-  .then(d=>{
+  .then(r => r.json())
+  .then(d => {
     TABLES = d.tables;
-    buildTableSelects();
-    runCalc(); // auto-calcula com defaults ao carregar
+    buildTableSelects();   // life
+    buildMortSidebar();    // mortality
+    runCalc();             // auto-calc
+    mortRender();          // pre-render so tab switch is instant
   })
-  .catch(e=>{
-    showErr('Erro ao carregar tábuas de mortalidade. Rode python scripts/mortality_tables.py primeiro. Detalhe: '+e);
+  .catch(e => {
+    showErr('Erro ao carregar tábuas. Rode python scripts/mortality_tables.py primeiro. Detalhe: '+e);
+    document.getElementById('mort-loading').innerHTML =
+      `<div class="error-msg">Erro: ${e}<br>Rode <code>python scripts/mortality_tables.py</code> primeiro.</div>`;
   });
 
+// ════════════════════════════════════════════════════════════════
+// TAB SWITCHING
+// ════════════════════════════════════════════════════════════════
+document.querySelectorAll('.lt-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.lt-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const p = btn.dataset.panel;
+    document.getElementById('panel-life').classList.toggle('hidden', p !== 'life');
+    document.getElementById('panel-mort').classList.toggle('hidden', p !== 'mort');
+    if(p === 'mort') mortRender();
+  });
+});
+
+// ════════════════════════════════════════════════════════════════
+// LIFE: Controls
+// ════════════════════════════════════════════════════════════════
 function buildTableSelects() {
   const ids = Object.keys(TABLES);
   const populate = (sel, includeNone) => {
@@ -285,9 +422,8 @@ function buildTableSelects() {
     ids.forEach(id => {
       const t = TABLES[id];
       const opt = document.createElement('option');
-      opt.value = id;
-      opt.textContent = t.name;
-      if(id === 'BRA_M' && !includeNone) opt.selected = true;
+      opt.value = id; opt.textContent = t.name;
+      if(id==='BRA_M' && !includeNone) opt.selected = true;
       sel.appendChild(opt);
     });
   };
@@ -295,36 +431,30 @@ function buildTableSelects() {
   populate(document.getElementById('table2'), true);
 }
 
-// ════════════════════════════════════════════════════════════════════
-// CONTROLS SYNC
-// ════════════════════════════════════════════════════════════════════
 function syncRange(id, valId, fmt) {
-  const el = document.getElementById(id);
-  const vEl = document.getElementById(valId);
+  const el = document.getElementById(id), vEl = document.getElementById(valId);
   vEl.textContent = fmt(+el.value);
-  el.addEventListener('input', ()=>{ vEl.textContent = fmt(+el.value); });
+  el.addEventListener('input', () => { vEl.textContent = fmt(+el.value); });
 }
-syncRange('age-x','age-x-val', v=>`${v} anos`);
-syncRange('dur-n','dur-n-val', v=>`${v} anos`);
-syncRange('def-d','def-d-val', v=>`${v} anos`);
-syncRange('rate-i','rate-i-val', v=>`${v.toFixed(2)}%`);
-syncRange('lapse','lapse-val', v=>`${v.toFixed(1)}%`);
-syncRange('exp-pct','exp-pct-val', v=>`${v}%`);
+syncRange('age-x','age-x-val', v => `${v} anos`);
+syncRange('dur-n','dur-n-val', v => `${v} anos`);
+syncRange('def-d','def-d-val', v => `${v} anos`);
+syncRange('rate-i','rate-i-val', v => `${v.toFixed(2)}%`);
+syncRange('lapse','lapse-val', v => `${v.toFixed(1)}%`);
+syncRange('exp-pct','exp-pct-val', v => `${v}%`);
 
 const PRODUCT_NOTES = {
-  term: 'Paga benefício se o segurado morrer dentro do prazo. Sem valor de resgate.',
-  whole: 'Paga na morte quando quer que ocorra. Reserva cresce até a soma segurada.',
-  endow: 'Paga na morte OU na sobrevivência ao prazo. Combina proteção e poupança.',
-  annuity_imm: 'Prêmio único → renda vitalícia imediata. Risco principal: longevidade.',
-  annuity_def: 'Fase de poupança (d anos) → renda vitalícia. Modelo PGBL/VGBL.',
+  term:'Paga benefício se o segurado morrer dentro do prazo. Sem valor de resgate.',
+  whole:'Paga na morte quando quer que ocorra. Reserva cresce até a soma segurada.',
+  endow:'Paga na morte OU na sobrevivência ao prazo. Combina proteção e poupança.',
+  annuity_imm:'Prêmio único → renda vitalícia imediata. Risco principal: longevidade.',
+  annuity_def:'Fase de poupança (d anos) → renda vitalícia. Modelo PGBL/VGBL.',
 };
 document.getElementById('product').addEventListener('change', () => {
   updateProductUI();
-  const p = document.getElementById('product').value;
-  document.getElementById('product-note').textContent = PRODUCT_NOTES[p]||'';
+  document.getElementById('product-note').textContent = PRODUCT_NOTES[document.getElementById('product').value]||'';
 });
 updateProductUI();
-
 function updateProductUI() {
   const p = document.getElementById('product').value;
   document.getElementById('dur-group').style.display = (p==='whole'||p==='annuity_imm') ? 'none' : '';
@@ -332,601 +462,450 @@ function updateProductUI() {
 }
 
 document.getElementById('calc-btn').addEventListener('click', runCalc);
+function showErr(msg) { const el=document.getElementById('err-inline');if(el){el.textContent=msg;el.style.display='block';} }
+function clearErr() { const el=document.getElementById('err-inline');if(el)el.style.display='none'; }
 
-function showErr(msg) {
-  const el = document.getElementById('err-inline');
-  if(el){ el.textContent = msg; el.style.display='block'; }
-}
-function clearErr() {
-  const el = document.getElementById('err-inline');
-  if(el) el.style.display='none';
-}
-
-// ════════════════════════════════════════════════════════════════════
-// CORE ACTUARIAL MATH
-// ════════════════════════════════════════════════════════════════════
-
+// ════════════════════════════════════════════════════════════════
+// LIFE: Actuarial math
+// ════════════════════════════════════════════════════════════════
 function getTable(id) {
-  const t = TABLES[id];
-  if(!t) return null;
-  // Build lookup age→{qx,lx,ex}
-  const lookup = {};
+  const t=TABLES[id]; if(!t) return null;
+  const lookup={};
   t.ages.forEach((a,i)=>{ lookup[a]={qx:t.qx[i],lx:t.lx[i],ex:t.ex[i]||0}; });
   return {id, name:t.name, lookup, maxAge:t.max_age, ages:t.ages, color:id.endsWith('_M')?'#60a5fa':'#f472b6'};
 }
-
-// kpx: probability of surviving k years from age x
-function kpx(tbl, x, k) {
-  let p = 1;
-  for(let j=0;j<k;j++){
-    const row = tbl.lookup[x+j];
-    if(!row||row.qx===null) return 0;
-    p *= (1-row.qx);
-  }
-  return p;
-}
-
-// qx at age x
-function qxAt(tbl, x) {
-  const row = tbl.lookup[x];
-  return row ? (row.qx||0) : 1;
-}
-
-// lx normalized
-function lxAt(tbl, x) {
-  const row = tbl.lookup[x];
-  return row ? (row.lx||0) : 0;
-}
-
-// APV of whole-life insurance (pays 1 at end of year of death)
-function calcAx(tbl, x, n_max, v) {
-  let sum = 0;
-  for(let k=0; k<n_max; k++){
-    const px = kpx(tbl, x, k);
-    const q = qxAt(tbl, x+k);
-    if(px*q===0) continue;
-    sum += Math.pow(v,k+1) * px * q;
-  }
-  return sum;
-}
-
-// APV of term insurance (n years)
-function calcAxn(tbl, x, n, v) { return calcAx_term(tbl,x,n,v); }
-function calcAx_term(tbl, x, n, v) {
-  let sum = 0;
-  for(let k=0; k<n; k++){
-    const px = kpx(tbl, x, k);
-    const q = qxAt(tbl, x+k);
-    sum += Math.pow(v,k+1) * px * q;
-  }
-  return sum;
-}
-
-// APV of endowment (pay at death within n or at n if alive)
-function calcEndow(tbl, x, n, v) {
-  const Axn = calcAx_term(tbl,x,n,v);
-  const nEx = Math.pow(v,n) * kpx(tbl,x,n);
-  return Axn + nEx;
-}
-
-// APV of life annuity-due (pays 1 at start of each year alive), n years max
-function calcAnnuityDue(tbl, x, n_max, v) {
-  let sum = 0;
-  for(let k=0; k<n_max; k++){
-    const px = kpx(tbl, x, k);
-    if(px<1e-10) break;
-    sum += Math.pow(v,k) * px;
-  }
-  return sum;
-}
-
-// APV of n-year temporary annuity-due
-function calcAnnuityDue_n(tbl, x, n, v) {
-  let sum = 0;
-  for(let k=0; k<n; k++){
-    const px = kpx(tbl, x, k);
-    sum += Math.pow(v,k) * px;
-  }
-  return sum;
-}
-
-// Deferred annuity: d|äx = v^d * dpx * äx+d
-function calcDeferredAnnuity(tbl, x, d, v) {
-  const dpx = kpx(tbl, x, d);
-  const omega = (tbl.maxAge||100) - (x+d);
-  const axd = calcAnnuityDue(tbl, x+d, omega+1, v);
-  return Math.pow(v,d) * dpx * axd;
-}
-
-// Net premium P(x) = APV(benefit) / APV(annuity of premiums)
-// For term: P = Axn / äx:n|
-// For whole: P = Ax / äx
-// For annuity imm: no premium (single-premium is the APV itself)
-// For annuity def: P = d|äx / äx:d| (annual premium during deferral)
-// For endow: P = Endow / äx:n|
-
-// Prospective reserve at time t:
-// tV = APV(future benefits | alive at t) - P * APV(future premiums | alive at t)
+function kpx(tbl,x,k){let p=1;for(let j=0;j<k;j++){const r=tbl.lookup[x+j];if(!r||r.qx===null)return 0;p*=(1-r.qx);}return p;}
+function qxAt(tbl,x){const r=tbl.lookup[x];return r?(r.qx||0):1;}
+function calcAx(tbl,x,n_max,v){let s=0;for(let k=0;k<n_max;k++){const px=kpx(tbl,x,k),q=qxAt(tbl,x+k);if(px*q===0)continue;s+=Math.pow(v,k+1)*px*q;}return s;}
+function calcAx_term(tbl,x,n,v){let s=0;for(let k=0;k<n;k++){s+=Math.pow(v,k+1)*kpx(tbl,x,k)*qxAt(tbl,x+k);}return s;}
+function calcEndow(tbl,x,n,v){return calcAx_term(tbl,x,n,v)+Math.pow(v,n)*kpx(tbl,x,n);}
+function calcAnnuityDue(tbl,x,n_max,v){let s=0;for(let k=0;k<n_max;k++){const px=kpx(tbl,x,k);if(px<1e-10)break;s+=Math.pow(v,k)*px;}return s;}
+function calcAnnuityDue_n(tbl,x,n,v){let s=0;for(let k=0;k<n;k++)s+=Math.pow(v,k)*kpx(tbl,x,k);return s;}
+function calcDeferredAnnuity(tbl,x,d,v){const dpx=kpx(tbl,x,d),omega=(tbl.maxAge||100)-(x+d);return Math.pow(v,d)*dpx*calcAnnuityDue(tbl,x+d,omega+1,v);}
 
 function calcAll(tblObj, product, x, n, d, i, SA, lapseRate, expPct, expFixed) {
-  const maxAge = tblObj.maxAge || 100;
-  const v = 1/(1+i);
-  const omega = maxAge - x; // maximum remaining years
-
+  const maxAge=tblObj.maxAge||100, v=1/(1+i), omega=maxAge-x;
   let apv_benefit, apv_prem_annuity, net_premium, product_label, n_prem, n_ben;
-
-  switch(product) {
-    case 'term': {
-      const nn = Math.min(n, omega);
-      apv_benefit = calcAx_term(tblObj, x, nn, v);
-      apv_prem_annuity = calcAnnuityDue_n(tblObj, x, nn, v);
-      net_premium = apv_benefit / apv_prem_annuity;
-      product_label = `Temporário ${nn} anos`;
-      n_prem = nn; n_ben = nn; break;
-    }
-    case 'whole': {
-      apv_benefit = calcAx(tblObj, x, omega+1, v);
-      apv_prem_annuity = calcAnnuityDue(tblObj, x, omega+1, v);
-      net_premium = apv_benefit / apv_prem_annuity;
-      product_label = 'Vida Inteira';
-      n_prem = omega; n_ben = omega; break;
-    }
-    case 'endow': {
-      const nn = Math.min(n, omega);
-      apv_benefit = calcEndow(tblObj, x, nn, v);
-      apv_prem_annuity = calcAnnuityDue_n(tblObj, x, nn, v);
-      net_premium = apv_benefit / apv_prem_annuity;
-      product_label = `Dotal ${nn} anos`;
-      n_prem = nn; n_ben = nn; break;
-    }
-    case 'annuity_imm': {
-      apv_benefit = calcAnnuityDue(tblObj, x, omega+1, v);
-      apv_prem_annuity = 1; // single premium
-      net_premium = apv_benefit; // single premium = APV
-      product_label = 'Anuidade Imediata Vitalícia';
-      n_prem = 0; n_ben = omega; break;
-    }
-    case 'annuity_def': {
-      const dd = Math.min(d, omega);
-      apv_benefit = calcDeferredAnnuity(tblObj, x, dd, v);
-      apv_prem_annuity = calcAnnuityDue_n(tblObj, x, dd, v);
-      net_premium = apv_benefit / apv_prem_annuity;
-      product_label = `Anuidade Diferida ${dd} anos`;
-      n_prem = dd; n_ben = omega; break;
-    }
+  switch(product){
+    case 'term':{const nn=Math.min(n,omega);apv_benefit=calcAx_term(tblObj,x,nn,v);apv_prem_annuity=calcAnnuityDue_n(tblObj,x,nn,v);net_premium=apv_benefit/apv_prem_annuity;product_label=`Temporário ${nn} anos`;n_prem=nn;n_ben=nn;break;}
+    case 'whole':{apv_benefit=calcAx(tblObj,x,omega+1,v);apv_prem_annuity=calcAnnuityDue(tblObj,x,omega+1,v);net_premium=apv_benefit/apv_prem_annuity;product_label='Vida Inteira';n_prem=omega;n_ben=omega;break;}
+    case 'endow':{const nn=Math.min(n,omega);apv_benefit=calcEndow(tblObj,x,nn,v);apv_prem_annuity=calcAnnuityDue_n(tblObj,x,nn,v);net_premium=apv_benefit/apv_prem_annuity;product_label=`Dotal ${nn} anos`;n_prem=nn;n_ben=nn;break;}
+    case 'annuity_imm':{apv_benefit=calcAnnuityDue(tblObj,x,omega+1,v);apv_prem_annuity=1;net_premium=apv_benefit;product_label='Anuidade Imediata Vitalícia';n_prem=0;n_ben=omega;break;}
+    case 'annuity_def':{const dd=Math.min(d,omega);apv_benefit=calcDeferredAnnuity(tblObj,x,dd,v);apv_prem_annuity=calcAnnuityDue_n(tblObj,x,dd,v);net_premium=apv_benefit/apv_prem_annuity;product_label=`Anuidade Diferida ${dd} anos`;n_prem=dd;n_ben=omega;break;}
   }
-
-  // Gross premium (net + loadings)
-  // P_gross = (P_net * SA + expFixed) / (1 - expPct)
-  const net_prem_R = net_premium * SA;
-  const gross_prem_R = product === 'annuity_imm' ? net_prem_R :
-    (net_prem_R + expFixed) / (1 - expPct);
-
-  // Reserve table: prospective reserve at t = 0,1,...,n
-  const years = [];
-  const reserveN = n_ben + 1;
-  for(let t=0; t<reserveN; t++){
-    const age_t = x + t;
-    const rem = omega - t;
-    if(rem < 0) break;
-
-    let apv_b_t, apv_p_t, reserve_t;
+  const net_prem_R=net_premium*SA;
+  const gross_prem_R=product==='annuity_imm'?net_prem_R:(net_prem_R+expFixed)/(1-expPct);
+  const years=[];
+  for(let t=0;t<n_ben+1;t++){
+    const age_t=x+t, rem=omega-t; if(rem<0) break;
+    let apv_b_t, apv_p_t;
     switch(product){
-      case 'term': {
-        const rem_n = Math.min(n,omega) - t;
-        if(rem_n<=0){apv_b_t=0;apv_p_t=0;}
-        else{apv_b_t=calcAx_term(tblObj,age_t,rem_n,v);apv_p_t=calcAnnuityDue_n(tblObj,age_t,rem_n,v);}
-        break;
-      }
-      case 'whole': {
-        apv_b_t=calcAx(tblObj,age_t,rem+1,v);
-        apv_p_t=calcAnnuityDue(tblObj,age_t,rem+1,v);
-        break;
-      }
-      case 'endow': {
-        const rem_n=Math.min(n,omega)-t;
-        if(rem_n<=0){apv_b_t=1;apv_p_t=0;}
-        else{apv_b_t=calcEndow(tblObj,age_t,rem_n,v);apv_p_t=calcAnnuityDue_n(tblObj,age_t,rem_n,v);}
-        break;
-      }
-      case 'annuity_imm': {
-        apv_b_t=calcAnnuityDue(tblObj,age_t,rem+1,v);
-        apv_p_t=0;
-        break;
-      }
-      case 'annuity_def': {
-        const dd=Math.min(d,omega);
-        if(t<dd){
-          apv_b_t=calcDeferredAnnuity(tblObj,age_t,dd-t,v);
-          apv_p_t=calcAnnuityDue_n(tblObj,age_t,dd-t,v);
-        } else {
-          apv_b_t=calcAnnuityDue(tblObj,age_t,rem+1,v);
-          apv_p_t=0;
-        }
-        break;
-      }
+      case 'term':{const rem_n=Math.min(n,omega)-t;if(rem_n<=0){apv_b_t=0;apv_p_t=0;}else{apv_b_t=calcAx_term(tblObj,age_t,rem_n,v);apv_p_t=calcAnnuityDue_n(tblObj,age_t,rem_n,v);}break;}
+      case 'whole':{apv_b_t=calcAx(tblObj,age_t,rem+1,v);apv_p_t=calcAnnuityDue(tblObj,age_t,rem+1,v);break;}
+      case 'endow':{const rem_n=Math.min(n,omega)-t;if(rem_n<=0){apv_b_t=1;apv_p_t=0;}else{apv_b_t=calcEndow(tblObj,age_t,rem_n,v);apv_p_t=calcAnnuityDue_n(tblObj,age_t,rem_n,v);}break;}
+      case 'annuity_imm':{apv_b_t=calcAnnuityDue(tblObj,age_t,rem+1,v);apv_p_t=0;break;}
+      case 'annuity_def':{const dd=Math.min(d,omega);if(t<dd){apv_b_t=calcDeferredAnnuity(tblObj,age_t,dd-t,v);apv_p_t=calcAnnuityDue_n(tblObj,age_t,dd-t,v);}else{apv_b_t=calcAnnuityDue(tblObj,age_t,rem+1,v);apv_p_t=0;}break;}
     }
-
-    reserve_t = product==='annuity_imm'
-      ? (apv_b_t - 1) * SA  // reserve = PV anuidade - already paid single prem
-      : (apv_b_t - net_premium*apv_p_t) * SA;
-
-    // Gross reserve (includes loading component)
-    const gross_res = product==='annuity_imm'
-      ? reserve_t
-      : reserve_t + (expFixed + gross_prem_R*expPct) * (apv_p_t > 0 ? apv_p_t : 0);
-
-    const px_t = kpx(tblObj, x, t);
-
-    years.push({
-      t, age_t,
-      px_t,
-      reserve_net: reserve_t,
-      reserve_gross: gross_res,
-      apv_b: apv_b_t * SA,
-      apv_p: product==='annuity_imm' ? 0 : net_premium * apv_p_t * SA,
-    });
+    const reserve_t=product==='annuity_imm'?(apv_b_t-1)*SA:(apv_b_t-net_premium*apv_p_t)*SA;
+    const gross_res=product==='annuity_imm'?reserve_t:reserve_t+(expFixed+gross_prem_R*expPct)*(apv_p_t>0?apv_p_t:0);
+    years.push({t,age_t,px_t:kpx(tblObj,x,t),reserve_net:reserve_t,reserve_gross:gross_res,apv_b:apv_b_t*SA,apv_p:product==='annuity_imm'?0:net_premium*apv_p_t*SA});
   }
-
-  return {
-    product, product_label, x, n, d, i, SA,
-    apv_benefit, apv_prem_annuity, net_premium,
-    net_prem_R, gross_prem_R,
-    years, tblName: tblObj.name, tblId: tblObj.id, color: tblObj.color,
-  };
+  return {product,product_label,x,n,d,i,SA,apv_benefit,apv_prem_annuity,net_premium,net_prem_R,gross_prem_R,years,tblName:tblObj.name,tblId:tblObj.id,color:tblObj.color};
 }
 
-// ════════════════════════════════════════════════════════════════════
-// SENSITIVITY
-// ════════════════════════════════════════════════════════════════════
-function calcSensitivity(tblObj, product, x, n, d, i_base, SA, lapse, expPct, expFixed) {
-  const base = calcAll(tblObj,product,x,n,d,i_base,SA,lapse,expPct,expFixed);
-  const P0 = base.net_prem_R;
-  const V0 = base.years[0]?.reserve_net || 0;
-  const Apv0 = base.apv_benefit;
-
-  const sens = [];
-
-  // 1. Interest rate shocks
+function calcSensitivity(tblObj,product,x,n,d,i_base,SA,lapse,expPct,expFixed){
+  const base=calcAll(tblObj,product,x,n,d,i_base,SA,lapse,expPct,expFixed);
+  const P0=base.net_prem_R;
+  const sens=[];
   [-1,-0.5,0.5,1,2].forEach(di=>{
-    const inew = Math.max(0.001, i_base+di/100);
-    const r = calcAll(tblObj,product,x,n,d,inew,SA,lapse,expPct,expFixed);
-    sens.push({label:`i ${di>0?'+':''}${di}%`, delta_P: r.net_prem_R-P0, delta_APV: (r.apv_benefit-Apv0)*SA, type:'rate'});
+    const inew=Math.max(0.001,i_base+di/100);
+    const r=calcAll(tblObj,product,x,n,d,inew,SA,lapse,expPct,expFixed);
+    sens.push({label:`i ${di>0?'+':''}${di}%`,delta_P:r.net_prem_R-P0,type:'rate'});
   });
-
-  return {base, sens};
+  return {base,sens};
 }
 
-// ════════════════════════════════════════════════════════════════════
-// RUN
-// ════════════════════════════════════════════════════════════════════
 function runCalc() {
-  const tbl1id = document.getElementById('table1').value;
-  const tbl2id = document.getElementById('table2').value;
-  const product = document.getElementById('product').value;
-  const x = +document.getElementById('age-x').value;
-  const n = +document.getElementById('dur-n').value;
-  const d = +document.getElementById('def-d').value;
-  const i = +document.getElementById('rate-i').value / 100;
-  const SA = +document.getElementById('benefit').value;
-  const lapse = +document.getElementById('lapse').value / 100;
-  const expPct = +document.getElementById('exp-pct').value / 100;
-  const expFixed = +document.getElementById('exp-fixed').value;
-
+  const tbl1id=document.getElementById('table1').value;
+  const tbl2id=document.getElementById('table2').value;
+  const product=document.getElementById('product').value;
+  const x=+document.getElementById('age-x').value;
+  const n=+document.getElementById('dur-n').value;
+  const d=+document.getElementById('def-d').value;
+  const i=+document.getElementById('rate-i').value/100;
+  const SA=+document.getElementById('benefit').value;
+  const lapse=+document.getElementById('lapse').value/100;
+  const expPct=+document.getElementById('exp-pct').value/100;
+  const expFixed=+document.getElementById('exp-fixed').value;
   clearErr();
-  if(!tbl1id || !TABLES[tbl1id]) {
-    showErr('⚠️ Selecione uma tábua de mortalidade no Passo 2. As tábuas são carregadas automaticamente.'); return;
-  }
-
-  const tbl1 = getTable(tbl1id);
-  if(!tbl1) { showErr('Erro ao carregar tábua.'); return; }
-
-  const res1 = calcAll(tbl1, product, x, n, d, i, SA, lapse, expPct, expFixed);
-  let res2 = null;
-  if(tbl2id && TABLES[tbl2id]) {
-    const tbl2 = getTable(tbl2id);
-    tbl2.color = '#fbbf24';
-    if(tbl2) res2 = calcAll(tbl2, product, x, n, d, i, SA, lapse, expPct, expFixed);
-  }
-
-  const {base, sens} = calcSensitivity(tbl1, product, x, n, d, i, SA, lapse, expPct, expFixed);
-
-  renderResults(res1, res2, sens, product, x, n, d, i, SA, expPct, expFixed);
+  if(!tbl1id||!TABLES[tbl1id]){showErr('⚠️ Selecione uma tábua no Passo 2.');return;}
+  const tbl1=getTable(tbl1id); if(!tbl1){showErr('Erro ao carregar tábua.');return;}
+  const res1=calcAll(tbl1,product,x,n,d,i,SA,lapse,expPct,expFixed);
+  let res2=null;
+  if(tbl2id&&TABLES[tbl2id]){const tbl2=getTable(tbl2id);tbl2.color='#fbbf24';if(tbl2)res2=calcAll(tbl2,product,x,n,d,i,SA,lapse,expPct,expFixed);}
+  const {base,sens}=calcSensitivity(tbl1,product,x,n,d,i,SA,lapse,expPct,expFixed);
+  renderLifeResults(res1,res2,sens,product,x,n,d,i,SA,expPct,expFixed);
 }
 
-// ════════════════════════════════════════════════════════════════════
-// RENDER
-// ════════════════════════════════════════════════════════════════════
-function fmt(v, dec=2) { return isFinite(v) ? v.toFixed(dec) : '—'; }
-function fmtR(v) {
-  if(!isFinite(v)) return '—';
-  return 'R$ ' + Math.abs(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-}
-function fmtPct(v) { return isFinite(v) ? (v*100).toFixed(4)+'%' : '—'; }
+// ════════════════════════════════════════════════════════════════
+// LIFE: Render
+// ════════════════════════════════════════════════════════════════
+const fmt=(v,dec=2)=>isFinite(v)?v.toFixed(dec):'—';
+const fmtR=v=>!isFinite(v)?'—':'R$ '+Math.abs(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtPct=v=>isFinite(v)?(v*100).toFixed(4)+'%':'—';
 
-function renderResults(r1, r2, sens, product, x, n, d, i, SA, expPct, expFixed) {
-  const main = document.getElementById('main-area');
-  main.innerHTML = '';
+function renderLifeResults(r1,r2,sens,product,x,n,d,i,SA,expPct,expFixed){
+  const main=document.getElementById('life-main'); main.innerHTML='';
+  const isAnnuityImm=product==='annuity_imm';
 
-  const isAnnuityImm = product === 'annuity_imm';
-  const isSingle = isAnnuityImm;
-
-  // ── Explain block ─────────────────────────────────────────────────
-  const expl = productExplain(r1);
-  const explCard = document.createElement('div');
-  explCard.className = 'card';
-  explCard.innerHTML = `
-    <div class="card-title">${r1.product_label} <span class="ct-sub">Tábua: ${r1.tblName} · i=${(i*100).toFixed(2)}% · x=${x}</span></div>
-    ${expl}
-  `;
+  const explCard=document.createElement('div'); explCard.className='card';
+  explCard.innerHTML=`<div class="card-title">${r1.product_label} <span class="ct-sub">Tábua: ${r1.tblName} · i=${(i*100).toFixed(2)}% · x=${x}</span></div>${productExplain(r1)}`;
   main.appendChild(explCard);
 
-  // ── KPIs ──────────────────────────────────────────────────────────
-  const kpiCard = document.createElement('div');
-  kpiCard.className = 'card';
-  kpiCard.innerHTML = `<div class="card-title">Resultados principais</div>`;
-
-  const grid = document.createElement('div');
-  grid.className = 'kpi-grid';
-
-  const kpis1 = buildKPIs(r1, isSingle);
-  const kpis2 = r2 ? buildKPIs(r2, isSingle) : null;
-
-  kpis1.forEach((k,i) => {
-    const chip = document.createElement('div');
-    chip.className = 'kpi';
-    const delta = kpis2 ? (() => {
-      const d = kpis2[i].raw - k.raw;
-      const pct = k.raw !== 0 ? d/Math.abs(k.raw)*100 : 0;
-      if(!isFinite(d)||Math.abs(d)<0.001) return '';
-      const cls = d>0 ? 'delta-pos' : 'delta-neg';
-      const sign = d>0 ? '+' : '';
-      return `<div style="font-size:10px;margin-top:3px" class="${cls}">${sign}${fmtVal(d,k.type)} vs ${r2.tblName.split(' ')[0]}</div>`;
-    })() : '';
-    chip.innerHTML = `
-      <div class="kpi-label">${k.label}</div>
-      <div class="kpi-value">${k.formatted}</div>
-      ${k.sub?`<div class="kpi-sub">${k.sub}</div>`:''}
-      ${delta}
-    `;
+  const kpiCard=document.createElement('div'); kpiCard.className='card';
+  kpiCard.innerHTML=`<div class="card-title">Resultados principais</div>`;
+  const grid=document.createElement('div'); grid.className='kpi-grid';
+  const kpis1=buildKPIs(r1,isAnnuityImm);
+  const kpis2=r2?buildKPIs(r2,isAnnuityImm):null;
+  kpis1.forEach((k,i)=>{
+    const chip=document.createElement('div'); chip.className='kpi';
+    const delta=kpis2?(()=>{
+      const dv=kpis2[i].raw-k.raw, pct=k.raw!==0?dv/Math.abs(k.raw)*100:0;
+      if(!isFinite(dv)||Math.abs(dv)<0.001) return '';
+      const cls=dv>0?'delta-pos':'delta-neg', sign=dv>0?'+':'';
+      return `<div style="font-size:10px;margin-top:3px" class="${cls}">${sign}${fmtVal(dv,k.type)} vs ${r2.tblName.split(' ')[0]}</div>`;
+    })():'';
+    chip.innerHTML=`<div class="kpi-label">${k.label}</div><div class="kpi-value">${k.formatted}</div>${k.sub?`<div class="kpi-sub">${k.sub}</div>`:''}${delta}`;
     grid.appendChild(chip);
   });
-  kpiCard.appendChild(grid);
-  main.appendChild(kpiCard);
+  kpiCard.appendChild(grid); main.appendChild(kpiCard);
 
-  // ── Chart: Reserve evolution ──────────────────────────────────────
-  const chartCard = document.createElement('div');
-  chartCard.className = 'card';
-  chartCard.innerHTML = `
+  const chartCard=document.createElement('div'); chartCard.className='card';
+  chartCard.innerHTML=`
     <div class="card-title">Evolução da reserva matemática
-      <span class="ct-sub">Método prospectivo · base prêmio líquido</span>
+      <span class="ct-sub">Método prospectivo · prêmio líquido</span>
       ${r2?`<span style="display:flex;align-items:center;gap:5px;margin-left:auto;font-size:11px;color:var(--muted)"><span class="compare-badge" style="background:#60a5fa"></span>${r1.tblName.split(' — ')[0]}<span class="compare-badge" style="background:#fbbf24;margin-left:8px"></span>${r2.tblName.split(' — ')[0]}</span>`:''}
     </div>
     <canvas class="life-chart" id="chart-res" height="240"></canvas>
-    <div style="margin-top:10px;font-size:11px;color:var(--muted)">Reserva prospectiva: V(t) = APV[benefícios futuros | vivo em t] − P · APV[prêmios futuros | vivo em t]</div>
-  `;
+    <div style="margin-top:10px;font-size:11px;color:var(--muted)">V(t) = APV[benefícios futuros | vivo em t] − P · APV[prêmios futuros | vivo em t]</div>`;
   main.appendChild(chartCard);
 
-  // ── Sensitivity ───────────────────────────────────────────────────
-  const sensCard = document.createElement('div');
-  sensCard.className = 'card';
-  sensCard.innerHTML = `
-    <div class="card-title">Sensibilidade — Variação no prêmio líquido</div>
-    <div class="sens-grid" id="sens-grid"></div>
-    <div style="margin-top:8px;font-size:11px;color:var(--muted)">Δ prêmio líquido anual (R$) em relação ao cenário base (i = ${(i*100).toFixed(2)}%).</div>
-  `;
+  const sensCard=document.createElement('div'); sensCard.className='card';
+  sensCard.innerHTML=`<div class="card-title">Sensibilidade — Variação no prêmio líquido</div><div class="sens-grid" id="sens-grid"></div><div style="margin-top:8px;font-size:11px;color:var(--muted)">Δ prêmio líquido anual (R$) vs. base (i = ${(i*100).toFixed(2)}%).</div>`;
   main.appendChild(sensCard);
 
-  // ── Reserve table ─────────────────────────────────────────────────
-  const tblCard = document.createElement('div');
-  tblCard.className = 'card';
-  tblCard.innerHTML = `
-    <div class="card-title">Tabela de reservas ano a ano
-      <button class="btn-sm" onclick="exportResTbl()" style="margin-left:auto">⬇ CSV</button>
-    </div>
-    <div class="tbl-wrap">
-    <table class="res-tbl" id="res-tbl">
-      <thead><tr>
-        <th>Ano (t)</th><th>Idade</th><th>ₜpₓ (sobrev.)</th>
-        <th>APV benefício</th><th>APV prêmio</th>
-        <th>Reserva líquida</th>
-        ${r2?'<th>Reserva T2</th><th>Δ Reserva</th>':''}
-        <th>Provisão técnica (R$)</th>
-      </tr></thead>
-      <tbody id="res-tbody"></tbody>
-    </table></div>
-  `;
+  const tblCard=document.createElement('div'); tblCard.className='card';
+  tblCard.innerHTML=`<div class="card-title">Tabela de reservas ano a ano <button class="btn-sm" onclick="exportResTbl()" style="margin-left:auto">⬇ CSV</button></div>
+    <div class="tbl-wrap"><table class="res-tbl" id="res-tbl">
+      <thead><tr><th>Ano (t)</th><th>Idade</th><th>ₜpₓ</th><th>APV benefício</th><th>APV prêmio</th><th>Reserva líquida</th>${r2?'<th>Reserva T2</th><th>Δ Reserva</th>':''}<th>Provisão (R$)</th></tr></thead>
+      <tbody id="res-tbody"></tbody></table></div>`;
   main.appendChild(tblCard);
 
-  // ── Source ────────────────────────────────────────────────────────
-  const src = document.createElement('div');
-  src.style.cssText='font-size:11px;color:var(--muted);padding:4px 0';
-  src.textContent='Cálculos: método prospectivo · princípio da equivalência · tábua HLD (lifetable.de) · todos os valores a preços nominais.';
-  main.appendChild(src);
-
-  // ── Render async ──────────────────────────────────────────────────
-  setTimeout(()=>{
-    drawReserveChart(r1, r2);
-    renderSens(sens);
-    renderResTbl(r1, r2);
-  },0);
+  setTimeout(()=>{ drawReserveChart(r1,r2); renderSens(sens); renderResTbl(r1,r2); },0);
 }
 
 function buildKPIs(r, isSingle) {
-  const kpis = [
-    { label:'APV do benefício', raw:r.apv_benefit, formatted:fmt(r.apv_benefit,6), sub:'por unidade de SA', type:'raw' },
-    { label:'APV da anuidade de prêmios', raw:r.apv_prem_annuity, formatted: isSingle?'Prêmio único':fmt(r.apv_prem_annuity,4), sub:'äₓ ou äₓ:n|', type:'raw' },
-    { label: isSingle?'Prêmio único (net)':'Prêmio líquido anual', raw:r.net_prem_R, formatted:fmtR(r.net_prem_R), sub:'SA×Aₓ/äₓ', type:'R' },
-    { label: isSingle?'—':'Prêmio bruto (com despesas)', raw:r.gross_prem_R, formatted: isSingle?'—':fmtR(r.gross_prem_R), sub:`${Math.round((r.gross_prem_R/r.net_prem_R-1)*100)||0}% loading`, type:'R' },
-    { label:'Reserva no 1º ano', raw:(r.years[1]||r.years[0])?.reserve_net||0,
-      formatted: fmtR((r.years[1]||r.years[0])?.reserve_net||0), sub:'V(1) — após 1 ano', type:'R' },
-    { label:'Reserva no 50% prazo', raw:r.years[Math.floor(r.years.length/2)]?.reserve_net||0,
-      formatted: fmtR(r.years[Math.floor(r.years.length/2)]?.reserve_net||0), sub:'V(n/2)', type:'R' },
-    { label:'e(x) tábua', raw:0, formatted: (() => {
-        const tbl = TABLES[r.tblId]; if(!tbl) return '—';
-        const idx = tbl.ages.indexOf(r.x); return idx>=0?tbl.ex[idx].toFixed(2)+' anos':'—';
-      })(), sub:`E[vida residual | x=${r.x}]`, type:'raw'},
+  return [
+    {label:'APV do benefício',raw:r.apv_benefit,formatted:fmt(r.apv_benefit,6),sub:'por unidade de SA',type:'raw'},
+    {label:'APV da anuidade de prêmios',raw:r.apv_prem_annuity,formatted:isSingle?'Prêmio único':fmt(r.apv_prem_annuity,4),sub:'äₓ ou äₓ:n|',type:'raw'},
+    {label:isSingle?'Prêmio único (net)':'Prêmio líquido anual',raw:r.net_prem_R,formatted:fmtR(r.net_prem_R),sub:'SA×Aₓ/äₓ',type:'R'},
+    {label:isSingle?'—':'Prêmio bruto (com despesas)',raw:r.gross_prem_R,formatted:isSingle?'—':fmtR(r.gross_prem_R),sub:`${Math.round((r.gross_prem_R/r.net_prem_R-1)*100)||0}% loading`,type:'R'},
+    {label:'Reserva no 1º ano',raw:(r.years[1]||r.years[0])?.reserve_net||0,formatted:fmtR((r.years[1]||r.years[0])?.reserve_net||0),sub:'V(1)',type:'R'},
+    {label:'Reserva no 50% prazo',raw:r.years[Math.floor(r.years.length/2)]?.reserve_net||0,formatted:fmtR(r.years[Math.floor(r.years.length/2)]?.reserve_net||0),sub:'V(n/2)',type:'R'},
+    {label:'e(x) tábua',raw:0,formatted:(()=>{const tbl=TABLES[r.tblId];if(!tbl)return '—';const idx=tbl.ages.indexOf(r.x);return idx>=0?tbl.ex[idx].toFixed(2)+' anos':'—';})(),sub:`E[vida residual | x=${r.x}]`,type:'raw'},
   ];
-  return kpis;
 }
+function fmtVal(v,type){return type==='R'?fmtR(v):fmt(Math.abs(v),4);}
 
-function fmtVal(v, type) {
-  if(type==='R') return fmtR(v);
-  return fmt(Math.abs(v),4);
-}
-
-function productExplain(r) {
-  const map = {
-    term: `<div class="explain">
-      <strong>Como funciona:</strong> A seguradora paga <strong>R$ ${r.SA.toLocaleString('pt-BR')}</strong> se o segurado morrer dentro de <strong>${r.n} anos</strong> a partir dos <strong>${r.x} anos</strong>. Se sobreviver ao prazo, o contrato expira sem valor. Produto de proteção pura — sem acumulação.
-      <br><br><strong>Fórmula do prêmio líquido:</strong> P = A¹ₓ:n̄| / äₓ:n̄|
-      — onde A¹ₓ:n̄| é o APV do seguro temporário e äₓ:n̄| é a anuidade de prêmios pelos n anos.
-    </div>`,
-    whole: `<div class="explain">
-      <strong>Como funciona:</strong> A seguradora paga <strong>R$ ${r.SA.toLocaleString('pt-BR')}</strong> na morte do segurado, quando quer que ocorra. Prêmio pago vitaliciamente. A reserva cresce continuamente e converge para SA.
-      <br><br><strong>Fórmula:</strong> P = Aₓ / äₓ — onde Aₓ é o APV do seguro vitalício.
-    </div>`,
-    endow: `<div class="explain">
-      <strong>Como funciona:</strong> Paga <strong>R$ ${r.SA.toLocaleString('pt-BR')}</strong> se o segurado <em>morrer antes de ${r.n} anos</em> OU se <em>sobreviver</em> ao prazo (benefício de sobrevivência). Combina proteção e poupança. A reserva cresce até SA ao final.
-      <br><br><strong>Fórmula:</strong> P = (A¹ₓ:n̄| + nEₓ) / äₓ:n̄| — onde nEₓ = vⁿ · ₙpₓ é o valor presente da sobrevivência.
-    </div>`,
-    annuity_imm: `<div class="explain">
-      <strong>Como funciona:</strong> O segurado paga um <em>prêmio único</em> e recebe <strong>R$ ${r.SA.toLocaleString('pt-BR')}/ano</strong> vitaliciamente, começando imediatamente. O risco principal é a longevidade — quanto mais viver, mais a seguradora paga.
-      <br><br><strong>Fórmula:</strong> Prêmio único = SA × äₓ (anuidade vitalícia antecipada). Reserva = SA × äₓ₊ₜ − valor já recebido.
-    </div>`,
-    annuity_def: `<div class="explain">
-      <strong>Como funciona:</strong> Fase 1 (<strong>${r.d} anos</strong>): o segurado paga prêmios anuais. Fase 2: recebe <strong>R$ ${r.SA.toLocaleString('pt-BR')}/ano</strong> vitaliciamente se sobreviver à fase 1. Produto de previdência complementar.
-      <br><br><strong>Fórmula:</strong> P = d|äₓ / äₓ:d̄| — onde d|äₓ = vᵈ · ₐpₓ · äₓ₊ᵈ é a anuidade diferida.
-    </div>`,
+function productExplain(r){
+  const m={
+    term:`<div class="explain"><strong>Como funciona:</strong> A seguradora paga <strong>R$ ${r.SA.toLocaleString('pt-BR')}</strong> se o segurado morrer dentro de <strong>${r.n} anos</strong> a partir dos <strong>${r.x} anos</strong>. Produto de proteção pura — sem acumulação.<br><br><strong>Fórmula:</strong> P = A¹ₓ:n̄| / äₓ:n̄|</div>`,
+    whole:`<div class="explain"><strong>Como funciona:</strong> Paga <strong>R$ ${r.SA.toLocaleString('pt-BR')}</strong> na morte do segurado, quando quer que ocorra. A reserva cresce continuamente e converge para SA.<br><br><strong>Fórmula:</strong> P = Aₓ / äₓ</div>`,
+    endow:`<div class="explain"><strong>Como funciona:</strong> Paga <strong>R$ ${r.SA.toLocaleString('pt-BR')}</strong> se morrer antes de ${r.n} anos OU ao sobreviver ao prazo. Combina proteção e poupança. Reserva cresce até SA.<br><br><strong>Fórmula:</strong> P = (A¹ₓ:n̄| + nEₓ) / äₓ:n̄|</div>`,
+    annuity_imm:`<div class="explain"><strong>Como funciona:</strong> Prêmio único → renda vitalícia de <strong>R$ ${r.SA.toLocaleString('pt-BR')}/ano</strong>. Risco principal: longevidade.<br><br><strong>Fórmula:</strong> Prêmio único = SA × äₓ</div>`,
+    annuity_def:`<div class="explain"><strong>Como funciona:</strong> Fase 1 (${r.d} anos): prêmios. Fase 2: renda vitalícia de <strong>R$ ${r.SA.toLocaleString('pt-BR')}/ano</strong>. Modelo PGBL/VGBL.<br><br><strong>Fórmula:</strong> P = d|äₓ / äₓ:d̄|</div>`,
   };
-  return map[r.product] || '';
+  return m[r.product]||'';
 }
 
-// ── Chart: Reserve curve
-const PAD = {top:14,right:20,bottom:38,left:64};
-const isDark=()=>{const t=document.documentElement.getAttribute('data-theme');if(t==='dark')return true;if(t==='light')return false;return window.matchMedia('(prefers-color-scheme:dark)').matches;};
-
-function drawReserveChart(r1, r2) {
-  const c = document.getElementById('chart-res'); if(!c) return;
-  c._r1 = r1; c._r2 = r2;
-  const W = c.offsetWidth||600, H = 240;
-  c.width=W*devicePixelRatio; c.height=H*devicePixelRatio; c.style.height=H+'px';
-  const ctx = c.getContext('2d'); ctx.scale(devicePixelRatio,devicePixelRatio);
-
-  const dark = isDark();
-  const colGrid = dark?'#21262d':'#f0f0f0';
-  const colAxis = dark?'#8b949e':'#57606a';
-
-  const years1 = r1.years, years2 = r2?.years;
-  const ts = years1.map(y=>y.t);
-  const vals1 = years1.map(y=>y.reserve_net);
-  const vals2 = years2?.map(y=>y.reserve_net) || [];
-  const allVals = [...vals1,...vals2].filter(isFinite);
-  const yMin = Math.min(0,...allVals), yMax = Math.max(...allVals)*1.05;
-  const xMin=0, xMax=Math.max(...ts);
-
-  const cx = x=>PAD.left+(x-xMin)/(xMax-xMin)*(W-PAD.left-PAD.right);
-  const cy = y=>PAD.top+(1-(y-yMin)/(yMax-yMin))*(H-PAD.top-PAD.bottom);
-
-  // Axes
-  ctx.font=`10px Inter,sans-serif`; ctx.fillStyle=colAxis;
-  for(let i=0;i<=5;i++){
-    const vy=yMin+(yMax-yMin)*(i/5), py=PAD.top+(1-i/5)*(H-PAD.top-PAD.bottom);
-    ctx.beginPath();ctx.strokeStyle=colGrid;ctx.lineWidth=1;ctx.moveTo(PAD.left,py);ctx.lineTo(W-PAD.right,py);ctx.stroke();
-    ctx.textAlign='right';ctx.textBaseline='middle';
-    ctx.fillText(fmtAxis(vy),PAD.left-4,py);
-  }
-  for(let i=0;i<=6;i++){
-    const vx=xMin+(xMax-xMin)*(i/6), px=cx(vx);
-    ctx.beginPath();ctx.strokeStyle=colGrid;ctx.lineWidth=1;ctx.moveTo(px,PAD.top);ctx.lineTo(px,H-PAD.bottom);ctx.stroke();
-    ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(Math.round(vx),px,H-PAD.bottom+4);
-  }
-  ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillStyle=colAxis;
-  ctx.fillText('Ano (t)',W/2,H-1);
+const L_PAD={top:14,right:20,bottom:38,left:64};
+function drawReserveChart(r1,r2){
+  const c=document.getElementById('chart-res');if(!c)return;
+  c._r1=r1;c._r2=r2;
+  const W=c.offsetWidth||600,H=240;
+  c.width=W*devicePixelRatio;c.height=H*devicePixelRatio;c.style.height=H+'px';
+  const ctx=c.getContext('2d');ctx.scale(devicePixelRatio,devicePixelRatio);
+  const dark=isDark();
+  const colGrid=dark?'#21262d':'#f0f0f0',colAxis=dark?'#8b949e':'#57606a';
+  const years1=r1.years,years2=r2?.years;
+  const ts=years1.map(y=>y.t);
+  const vals1=years1.map(y=>y.reserve_net),vals2=years2?.map(y=>y.reserve_net)||[];
+  const allVals=[...vals1,...vals2].filter(isFinite);
+  const yMin=Math.min(0,...allVals),yMax=Math.max(...allVals)*1.05;
+  const xMin=0,xMax=Math.max(...ts);
+  const cx=x=>L_PAD.left+(x-xMin)/(xMax-xMin)*(W-L_PAD.left-L_PAD.right);
+  const cy=y=>L_PAD.top+(1-(y-yMin)/(yMax-yMin))*(H-L_PAD.top-L_PAD.bottom);
+  ctx.font=`10px Inter,sans-serif`;ctx.fillStyle=colAxis;
+  for(let i=0;i<=5;i++){const vy=yMin+(yMax-yMin)*(i/5),py=L_PAD.top+(1-i/5)*(H-L_PAD.top-L_PAD.bottom);ctx.beginPath();ctx.strokeStyle=colGrid;ctx.lineWidth=1;ctx.moveTo(L_PAD.left,py);ctx.lineTo(W-L_PAD.right,py);ctx.stroke();ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillText(fmtAxis(vy),L_PAD.left-4,py);}
+  for(let i=0;i<=6;i++){const vx=xMin+(xMax-xMin)*(i/6),px=cx(vx);ctx.beginPath();ctx.strokeStyle=colGrid;ctx.lineWidth=1;ctx.moveTo(px,L_PAD.top);ctx.lineTo(px,H-L_PAD.bottom);ctx.stroke();ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(Math.round(vx),px,H-L_PAD.bottom+4);}
+  ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillStyle=colAxis;ctx.fillText('Ano (t)',W/2,H-1);
   ctx.save();ctx.translate(11,H/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('Reserva (R$)',0,0);ctx.restore();
-
-  // Zero line
-  if(yMin<0){const py=cy(0);ctx.beginPath();ctx.strokeStyle=dark?'#30363d':'#d0d7de';ctx.lineWidth=1;ctx.setLineDash([4,3]);ctx.moveTo(PAD.left,py);ctx.lineTo(W-PAD.right,py);ctx.stroke();ctx.setLineDash([]);}
-
-  // Area fill (r1)
-  ctx.beginPath();
-  years1.forEach((y,i)=>{ if(i===0)ctx.moveTo(cx(y.t),cy(y.reserve_net));else ctx.lineTo(cx(y.t),cy(y.reserve_net)); });
-  ctx.lineTo(cx(ts[ts.length-1]),cy(0));ctx.lineTo(cx(0),cy(0));ctx.closePath();
-  ctx.fillStyle='rgba(96,165,250,0.1)';ctx.fill();
-
-  // Line r1
+  if(yMin<0){const py=cy(0);ctx.beginPath();ctx.strokeStyle=dark?'#30363d':'#d0d7de';ctx.lineWidth=1;ctx.setLineDash([4,3]);ctx.moveTo(L_PAD.left,py);ctx.lineTo(W-L_PAD.right,py);ctx.stroke();ctx.setLineDash([]);}
+  ctx.beginPath();years1.forEach((y,i)=>{if(i===0)ctx.moveTo(cx(y.t),cy(y.reserve_net));else ctx.lineTo(cx(y.t),cy(y.reserve_net));});
+  ctx.lineTo(cx(ts[ts.length-1]),cy(0));ctx.lineTo(cx(0),cy(0));ctx.closePath();ctx.fillStyle='rgba(96,165,250,0.1)';ctx.fill();
   ctx.beginPath();ctx.strokeStyle='#60a5fa';ctx.lineWidth=2.5;ctx.setLineDash([]);
-  years1.forEach((y,i)=>{const px=cx(y.t),py=cy(y.reserve_net);if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);});
-  ctx.stroke();
-
-  // Line r2
-  if(r2&&years2){
-    ctx.beginPath();ctx.strokeStyle='#fbbf24';ctx.lineWidth=2;ctx.setLineDash([6,3]);
-    years2.forEach((y,i)=>{const px=cx(y.t),py=cy(y.reserve_net);if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);});
-    ctx.stroke();ctx.setLineDash([]);
-  }
+  years1.forEach((y,i)=>{const px=cx(y.t),py=cy(y.reserve_net);if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);});ctx.stroke();
+  if(r2&&years2){ctx.beginPath();ctx.strokeStyle='#fbbf24';ctx.lineWidth=2;ctx.setLineDash([6,3]);years2.forEach((y,i)=>{const px=cx(y.t),py=cy(y.reserve_net);if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);});ctx.stroke();ctx.setLineDash([]);}
 }
+function fmtAxis(v){if(Math.abs(v)>=1e6)return(v/1e6).toFixed(1)+'M';if(Math.abs(v)>=1000)return(v/1000).toFixed(0)+'k';return v.toFixed(0);}
 
-function fmtAxis(v){
-  if(Math.abs(v)>=1e6)return (v/1e6).toFixed(1)+'M';
-  if(Math.abs(v)>=1000)return (v/1000).toFixed(0)+'k';
-  return v.toFixed(0);
-}
-
-// ── Sensitivity grid
-function renderSens(sens) {
-  const grid = document.getElementById('sens-grid'); if(!grid) return;
+function renderSens(sens){
+  const grid=document.getElementById('sens-grid');if(!grid)return;
   grid.innerHTML='';
-  const base_chip = document.createElement('div');
-  base_chip.className='sens-chip';
-  base_chip.innerHTML=`<div class="sc-label">Base (cenário atual)</div><div class="sc-val" style="color:var(--accent)">${fmtR(sens.base.net_prem_R)}/ano</div>`;
-  grid.appendChild(base_chip);
+  const bc=document.createElement('div');bc.className='sens-chip';
+  bc.innerHTML=`<div class="sc-label">Base</div><div class="sc-val" style="color:var(--accent)">${fmtR(sens.base.net_prem_R)}/ano</div>`;
+  grid.appendChild(bc);
   sens.sens.forEach(s=>{
-    const chip = document.createElement('div');
-    chip.className='sens-chip';
-    const cls = s.delta_P > 0 ? 'delta-pos':'delta-neg';
-    const sign = s.delta_P>0?'+':'';
+    const chip=document.createElement('div');chip.className='sens-chip';
+    const cls=s.delta_P>0?'delta-pos':'delta-neg',sign=s.delta_P>0?'+':'';
     chip.innerHTML=`<div class="sc-label">${s.label}</div><div class="sc-val ${cls}">${sign}${fmtR(s.delta_P)}</div>`;
     grid.appendChild(chip);
   });
 }
 
-// ── Reserve table
-function renderResTbl(r1, r2) {
-  const tbody = document.getElementById('res-tbody'); if(!tbody) return;
+function renderResTbl(r1,r2){
+  const tbody=document.getElementById('res-tbody');if(!tbody)return;
   tbody.innerHTML='';
   r1.years.forEach((y,i)=>{
-    const y2 = r2?.years[i];
-    const tr = document.createElement('tr');
-    const delta = y2 ? (y2.reserve_net - y.reserve_net) : null;
-    tr.innerHTML=`
-      <td>${y.t}</td>
-      <td>${y.age_t}</td>
-      <td>${(y.px_t*100).toFixed(3)}%</td>
-      <td>${fmtR(y.apv_b)}</td>
-      <td>${fmtR(y.apv_p)}</td>
-      <td class="${y.reserve_net<0?'neg':''}">${fmtR(y.reserve_net)}</td>
-      ${r2?`<td class="${(y2?.reserve_net||0)<0?'neg':''}">${fmtR(y2?.reserve_net||0)}</td><td class="${delta>0?'pos':delta<0?'neg':''}">${delta!=null?(delta>=0?'+':'')+fmtR(delta):'—'}</td>`:''}
-      <td>${fmtR(y.reserve_net)}</td>
-    `;
+    const y2=r2?.years[i];
+    const delta=y2?(y2.reserve_net-y.reserve_net):null;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${y.t}</td><td>${y.age_t}</td><td>${(y.px_t*100).toFixed(3)}%</td><td>${fmtR(y.apv_b)}</td><td>${fmtR(y.apv_p)}</td><td class="${y.reserve_net<0?'neg':''}">${fmtR(y.reserve_net)}</td>${r2?`<td class="${(y2?.reserve_net||0)<0?'neg':''}">${fmtR(y2?.reserve_net||0)}</td><td class="${delta>0?'pos':delta<0?'neg':''}">${delta!=null?(delta>=0?'+':'')+fmtR(delta):'—'}</td>`:''}<td>${fmtR(y.reserve_net)}</td>`;
     tbody.appendChild(tr);
   });
 }
 
-window.exportResTbl = function(){
+window.exportResTbl=function(){
   const tbl=document.getElementById('res-tbl');if(!tbl)return;
   const rows=Array.from(tbl.querySelectorAll('tr'));
-  const csv=rows.map(r=>Array.from(r.querySelectorAll('th,td')).map(c=>{
-    const t=c.innerText.replace(/\n/g,' ').trim();
-    return t.includes(',')||t.includes('"')?`"${t.replace(/"/g,'""')}"`:t;
-  }).join(',')).join('\n');
-  const a=document.createElement('a');
-  a.href='data:text/csv;charset=utf-8,﻿'+encodeURIComponent(csv);
-  a.download='reservas_vida.csv';a.click();
+  const csv=rows.map(r=>Array.from(r.querySelectorAll('th,td')).map(c=>{const t=c.innerText.replace(/\n/g,' ').trim();return t.includes(',')||t.includes('"')?`"${t.replace(/"/g,'""')}"`:t;}).join(',')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,﻿'+encodeURIComponent(csv);a.download='reservas_vida.csv';a.click();
 };
 
-const ro=new ResizeObserver(()=>{ const c=document.getElementById('chart-res');if(c&&c._r1)drawReserveChart(c._r1,c._r2);});
-ro.observe(document.getElementById('main-area'));
+const roLife=new ResizeObserver(()=>{const c=document.getElementById('chart-res');if(c&&c._r1)drawReserveChart(c._r1,c._r2);});
+roLife.observe(document.getElementById('life-main'));
+
+// ════════════════════════════════════════════════════════════════
+// MORTALITY: config & state
+// ════════════════════════════════════════════════════════════════
+const COUNTRY_COLORS={BRA:'#4ade80',JPN:'#f87171',USA:'#60a5fa',GBR:'#a78bfa',AUS:'#fbbf24',DEU:'#34d399',FRA:'#f472b6',MEX:'#fb923c',ZAF:'#e879f9'};
+const COUNTRY_FLAGS={BRA:'🇧🇷',JPN:'🇯🇵',USA:'🇺🇸',GBR:'🇬🇧',AUS:'🇦🇺',DEU:'🇩🇪',FRA:'🇫🇷',MEX:'🇲🇽',ZAF:'🇿🇦'};
+const METRIC_CONFIG={
+  qx:{label:'Taxa de mortalidade  q(x)',sub:'probabilidade de morte por idade',yLabel:'q(x)',fmt:v=>v<0.0001?v.toExponential(2):v.toFixed(4)},
+  lx:{label:'Sobreviventes  l(x)',sub:'de 100.000 nascidos vivos',yLabel:'l(x)',fmt:v=>Math.round(v).toLocaleString('pt-BR')},
+  ex:{label:'Expectativa de vida residual  e(x)',sub:'anos esperados a partir de cada idade',yLabel:'anos',fmt:v=>v.toFixed(2)},
+};
+let mortSelectedCountries=new Set(['BRA','JPN','USA','AUS']);
+let mortActiveSex=new Set(['M','F']);
+let mortActiveMetrics=new Set(['qx','lx','ex']);
+let mortAgeMin=0, mortAgeMax=100, mortLogScale=true;
+let mortRendered=false;
+
+function buildMortSidebar(){
+  const isos=[...new Set(Object.keys(TABLES).map(k=>k.split('_')[0]))];
+  const list=document.getElementById('country-list'); list.innerHTML='';
+  isos.forEach(iso=>{
+    const male=TABLES[iso+'_M'],female=TABLES[iso+'_F'],t=male||female;
+    const e0m=male?.e0?.toFixed(1)||'—',e0f=female?.e0?.toFixed(1)||'—';
+    const color=COUNTRY_COLORS[iso]||'#888',flag=COUNTRY_FLAGS[iso]||'';
+    const row=document.createElement('label');row.className='country-row';
+    row.innerHTML=`<input type="checkbox" data-iso="${iso}" ${mortSelectedCountries.has(iso)?'checked':''}><span class="country-dot" style="background:${color}"></span><span class="country-flag">${flag}</span><span class="country-name">${t?.country||iso}</span><span class="country-e0">${e0m}♂ ${e0f}♀</span>`;
+    row.querySelector('input').addEventListener('change',e=>{
+      if(e.target.checked)mortSelectedCountries.add(iso);else mortSelectedCountries.delete(iso);
+      mortRender();
+    });
+    list.appendChild(row);
+  });
+
+  document.querySelectorAll('.sex-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const sex=btn.dataset.sex;
+      if(mortActiveSex.has(sex)&&mortActiveSex.size>1)mortActiveSex.delete(sex);else mortActiveSex.add(sex);
+      btn.classList.toggle('active',mortActiveSex.has(sex));
+      mortRender();
+    });
+  });
+
+  document.querySelectorAll('.metric-pill').forEach(pill=>{
+    pill.addEventListener('click',()=>{
+      const m=pill.dataset.metric;
+      if(mortActiveMetrics.has(m)&&mortActiveMetrics.size>1)mortActiveMetrics.delete(m);else mortActiveMetrics.add(m);
+      pill.classList.toggle('active',mortActiveMetrics.has(m));
+      mortRender();
+    });
+  });
+
+  document.getElementById('mort-age-min').addEventListener('input',e=>{
+    mortAgeMin=+e.target.value;
+    document.getElementById('mort-age-min-val').textContent=mortAgeMin;
+    mortRender();
+  });
+  document.getElementById('mort-age-max').addEventListener('input',e=>{
+    mortAgeMax=+e.target.value;
+    document.getElementById('mort-age-max-val').textContent=mortAgeMax;
+    mortRender();
+  });
+  document.getElementById('log-scale').addEventListener('change',e=>{
+    mortLogScale=e.target.checked;mortRender();
+  });
+}
+
+function mortGetSelectedSeries(){
+  const series=[];
+  mortSelectedCountries.forEach(iso=>{
+    ['M','F'].forEach(sex=>{
+      if(!mortActiveSex.has(sex))return;
+      const key=`${iso}_${sex}`;
+      if(!TABLES[key])return;
+      series.push({key,iso,sex,t:TABLES[key]});
+    });
+  });
+  return series;
+}
+
+function mortRender(){
+  if(!Object.keys(TABLES).length)return;
+  const main=document.getElementById('mort-main');
+  const loading=document.getElementById('mort-loading');
+  if(loading)loading.style.display='none';
+  const series=mortGetSelectedSeries();
+  if(!series.length){main.innerHTML='<div class="loading">Selecione pelo menos um país e sexo.</div>';return;}
+  main.innerHTML='';
+  ['qx','lx','ex'].forEach(metric=>{
+    if(!mortActiveMetrics.has(metric))return;
+    const cfg=METRIC_CONFIG[metric];
+    const card=document.createElement('div');card.className='chart-card';
+    card.innerHTML=`<div class="chart-header"><span class="chart-title">${cfg.label}</span><span class="chart-sub">${cfg.sub}</span></div><div class="chart-wrap"><canvas class="mort-chart" id="chart-${metric}" height="260"></canvas></div><div class="legend" id="legend-${metric}"></div>`;
+    main.appendChild(card);
+    setTimeout(()=>{mortDrawChart(metric,series,cfg);mortBuildLegend(metric,series);},0);
+  });
+  mortBuildSummaryTable(main,series);
+  const src=document.createElement('div');src.className='source-note';src.textContent='Fonte: Human Life-Table Database (lifetable.de) — tábuas de período mais recentes por país.';main.appendChild(src);
+}
+
+// ════════════════════════════════════════════════════════════════
+// MORTALITY: Canvas chart
+// ════════════════════════════════════════════════════════════════
+const M_PAD={top:14,right:20,bottom:48,left:64};
+
+function mortDrawChart(metric,series,cfg){
+  const canvas=document.getElementById(`chart-${metric}`);if(!canvas)return;
+  const W=canvas.offsetWidth||canvas.parentElement.offsetWidth||600,H=260;
+  canvas.width=W*devicePixelRatio;canvas.height=H*devicePixelRatio;canvas.style.height=H+'px';
+  const ctx=canvas.getContext('2d');ctx.scale(devicePixelRatio,devicePixelRatio);
+  const dark=isDark();
+  const colBg=dark?'#161b22':'#ffffff',colGrid=dark?'#21262d':'#f0f0f0',colAxis=dark?'#8b949e':'#57606a';
+  ctx.clearRect(0,0,W,H);
+  const allData=[];
+  series.forEach(s=>{
+    const t=s.t,vals=t[metric];if(!vals)return;
+    t.ages.forEach((age,i)=>{if(age<mortAgeMin||age>mortAgeMax)return;const v=vals[i];if(v!=null&&!isNaN(v)&&v>0)allData.push({x:age,y:v});});
+  });
+  if(!allData.length)return;
+  const xs=allData.map(d=>d.x),ys=allData.map(d=>d.y);
+  const xMin=Math.min(...xs),xMax=Math.max(...xs);
+  let yMin=Math.min(...ys),yMax=Math.max(...ys);
+  const useLog=mortLogScale&&metric==='qx';
+  if(useLog){yMin=Math.log10(Math.max(yMin,1e-6));yMax=Math.log10(yMax);}
+  if(yMin===yMax){yMin-=0.1;yMax+=0.1;}
+  const cx=x=>M_PAD.left+(x-xMin)/(xMax-xMin)*(W-M_PAD.left-M_PAD.right);
+  const cy=y=>{const v=useLog?Math.log10(Math.max(y,1e-6)):y;return M_PAD.top+(1-(v-yMin)/(yMax-yMin))*(H-M_PAD.top-M_PAD.bottom);};
+  ctx.font=`10px ${getComputedStyle(document.body).fontFamily}`;ctx.fillStyle=colAxis;ctx.textBaseline='middle';
+  for(let i=0;i<=5;i++){
+    const vy=yMin+(yMax-yMin)*(i/5),py=M_PAD.top+(1-i/5)*(H-M_PAD.top-M_PAD.bottom);
+    ctx.beginPath();ctx.strokeStyle=colGrid;ctx.lineWidth=1;ctx.moveTo(M_PAD.left,py);ctx.lineTo(W-M_PAD.right,py);ctx.stroke();
+    let label;if(useLog){const val=Math.pow(10,vy);label=val<0.001?val.toExponential(0):val.toFixed(4);}else{label=cfg.fmt?cfg.fmt(vy):vy.toFixed(2);}
+    ctx.textAlign='right';ctx.fillText(label,M_PAD.left-6,py);
+  }
+  const xStep=Math.ceil((xMax-xMin)/8/10)*10||10;
+  for(let x=Math.ceil(xMin/xStep)*xStep;x<=xMax;x+=xStep){
+    const px=cx(x);ctx.beginPath();ctx.strokeStyle=colGrid;ctx.lineWidth=1;ctx.moveTo(px,M_PAD.top);ctx.lineTo(px,H-M_PAD.bottom);ctx.stroke();ctx.textAlign='center';ctx.textBaseline='top';ctx.fillText(x,px,H-M_PAD.bottom+6);
+  }
+  ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillStyle=colAxis;ctx.fillText('Idade',W/2,H-2);
+  ctx.save();ctx.translate(12,H/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(cfg.yLabel,0,0);ctx.restore();
+  series.forEach(s=>{
+    const t=s.t,vals=t[metric];if(!vals)return;
+    const color=COUNTRY_COLORS[s.iso]||'#888',dashed=s.sex==='F';
+    ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=1.8;
+    if(dashed)ctx.setLineDash([6,3]);else ctx.setLineDash([]);
+    let first=true;
+    t.ages.forEach((age,i)=>{if(age<mortAgeMin||age>mortAgeMax)return;const v=vals[i];if(v==null||isNaN(v)||v<=0)return;const px=cx(age),py=cy(v);if(first){ctx.moveTo(px,py);first=false;}else ctx.lineTo(px,py);});
+    ctx.stroke();ctx.setLineDash([]);
+  });
+  canvas._chartData={series,metric,cx,cy,xMin,xMax,H,W,cfg,useLog};
+  mortAttachTooltip(canvas);
+}
+
+function mortAttachTooltip(canvas){
+  if(canvas._tooltipAttached)return;canvas._tooltipAttached=true;
+  const tip=document.getElementById('chart-tooltip');
+  canvas.addEventListener('mousemove',e=>{
+    if(!canvas._chartData)return;
+    const {series,metric,cx,cy,xMin,xMax,cfg}=canvas._chartData;
+    const rect=canvas.getBoundingClientRect();
+    const ratio=(e.clientX-rect.left-M_PAD.left)/(rect.width-M_PAD.left-M_PAD.right);
+    const age=Math.round(xMin+ratio*(xMax-xMin));
+    if(age<xMin||age>xMax){tip.style.display='none';return;}
+    let html=`<strong>Idade ${age}</strong>`;
+    series.forEach(s=>{
+      const t=s.t,idx=t.ages.indexOf(age);if(idx<0)return;
+      const v=t[metric]?.[idx];if(v==null)return;
+      const color=COUNTRY_COLORS[s.iso]||'#888',sexLabel=s.sex==='M'?'♂':'♀';
+      html+=`<div class="tt-row"><span style="color:${color}">${t.country} ${sexLabel}</span><span class="tt-val">${cfg.fmt(v)}</span></div>`;
+    });
+    tip.innerHTML=html;tip.style.display='block';
+    tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY-10)+'px';
+  });
+  canvas.addEventListener('mouseleave',()=>{tip.style.display='none';});
+}
+
+function mortBuildLegend(metric,series){
+  const el=document.getElementById(`legend-${metric}`);if(!el)return;
+  el.innerHTML='';
+  series.forEach(s=>{
+    const color=COUNTRY_COLORS[s.iso]||'#888',dashed=s.sex==='F',sexLabel=s.sex==='M'?'♂':'♀';
+    const item=document.createElement('div');item.className='legend-item';
+    item.innerHTML=`<div class="legend-line ${dashed?'dashed':''}" style="background:${color};color:${color}"></div><span>${s.t.country} ${sexLabel}</span>`;
+    el.appendChild(item);
+  });
+}
+
+function mortBuildSummaryTable(main,series){
+  const card=document.createElement('div');card.className='summary-card';
+  card.innerHTML=`<div class="chart-header" style="margin-bottom:14px"><span class="chart-title">Indicadores-chave por tábua</span></div><div class="tbl-wrap"><table class="summary-tbl" id="summary-tbl"><thead><tr><th style="text-align:left">Tábua</th><th title="e(0)">e(0)</th><th title="e(30)">e(30)</th><th title="e(65)">e(65)</th><th title="q(45)">q(45)</th><th title="q(65)">q(65)</th><th title="q(80)">q(80)</th><th>Max. idade</th></tr></thead><tbody id="summary-body"></tbody></table></div>`;
+  main.appendChild(card);
+  const tbody=card.querySelector('#summary-body');
+  const e0vals=series.map(s=>s.t.e0||0);
+  const maxE0=Math.max(...e0vals),minE0=Math.min(...e0vals);
+  function getAtAge(t,field,age){const idx=t.ages.indexOf(age);return idx>=0?(t[field]?.[idx]??null):null;}
+  function fmtE(v){return v!=null?v.toFixed(2):'—';}
+  function fmtQ(v){return v!=null?(v*100).toFixed(3)+'%':'—';}
+  series.forEach(s=>{
+    const t=s.t,color=COUNTRY_COLORS[s.iso]||'#888',sexLabel=s.sex==='M'?'♂':'♀';
+    const e0=t.e0,e0color=e0===maxE0?'color:var(--green)':e0===minE0?'color:var(--red)':'';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><span class="flag-dot" style="background:${color}"></span>${t.country} ${sexLabel} <span style="color:var(--muted);font-size:10px">${t.year}</span></td><td style="${e0color};font-weight:600">${fmtE(e0)}</td><td>${fmtE(getAtAge(t,'ex',30))}</td><td>${fmtE(getAtAge(t,'ex',65))}</td><td>${fmtQ(getAtAge(t,'qx',45))}</td><td>${fmtQ(getAtAge(t,'qx',65))}</td><td>${fmtQ(getAtAge(t,'qx',80))}</td><td>${t.max_age}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+const roMort=new ResizeObserver(()=>{
+  ['qx','lx','ex'].forEach(m=>{
+    const c=document.getElementById(`chart-${m}`);
+    if(c?._chartData){const s=c._chartData;mortDrawChart(s.metric,s.series,s.cfg);}
+  });
+});
+roMort.observe(document.getElementById('mort-main'));
 </script>
 </body>
 </html>
