@@ -187,6 +187,7 @@ table.summary-tbl tr:hover td{background:var(--surface2)}
 <div class="lt-tabs">
   <button class="lt-tab active" data-panel="life">❤️ Projeção de Apólice</button>
   <button class="lt-tab" data-panel="mort">🔬 Tábuas de Mortalidade</button>
+  <button class="lt-tab" data-panel="ifrs">📋 IFRS 17</button>
 </div>
 
 <div class="shell">
@@ -367,6 +368,64 @@ table.summary-tbl tr:hover td{background:var(--surface2)}
 </main>
 </div><!-- /panel-mort -->
 
+<!-- ════════════════════════════════════════════════════════════════
+     PANEL: IFRS 17
+═══════════════════════════════════════════════════════════════════ -->
+<div class="panel hidden" id="panel-ifrs">
+<aside class="sidebar">
+
+  <div>
+    <div class="step-hdr" style="padding-top:0;border-top:none;margin-top:0">
+      <span class="step-n">📋</span>
+      <div><div class="step-title">IFRS 17 — Modelo Geral</div><div class="step-sub">Parâmetros de mensuração</div></div>
+    </div>
+    <div class="explain" style="font-size:11px;margin-bottom:4px">
+      Usa os dados da <strong>Projeção de Apólice</strong>. Configure a apólice lá primeiro.
+    </div>
+  </div>
+
+  <div>
+    <div class="ctrl-label">Margem de lucro (profit loading)</div>
+    <div class="range-row">
+      <input type="range" id="ifrs-profit" min="0" max="40" step="1" value="10">
+      <span class="range-val" id="ifrs-profit-val">10%</span>
+    </div>
+    <div class="input-note">Prêmio cobrado = prêmio bruto × (1 + margem). Gera CSM positivo na emissão.</div>
+  </div>
+
+  <div>
+    <div class="ctrl-label">Ajuste de Risco — RA (%)</div>
+    <div class="range-row">
+      <input type="range" id="ifrs-ra" min="0" max="30" step="1" value="5">
+      <span class="range-val" id="ifrs-ra-val">5%</span>
+    </div>
+    <div class="input-note">% do FCF favorável reservada p/ risco não-financeiro.</div>
+  </div>
+
+  <div>
+    <div class="ctrl-label">Método de liberação do CSM</div>
+    <select id="ifrs-release">
+      <option value="cov">Unidades de cobertura (ₜpₓ)</option>
+      <option value="linear">Linear (straight-line)</option>
+    </select>
+    <div class="input-note">Proporção de CSM liberada para P&L a cada período.</div>
+  </div>
+
+  <div id="ifrs-err" class="err-inline"></div>
+  <button class="btn" id="ifrs-calc-btn">▶ Calcular IFRS 17</button>
+  <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:-6px">Auto-atualiza ao trocar parâmetros da apólice</div>
+
+</aside>
+
+<main class="main" id="ifrs-main">
+  <div id="ifrs-placeholder" style="padding:40px;text-align:center;color:var(--muted)">
+    <div style="font-size:40px;margin-bottom:12px">📋</div>
+    <strong style="color:var(--text)">IFRS 17 — Modelo Geral</strong><br>
+    Configure a apólice na aba <em>Projeção</em> e clique em Calcular.
+  </div>
+</main>
+</div><!-- /panel-ifrs -->
+
 </div><!-- /shell -->
 
 <div id="chart-tooltip"></div>
@@ -408,9 +467,16 @@ document.querySelectorAll('.lt-tab').forEach(btn => {
     const p = btn.dataset.panel;
     document.getElementById('panel-life').classList.toggle('hidden', p !== 'life');
     document.getElementById('panel-mort').classList.toggle('hidden', p !== 'mort');
+    document.getElementById('panel-ifrs').classList.toggle('hidden', p !== 'ifrs');
     if(p === 'mort') mortRender();
+    if(p === 'ifrs' && _ifrsLastR1) renderIFRS17(_ifrsLastR1, _ifrsLastExpPct, _ifrsLastExpFixed);
   });
 });
+
+// ════════════════════════════════════════════════════════════════
+// IFRS 17: Global state
+// ════════════════════════════════════════════════════════════════
+let _ifrsLastR1 = null, _ifrsLastExpPct = 0, _ifrsLastExpFixed = 0;
 
 // ════════════════════════════════════════════════════════════════
 // LIFE: Controls
@@ -544,7 +610,11 @@ function runCalc() {
   let res2=null;
   if(tbl2id&&TABLES[tbl2id]){const tbl2=getTable(tbl2id);tbl2.color='#fbbf24';if(tbl2)res2=calcAll(tbl2,product,x,n,d,i,SA,lapse,expPct,expFixed);}
   const {base,sens}=calcSensitivity(tbl1,product,x,n,d,i,SA,lapse,expPct,expFixed);
+  _ifrsLastR1=res1; _ifrsLastExpPct=expPct; _ifrsLastExpFixed=expFixed;
   renderLifeResults(res1,res2,sens,product,x,n,d,i,SA,expPct,expFixed);
+  // if IFRS 17 tab is active, re-render it
+  const ifrsActive=document.querySelector('.lt-tab.active[data-panel="ifrs"]');
+  if(ifrsActive) renderIFRS17(res1,expPct,expFixed);
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -906,6 +976,280 @@ const roMort=new ResizeObserver(()=>{
   });
 });
 roMort.observe(document.getElementById('mort-main'));
+
+// ════════════════════════════════════════════════════════════════
+// IFRS 17: Sidebar controls
+// ════════════════════════════════════════════════════════════════
+(function(){
+  function syncR(id,valId,fmt){
+    const el=document.getElementById(id),vEl=document.getElementById(valId);
+    vEl.textContent=fmt(+el.value);
+    el.addEventListener('input',()=>{vEl.textContent=fmt(+el.value);});
+  }
+  syncR('ifrs-profit','ifrs-profit-val',v=>`${v}%`);
+  syncR('ifrs-ra','ifrs-ra-val',v=>`${v}%`);
+
+  document.getElementById('ifrs-calc-btn').addEventListener('click',()=>{
+    const el=document.getElementById('ifrs-err');
+    if(!_ifrsLastR1){
+      if(el){el.textContent='Calcule a apólice na aba Projeção primeiro.';el.style.display='block';}
+      return;
+    }
+    if(el) el.style.display='none';
+    renderIFRS17(_ifrsLastR1,_ifrsLastExpPct,_ifrsLastExpFixed);
+  });
+})();
+
+// ════════════════════════════════════════════════════════════════
+// IFRS 17: Math
+// ════════════════════════════════════════════════════════════════
+function calcIFRS17(r1,expPct,expFixed,profitMargin,raPct,releaseMethod){
+  const years=r1.years, net_prem_R=r1.net_prem_R, gross_prem_R=r1.gross_prem_R;
+  const i=r1.i, isAnnImm=r1.product==='annuity_imm';
+  const n=years.length;
+
+  // FCF_t: NPV of future outflows minus future inflows under market pricing
+  // For premium-paying products: FCF_t = -profitMargin × gross_prem_R × ä(x+t:rem|)
+  // ä(x+t:rem|) = years[t].apv_p / net_prem_R  (since apv_p = net_prem_R × annuity_factor)
+  // For annuity_imm: FCF_0 = -profitMargin × single_prem; FCF_t>0 = remaining APV obligation
+  const fcf=years.map((y,t)=>{
+    if(isAnnImm){
+      if(t===0) return -profitMargin*r1.apv_benefit*r1.SA;
+      return y.apv_b; // remaining benefit obligation (positive liability)
+    }
+    if(net_prem_R<=0) return 0;
+    const ann_t=y.apv_p/net_prem_R;
+    return -profitMargin*gross_prem_R*ann_t;
+  });
+
+  // RA_t = raPct% of |favorable FCF| (i.e., when FCF < 0 = profitable portion)
+  const ra=fcf.map(f=>raPct/100*Math.max(0,-f));
+
+  // At inception
+  const fcf0=fcf[0], ra0=ra[0];
+  const csm0=Math.max(0,-fcf0-ra0);
+  const lossComp0=Math.max(0,fcf0+ra0);
+
+  // Coverage units per period for CSM release
+  const covUnits=years.slice(0,n-1).map((y,t)=>releaseMethod==='linear'?1:y.px_t);
+
+  // Project forward
+  const csmArr=[csm0], lrcArr=[fcf0+ra0+csm0];
+  const csmRelArr=[], raRelArr=[], finIncArr=[], isvArr=[];
+  let csm=csm0;
+
+  for(let t=0;t<n-1;t++){
+    const cov_t=covUnits[t]||0;
+    const remCov=covUnits.slice(t).reduce((s,v)=>s+v,0);
+    const relFrac=remCov>0?cov_t/remCov:(t===n-2?1:0);
+
+    const csmAccretion=csm*i;
+    const csmRelease=(csm+csmAccretion)*relFrac;
+    const raRelease=ra[t]*relFrac;
+
+    // Insurance Finance Income/Expense on FCF (unwinding of discount)
+    // FCF<0 → asset → unwinding = positive income (reduces liability cost)
+    const finInc=-fcf[t]*i;
+
+    csmRelArr.push(csmRelease);
+    raRelArr.push(raRelease);
+    finIncArr.push(finInc);
+    isvArr.push(csmRelease+raRelease);
+
+    csm=Math.max(0,csm+csmAccretion-csmRelease);
+    csmArr.push(csm);
+    lrcArr.push(fcf[t+1]+ra[t+1]+csm);
+  }
+
+  return{fcf,ra,csm:csmArr,lrc:lrcArr,csmRelease:csmRelArr,raRelease:raRelArr,
+         finInc:finIncArr,isv:isvArr,csm0,lossComp0,n,profitMargin,raPct};
+}
+
+// ════════════════════════════════════════════════════════════════
+// IFRS 17: Render
+// ════════════════════════════════════════════════════════════════
+function renderIFRS17(r1,expPct,expFixed){
+  const profitMargin=+document.getElementById('ifrs-profit').value/100;
+  const raPct=+document.getElementById('ifrs-ra').value;
+  const releaseMethod=document.getElementById('ifrs-release').value;
+  const res=calcIFRS17(r1,expPct,expFixed,profitMargin,raPct,releaseMethod);
+  const main=document.getElementById('ifrs-main');
+  main.innerHTML='';
+  const isOnerous=res.lossComp0>0.01;
+
+  // ── Inception summary ────────────────────────────────────────
+  const ic=document.createElement('div'); ic.className='card';
+  ic.innerHTML=`<div class="card-title">Mensuração na Emissão (t = 0)
+    <span class="ct-sub">${r1.product_label} · i=${(r1.i*100).toFixed(2)}% · Margem ${(profitMargin*100).toFixed(0)}%</span></div>
+    <div class="kpi-grid">
+      <div class="kpi"><div class="kpi-label">FCF₀</div><div class="kpi-value" style="font-size:15px;color:${res.fcf[0]<0?'var(--green)':'var(--red)'}">${fmtR(res.fcf[0])}</div><div class="kpi-sub">Fulfillment Cash Flows (BEL)</div></div>
+      <div class="kpi"><div class="kpi-label">RA₀</div><div class="kpi-value" style="font-size:15px;color:var(--amber)">${fmtR(res.ra[0])}</div><div class="kpi-sub">Ajuste de Risco (${raPct}% × |FCF|)</div></div>
+      <div class="kpi"><div class="kpi-label">CSM₀</div><div class="kpi-value" style="font-size:15px;color:${isOnerous?'var(--red)':'var(--accent)'}">${fmtR(res.csm0)}</div><div class="kpi-sub">${isOnerous?'Componente de Perda':'Margem de Serviço Contratual'}</div></div>
+      <div class="kpi"><div class="kpi-label">LRC₀</div><div class="kpi-value" style="font-size:15px;color:var(--muted)">${fmtR(res.lrc[0])}</div><div class="kpi-sub">Passivo por Cobertura Restante</div></div>
+    </div>
+    ${isOnerous?`<div class="fml" style="border-left-color:var(--red);background:color-mix(in srgb,var(--red) 8%,var(--surface));margin-top:10px"><div class="fml-label" style="color:var(--red)">Contrato Oneroso</div><div style="font-size:12px">FCF₀ + RA₀ = ${fmtR(res.lossComp0)} &gt; 0. Perda reconhecida imediatamente no P&L no dia 1.</div></div>`
+    :`<div class="explain" style="margin-top:10px"><strong>Day-1 Gain Proibido:</strong> LRC₀ = 0. Margem de <strong>${fmtR(res.csm0)}</strong> diferida como CSM — liberada ao P&L ao longo da cobertura (${r1.years.length-1} anos).</div>`}`;
+  main.appendChild(ic);
+
+  // ── IFRS 17 fórmula ─────────────────────────────────────────
+  const fc=document.createElement('div'); fc.className='card';
+  fc.innerHTML=`<div class="card-title">Estrutura do Modelo Geral</div>
+    <div class="fml"><div class="fml-label">Balanço — Passivo de Seguro (LRC)</div>
+    <code>LRC(t) = FCF(t) + RA(t) + CSM(t)</code>
+    <code style="margin-top:4px">FCF(t) = VPL outflows − VPL inflows  |  CSM(t) = CSM(t−1) × (1+i) − CSM liberado</code></div>
+    <div class="fml" style="margin-top:6px"><div class="fml-label">P&L — Resultado de Seguro</div>
+    <code>Margem de Serviço = CSM liberado + RA liberado</code>
+    <code style="margin-top:4px">Resultado Financeiro (IFIE) = −FCF(t) × i  [receita se FCF &lt; 0]</code></div>`;
+  main.appendChild(fc);
+
+  // ── LRC Components chart ─────────────────────────────────────
+  const lc=document.createElement('div'); lc.className='card';
+  lc.innerHTML=`<div class="card-title">Componentes do Passivo (LRC) ao longo do tempo</div>
+    <canvas class="life-chart" id="ifrs-chart-lrc" height="240"></canvas>
+    <div style="display:flex;gap:16px;margin-top:8px;flex-wrap:wrap;font-size:11px;color:var(--muted)">
+      <span><span style="display:inline-block;width:14px;height:10px;border-radius:2px;background:rgba(239,68,68,.7);margin-right:4px;vertical-align:middle"></span>FCF (BEL)</span>
+      <span><span style="display:inline-block;width:14px;height:10px;border-radius:2px;background:rgba(245,158,11,.7);margin-right:4px;vertical-align:middle"></span>Ajuste de Risco</span>
+      <span><span style="display:inline-block;width:14px;height:10px;border-radius:2px;background:rgba(96,165,250,.7);margin-right:4px;vertical-align:middle"></span>CSM</span>
+      <span><span style="display:inline-block;width:20px;height:2px;border-radius:1px;background:#a78bfa;margin-right:4px;vertical-align:middle"></span>LRC total</span>
+    </div>`;
+  main.appendChild(lc);
+
+  // ── P&L chart ────────────────────────────────────────────────
+  const plc=document.createElement('div'); plc.className='card';
+  plc.innerHTML=`<div class="card-title">P&L Anual — Resultado de Seguro</div>
+    <canvas class="life-chart" id="ifrs-chart-pl" height="210"></canvas>
+    <div style="display:flex;gap:16px;margin-top:8px;flex-wrap:wrap;font-size:11px;color:var(--muted)">
+      <span><span style="display:inline-block;width:14px;height:10px;border-radius:2px;background:rgba(96,165,250,.75);margin-right:4px;vertical-align:middle"></span>CSM Liberado</span>
+      <span><span style="display:inline-block;width:14px;height:10px;border-radius:2px;background:rgba(245,158,11,.75);margin-right:4px;vertical-align:middle"></span>RA Liberado</span>
+      <span><span style="display:inline-block;width:14px;height:10px;border-radius:2px;background:rgba(74,222,128,.75);margin-right:4px;vertical-align:middle"></span>Resultado Financeiro (IFIE)</span>
+      <span><span style="display:inline-block;width:20px;height:2px;border-radius:1px;background:#e879f9;margin-right:4px;vertical-align:middle"></span>P&L Total</span>
+    </div>`;
+  main.appendChild(plc);
+
+  // ── Year-by-year table ───────────────────────────────────────
+  const tc=document.createElement('div'); tc.className='card';
+  let rows='';
+  res.fcf.forEach((_,t)=>{
+    const f=res.fcf[t],ra=res.ra[t],csm=res.csm[t],lrc=res.lrc[t];
+    const cr=t<res.csmRelease.length?res.csmRelease[t]:null;
+    const rr=t<res.raRelease.length?res.raRelease[t]:null;
+    const fi=t<res.finInc.length?res.finInc[t]:null;
+    const pl=cr!=null?(cr+rr+fi):null;
+    rows+=`<tr><td>${t}</td>
+      <td class="${f<0?'pos':'neg'}">${fmtR(f)}</td>
+      <td>${fmtR(ra)}</td>
+      <td>${fmtR(csm)}</td>
+      <td style="font-weight:500">${fmtR(lrc)}</td>
+      <td>${cr!=null?fmtR(cr):'—'}</td>
+      <td>${rr!=null?fmtR(rr):'—'}</td>
+      <td class="${fi!=null&&fi>0?'pos':fi!=null&&fi<0?'neg':''}">${fi!=null?fmtR(fi):'—'}</td>
+      <td style="font-weight:600;color:var(--accent)">${pl!=null?fmtR(pl):'—'}</td></tr>`;
+  });
+  tc.innerHTML=`<div class="card-title">Projeção IFRS 17 — Ano a Ano
+    <button class="btn-sm" onclick="exportIFRSTbl()" style="margin-left:auto">⬇ CSV</button></div>
+    <div class="tbl-wrap"><table class="res-tbl" id="ifrs-tbl">
+      <thead><tr>
+        <th>t</th><th>FCF(t)</th><th>Aj. Risco</th><th>CSM</th><th>LRC</th>
+        <th>CSM Lib.</th><th>RA Lib.</th><th>Res. Fin. (IFIE)</th><th>P&L Total</th>
+      </tr></thead><tbody>${rows}</tbody></table></div>
+    <div style="margin-top:8px;font-size:11px;color:var(--muted)">
+      Total CSM liberado: <strong>${fmtR(res.csmRelease.reduce((s,v)=>s+v,0))}</strong> ·
+      Total IFIE: <strong>${fmtR(res.finInc.reduce((s,v)=>s+v,0))}</strong> ·
+      P&L acumulado: <strong>${fmtR(res.csmRelease.reduce((s,v)=>s+v,0)+res.raRelease.reduce((s,v)=>s+v,0)+res.finInc.reduce((s,v)=>s+v,0))}</strong>
+    </div>`;
+  main.appendChild(tc);
+
+  setTimeout(()=>{drawIFRSLRC(res,r1);drawIFRSPL(res,r1);},0);
+}
+
+const I_PAD={top:14,right:20,bottom:38,left:70};
+
+function drawIFRSLRC(res,r1){
+  const c=document.getElementById('ifrs-chart-lrc');if(!c)return;
+  c._res=res;c._r1=r1;
+  const W=c.offsetWidth||600,H=240;
+  c.width=W*devicePixelRatio;c.height=H*devicePixelRatio;c.style.height=H+'px';
+  const ctx=c.getContext('2d');ctx.scale(devicePixelRatio,devicePixelRatio);
+  const dark=isDark();
+  const cG=dark?'#21262d':'#f0f0f0',cA=dark?'#8b949e':'#57606a';
+  const n=res.fcf.length, ts=Array.from({length:n},(_,i)=>i);
+  const allVals=[...res.fcf,...res.ra,...res.csm,...res.lrc].filter(isFinite);
+  const yMin=Math.min(0,...allVals)*1.05, yMax=Math.max(0,...allVals)*1.08||1;
+  const cx_=t=>I_PAD.left+(t/(n-1||1))*(W-I_PAD.left-I_PAD.right);
+  const cy_=y=>I_PAD.top+(1-(y-yMin)/(yMax-yMin))*(H-I_PAD.top-I_PAD.bottom);
+  ctx.font=`10px Inter,sans-serif`;
+  for(let i=0;i<=5;i++){const vy=yMin+(yMax-yMin)*(i/5),py=I_PAD.top+(1-i/5)*(H-I_PAD.top-I_PAD.bottom);ctx.beginPath();ctx.strokeStyle=cG;ctx.lineWidth=1;ctx.moveTo(I_PAD.left,py);ctx.lineTo(W-I_PAD.right,py);ctx.stroke();ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillStyle=cA;ctx.fillText(fmtAxis(vy),I_PAD.left-4,py);}
+  const ticks=Math.min(n-1,10);
+  for(let i=0;i<=ticks;i++){const ti=Math.round(i/ticks*(n-1)),px=cx_(ti);ctx.beginPath();ctx.strokeStyle=cG;ctx.lineWidth=1;ctx.moveTo(px,I_PAD.top);ctx.lineTo(px,H-I_PAD.bottom);ctx.stroke();ctx.textAlign='center';ctx.textBaseline='top';ctx.fillStyle=cA;ctx.fillText(ti,px,H-I_PAD.bottom+4);}
+  ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillStyle=cA;ctx.fillText('Ano (t)',W/2,H-1);
+  ctx.save();ctx.translate(10,H/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('R$',0,0);ctx.restore();
+  const py0=cy_(0);ctx.beginPath();ctx.strokeStyle=dark?'#30363d':'#d0d7de';ctx.lineWidth=1;ctx.setLineDash([4,3]);ctx.moveTo(I_PAD.left,py0);ctx.lineTo(W-I_PAD.right,py0);ctx.stroke();ctx.setLineDash([]);
+  // bars per year
+  const barW=Math.max(2,(W-I_PAD.left-I_PAD.right)/n*0.72);
+  ts.forEach(t=>{
+    const x=cx_(t),f=res.fcf[t]||0,ra=res.ra[t]||0,csm=res.csm[t]||0;
+    // FCF (below zero if negative)
+    if(f<0){ctx.fillStyle='rgba(239,68,68,.65)';const y2=cy_(f);ctx.fillRect(x-barW/2,Math.min(py0,y2),barW,Math.abs(py0-y2));}
+    else if(f>0){ctx.fillStyle='rgba(239,68,68,.65)';const y2=cy_(f);ctx.fillRect(x-barW/2,Math.min(py0,y2),barW,Math.abs(py0-y2));}
+    // RA (above zero)
+    if(ra>0){ctx.fillStyle='rgba(245,158,11,.7)';const y1=cy_(0),y2=cy_(ra);ctx.fillRect(x-barW/2,Math.min(y1,y2),barW,Math.abs(y2-y1));}
+    // CSM (stacked on RA)
+    if(csm>0){ctx.fillStyle='rgba(96,165,250,.7)';const y1=cy_(ra),y2=cy_(ra+csm);ctx.fillRect(x-barW/2,Math.min(y1,y2),barW,Math.abs(y2-y1));}
+  });
+  // LRC total line
+  ctx.beginPath();ctx.strokeStyle='#a78bfa';ctx.lineWidth=2.5;ctx.setLineDash([]);
+  res.lrc.forEach((v,t)=>{const px=cx_(t),py=cy_(v);if(t===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);});ctx.stroke();
+}
+
+function drawIFRSPL(res,r1){
+  const c=document.getElementById('ifrs-chart-pl');if(!c)return;
+  c._res=res;c._r1=r1;
+  const W=c.offsetWidth||600,H=210;
+  c.width=W*devicePixelRatio;c.height=H*devicePixelRatio;c.style.height=H+'px';
+  const ctx=c.getContext('2d');ctx.scale(devicePixelRatio,devicePixelRatio);
+  const dark=isDark();const cG=dark?'#21262d':'#f0f0f0',cA=dark?'#8b949e':'#57606a';
+  const n=res.csmRelease.length;
+  if(n===0)return;
+  const ts=Array.from({length:n},(_,i)=>i);
+  const totPL=ts.map(t=>(res.csmRelease[t]||0)+(res.raRelease[t]||0)+(res.finInc[t]||0));
+  const allV=[...res.csmRelease,...res.raRelease,...res.finInc,...totPL].filter(isFinite);
+  const yMin=Math.min(0,...allV),yMax=Math.max(0,...allV)*1.12||1;
+  const cx_=t=>I_PAD.left+(t/(n-1||1))*(W-I_PAD.left-I_PAD.right);
+  const cy_=y=>I_PAD.top+(1-(y-yMin)/(yMax-yMin))*(H-I_PAD.top-I_PAD.bottom);
+  ctx.font=`10px Inter,sans-serif`;
+  for(let i=0;i<=5;i++){const vy=yMin+(yMax-yMin)*(i/5),py=I_PAD.top+(1-i/5)*(H-I_PAD.top-I_PAD.bottom);ctx.beginPath();ctx.strokeStyle=cG;ctx.lineWidth=1;ctx.moveTo(I_PAD.left,py);ctx.lineTo(W-I_PAD.right,py);ctx.stroke();ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillStyle=cA;ctx.fillText(fmtAxis(vy),I_PAD.left-4,py);}
+  const ticks=Math.min(n-1,10);
+  for(let i=0;i<=ticks;i++){const ti=Math.round(i/ticks*(n-1)),px=cx_(ti);ctx.beginPath();ctx.strokeStyle=cG;ctx.lineWidth=1;ctx.moveTo(px,I_PAD.top);ctx.lineTo(px,H-I_PAD.bottom);ctx.stroke();ctx.textAlign='center';ctx.textBaseline='top';ctx.fillStyle=cA;ctx.fillText(ti,px,H-I_PAD.bottom+4);}
+  ctx.textAlign='center';ctx.textBaseline='bottom';ctx.fillStyle=cA;ctx.fillText('Ano (t)',W/2,H-1);
+  const py0=cy_(0);const barW=Math.max(2,(W-I_PAD.left-I_PAD.right)/n*0.68);
+  ts.forEach(t=>{
+    const x=cx_(t);
+    const c1=res.csmRelease[t]||0,r1_=res.raRelease[t]||0,fi=res.finInc[t]||0;
+    // Finance income/expense
+    if(Math.abs(fi)>0){ctx.fillStyle=fi>0?'rgba(74,222,128,.75)':'rgba(239,68,68,.75)';const y2=cy_(fi);ctx.fillRect(x-barW/2,Math.min(py0,y2),barW,Math.abs(py0-y2));}
+    // RA released (stack above finance if both positive)
+    const raBase=Math.max(0,fi);
+    if(r1_>0){ctx.fillStyle='rgba(245,158,11,.75)';ctx.fillRect(x-barW/2,cy_(raBase+r1_),barW,Math.abs(cy_(raBase+r1_)-cy_(raBase)));}
+    // CSM released
+    const csmBase=raBase+r1_;
+    if(c1>0){ctx.fillStyle='rgba(96,165,250,.75)';ctx.fillRect(x-barW/2,cy_(csmBase+c1),barW,Math.abs(cy_(csmBase+c1)-cy_(csmBase)));}
+  });
+  ctx.beginPath();ctx.strokeStyle='#e879f9';ctx.lineWidth=2.5;ctx.setLineDash([]);
+  totPL.forEach((v,t)=>{const px=cx_(t),py=cy_(v);if(t===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);});ctx.stroke();
+}
+
+window.exportIFRSTbl=function(){
+  const tbl=document.getElementById('ifrs-tbl');if(!tbl)return;
+  const rows=Array.from(tbl.querySelectorAll('tr'));
+  const csv=rows.map(r=>Array.from(r.querySelectorAll('th,td')).map(c=>{const t=c.innerText.replace(/\n/g,' ').trim();return t.includes(',')||t.includes('"')?`"${t.replace(/"/g,'""')}"`:t;}).join(',')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,﻿'+encodeURIComponent(csv);a.download='ifrs17.csv';a.click();
+};
+
+const roIFRS=new ResizeObserver(()=>{
+  const cl=document.getElementById('ifrs-chart-lrc');if(cl&&cl._res)drawIFRSLRC(cl._res,cl._r1);
+  const cp=document.getElementById('ifrs-chart-pl');if(cp&&cp._res)drawIFRSPL(cp._res,cp._r1);
+});
+roIFRS.observe(document.getElementById('ifrs-main'));
 </script>
 </body>
 </html>
