@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mortality Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* ── Tokens ─────────────────────────────────────────────────────────────── */
+:root {
+  --bg:      #f6f8fa;
+  --surface: #ffffff;
+  --surface2:#f6f8fa;
+  --border:  #d0d7de;
+  --text:    #24292f;
+  --muted:   #57606a;
+  --accent:  #0969da;
+  --green:   #1a7f37;
+  --red:     #cf222e;
+  --r:       8px;
+  --font:    'Inter', system-ui, sans-serif;
+  --mono:    'JetBrains Mono', 'Fira Code', monospace;
+  --sidebar: 268px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:      #0d1117;
+    --surface: #161b22;
+    --surface2:#21262d;
+    --border:  #30363d;
+    --text:    #e6edf3;
+    --muted:   #8b949e;
+    --accent:  #58a6ff;
+    --green:   #3fb950;
+    --red:     #f85149;
+  }
+}
+:root[data-theme="dark"] {
+  --bg:      #0d1117; --surface:#161b22; --surface2:#21262d;
+  --border:  #30363d; --text:#e6edf3;   --muted:#8b949e;
+  --accent:  #58a6ff; --green:#3fb950;  --red:#f85149;
+}
+
+/* ── Reset ──────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 13px; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+/* ── Top bar ─────────────────────────────────────────────────────────────── */
+.topbar {
+  display: flex; align-items: center; gap: 2px;
+  padding: 0 16px; height: 44px; min-height: 44px;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  flex-shrink: 0; overflow-x: auto;
+}
+.topbar-logo { font-weight: 700; font-size: 14px; letter-spacing: -.3px; flex-shrink: 0; margin-right: 8px; }
+.topbar-logo span { color: var(--accent); }
+.topbar a { display:flex;align-items:center;gap:5px;padding:4px 11px;border-radius:6px;font-size:12px;font-weight:500;text-decoration:none;color:var(--muted);white-space:nowrap;transition:background .12s,color .12s }
+.topbar a:hover { background: var(--surface2); color: var(--text); }
+.topbar a.active { background: color-mix(in srgb,var(--accent) 12%,transparent); color: var(--accent); font-weight: 600; }
+
+/* ── Shell ───────────────────────────────────────────────────────────────── */
+.shell { display: flex; flex: 1; overflow: hidden; }
+
+/* ── Sidebar ─────────────────────────────────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar); min-width: var(--sidebar);
+  background: var(--surface); border-right: 1px solid var(--border);
+  overflow-y: auto; padding: 16px 14px; display: flex; flex-direction: column; gap: 18px;
+}
+.ctrl-label {
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--muted); margin-bottom: 6px;
+}
+.country-list { display: flex; flex-direction: column; gap: 4px; }
+.country-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 8px; border-radius: 6px; cursor: pointer;
+  user-select: none; transition: background .12s;
+}
+.country-row:hover { background: var(--surface2); }
+.country-row input[type=checkbox] { accent-color: var(--accent); width: 14px; height: 14px; cursor: pointer; flex-shrink: 0; }
+.country-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.country-flag { font-size: 14px; line-height: 1; }
+.country-name { flex: 1; font-size: 12px; }
+.country-e0 { font-family: var(--mono); font-size: 10px; color: var(--muted); }
+
+/* Sex toggle */
+.sex-row { display: flex; gap: 4px; }
+.sex-btn {
+  flex: 1; padding: 5px 0; border: 1px solid var(--border); border-radius: 6px;
+  background: var(--surface2); color: var(--muted); font-size: 11px; font-weight: 500;
+  cursor: pointer; transition: all .12s; text-align: center;
+}
+.sex-btn.active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); }
+
+/* Metric pills */
+.metric-pills { display: flex; gap: 4px; flex-wrap: wrap; }
+.metric-pill {
+  padding: 4px 10px; border: 1px solid var(--border); border-radius: 20px;
+  background: var(--surface2); color: var(--muted); font-size: 11px; cursor: pointer;
+  transition: all .12s;
+}
+.metric-pill.active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); font-weight: 600; }
+
+/* Age range */
+.age-range-row { display: flex; align-items: center; gap: 8px; }
+.age-range-row input[type=range] { flex: 1; accent-color: var(--accent); }
+.age-range-row span { font-family: var(--mono); font-size: 11px; color: var(--muted); min-width: 24px; text-align: right; }
+.log-toggle { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); cursor: pointer; }
+.log-toggle input { accent-color: var(--accent); }
+
+/* ── Main ────────────────────────────────────────────────────────────────── */
+.main { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+
+/* ── Chart cards ─────────────────────────────────────────────────────────── */
+.chart-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r);
+  padding: 16px;
+}
+.chart-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+.chart-title { font-size: 13px; font-weight: 600; }
+.chart-sub { font-size: 11px; color: var(--muted); }
+.chart-wrap { position: relative; }
+canvas.mort-chart { display: block; width: 100%; }
+
+/* ── Legend ──────────────────────────────────────────────────────────────── */
+.legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+.legend-line { width: 20px; height: 2px; border-radius: 1px; }
+.legend-line.dashed { background: repeating-linear-gradient(90deg, currentColor 0 5px, transparent 5px 8px); }
+
+/* ── Summary table ───────────────────────────────────────────────────────── */
+.summary-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r);
+  padding: 16px;
+}
+.summary-card .tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table.summary-tbl {
+  width: auto; min-width: 100%; border-collapse: collapse;
+  font-size: 12px; font-family: var(--mono);
+}
+table.summary-tbl th {
+  background: var(--surface2); color: var(--muted); font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .06em; padding: 7px 12px;
+  text-align: right; border-bottom: 1px solid var(--border); white-space: nowrap;
+}
+table.summary-tbl th:first-child { text-align: left; }
+table.summary-tbl td {
+  padding: 6px 12px; text-align: right; border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+table.summary-tbl td:first-child { text-align: left; font-family: var(--font); font-size: 12px; }
+table.summary-tbl tr:last-child td { border-bottom: none; }
+table.summary-tbl tr:hover td { background: var(--surface2); }
+.flag-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+
+/* ── Source ──────────────────────────────────────────────────────────────── */
+.source-note { font-size: 11px; color: var(--muted); padding: 8px 0; }
+
+/* ── Tooltip ─────────────────────────────────────────────────────────────── */
+#chart-tooltip {
+  position: fixed; pointer-events: none; z-index: 200;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; padding: 8px 12px; font-size: 11px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.2); max-width: 220px;
+  display: none;
+}
+#chart-tooltip strong { display: block; margin-bottom: 4px; font-size: 12px; }
+.tt-row { display: flex; justify-content: space-between; gap: 12px; }
+.tt-row .tt-val { font-family: var(--mono); }
+
+/* ── Loading ─────────────────────────────────────────────────────────────── */
+.loading { display: flex; align-items: center; justify-content: center; height: 200px; color: var(--muted); font-size: 13px; }
+.error-msg { color: var(--red); padding: 20px; }
+
+/* ── Mobile ──────────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  body { height: auto; overflow: auto; }
+  .shell { flex-direction: column; }
+  .sidebar { width: 100%; min-width: 0; border-right: none; border-bottom: 1px solid var(--border); }
+  .main { overflow-y: unset; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">Reserving <span>Toolkit</span></div>
+  <a href="index.html">📐 P&C Reservas</a>
+  <a href="life.html">❤️ Seguro de Vida</a>
+  <a href="mortality.html" class="active">🔬 Tábuas</a>
+  <a href="fitting.html">📊 Distribution Fitting</a>
+</div>
+
+<div class="shell">
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div>
+      <div class="ctrl-label">Países</div>
+      <div class="country-list" id="country-list">
+        <div class="loading" style="height:80px;font-size:12px">Carregando…</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="ctrl-label">Sexo</div>
+      <div class="sex-row">
+        <button class="sex-btn active" data-sex="M">♂ Masc.</button>
+        <button class="sex-btn active" data-sex="F">♀ Fem.</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="ctrl-label">Métricas</div>
+      <div class="metric-pills">
+        <button class="metric-pill active" data-metric="qx">q(x)</button>
+        <button class="metric-pill active" data-metric="lx">l(x)</button>
+        <button class="metric-pill active" data-metric="ex">e(x)</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="ctrl-label">Faixa etária</div>
+      <div class="age-range-row">
+        <span id="age-min-val">0</span>
+        <input type="range" id="age-min" min="0" max="100" value="0">
+      </div>
+      <div class="age-range-row" style="margin-top:4px">
+        <span id="age-max-val">100</span>
+        <input type="range" id="age-max" min="0" max="110" value="100">
+      </div>
+    </div>
+
+    <div>
+      <div class="ctrl-label">Escala q(x)</div>
+      <label class="log-toggle">
+        <input type="checkbox" id="log-scale" checked> Logarítmica
+      </label>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <main class="main" id="main-area">
+    <div class="loading" id="main-loading">Carregando tábuas…</div>
+  </main>
+</div>
+
+<div id="chart-tooltip"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════════════════
+
+const COUNTRY_COLORS = {
+  BRA: '#4ade80',
+  JPN: '#f87171',
+  USA: '#60a5fa',
+  GBR: '#a78bfa',
+  AUS: '#fbbf24',
+  DEU: '#34d399',
+  FRA: '#f472b6',
+  MEX: '#fb923c',
+  ZAF: '#e879f9',
+};
+
+const COUNTRY_FLAGS = {
+  BRA:'🇧🇷', JPN:'🇯🇵', USA:'🇺🇸', GBR:'🇬🇧',
+  AUS:'🇦🇺', DEU:'🇩🇪', FRA:'🇫🇷', MEX:'🇲🇽', ZAF:'🇿🇦',
+};
+
+const METRIC_CONFIG = {
+  qx: { label: 'Taxa de mortalidade  q(x)', sub: 'probabilidade de morte por idade — em escala logarítmica', yLabel: 'q(x)', fmt: v => v < 0.0001 ? v.toExponential(2) : v.toFixed(4) },
+  lx: { label: 'Sobreviventes  l(x)', sub: 'de 100.000 nascidos vivos', yLabel: 'l(x)', fmt: v => Math.round(v).toLocaleString('pt-BR') },
+  ex: { label: 'Expectativa de vida residual  e(x)', sub: 'anos esperados a partir de cada idade', yLabel: 'anos', fmt: v => v.toFixed(2) },
+};
+
+// ═══════════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════════
+
+let TABLES = {};
+let selectedCountries = new Set(['BRA', 'JPN', 'USA', 'AUS']); // default
+let activeSex = new Set(['M', 'F']);
+let activeMetrics = new Set(['qx', 'lx', 'ex']);
+let ageMin = 0, ageMax = 100;
+let logScale = true;
+
+// ═══════════════════════════════════════════════════════════════════════
+// LOAD DATA
+// ═══════════════════════════════════════════════════════════════════════
+
+fetch('data/mortality_tables.json')
+  .then(r => r.json())
+  .then(d => {
+    TABLES = d.tables;
+    buildSidebar();
+    render();
+  })
+  .catch(e => {
+    document.getElementById('main-loading').innerHTML =
+      `<div class="error-msg">Erro ao carregar tábuas: ${e}<br>Rode <code>python scripts/mortality_tables.py</code> primeiro.</div>`;
+  });
+
+// ═══════════════════════════════════════════════════════════════════════
+// SIDEBAR
+// ═══════════════════════════════════════════════════════════════════════
+
+function buildSidebar() {
+  const isos = [...new Set(Object.keys(TABLES).map(k => k.split('_')[0]))];
+  const list = document.getElementById('country-list');
+  list.innerHTML = '';
+  isos.forEach(iso => {
+    const male = TABLES[iso + '_M'];
+    const female = TABLES[iso + '_F'];
+    const t = male || female;
+    const e0m = male?.e0?.toFixed(1) || '—';
+    const e0f = female?.e0?.toFixed(1) || '—';
+    const color = COUNTRY_COLORS[iso] || '#888';
+    const flag = COUNTRY_FLAGS[iso] || '';
+    const checked = selectedCountries.has(iso);
+
+    const row = document.createElement('label');
+    row.className = 'country-row';
+    row.innerHTML = `
+      <input type="checkbox" data-iso="${iso}" ${checked ? 'checked' : ''}>
+      <span class="country-dot" style="background:${color}"></span>
+      <span class="country-flag">${flag}</span>
+      <span class="country-name">${t?.country || iso}</span>
+      <span class="country-e0">${e0m}♂ ${e0f}♀</span>
+    `;
+    row.querySelector('input').addEventListener('change', e => {
+      if (e.target.checked) selectedCountries.add(iso);
+      else selectedCountries.delete(iso);
+      render();
+    });
+    list.appendChild(row);
+  });
+}
+
+// ── Sex buttons
+document.querySelectorAll('.sex-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const sex = btn.dataset.sex;
+    if (activeSex.has(sex) && activeSex.size > 1) activeSex.delete(sex);
+    else activeSex.add(sex);
+    btn.classList.toggle('active', activeSex.has(sex));
+    render();
+  });
+});
+
+// ── Metric pills
+document.querySelectorAll('.metric-pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    const m = pill.dataset.metric;
+    if (activeMetrics.has(m) && activeMetrics.size > 1) activeMetrics.delete(m);
+    else activeMetrics.add(m);
+    pill.classList.toggle('active', activeMetrics.has(m));
+    render();
+  });
+});
+
+// ── Age range
+document.getElementById('age-min').addEventListener('input', e => {
+  ageMin = +e.target.value;
+  document.getElementById('age-min-val').textContent = ageMin;
+  render();
+});
+document.getElementById('age-max').addEventListener('input', e => {
+  ageMax = +e.target.value;
+  document.getElementById('age-max-val').textContent = ageMax;
+  render();
+});
+
+// ── Log scale
+document.getElementById('log-scale').addEventListener('change', e => {
+  logScale = e.target.checked;
+  render();
+});
+
+// ═══════════════════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════════════════
+
+function getSelectedSeries() {
+  const series = [];
+  selectedCountries.forEach(iso => {
+    ['M', 'F'].forEach(sex => {
+      if (!activeSex.has(sex)) return;
+      const key = `${iso}_${sex}`;
+      if (!TABLES[key]) return;
+      series.push({ key, iso, sex, t: TABLES[key] });
+    });
+  });
+  return series;
+}
+
+function render() {
+  const main = document.getElementById('main-area');
+  if (!Object.keys(TABLES).length) return;
+
+  const series = getSelectedSeries();
+  if (!series.length) {
+    main.innerHTML = '<div class="loading">Selecione pelo menos um país e sexo.</div>';
+    return;
+  }
+
+  main.innerHTML = '';
+
+  // ── Charts
+  ['qx', 'lx', 'ex'].forEach(metric => {
+    if (!activeMetrics.has(metric)) return;
+    const cfg = METRIC_CONFIG[metric];
+    const card = document.createElement('div');
+    card.className = 'chart-card';
+    card.innerHTML = `
+      <div class="chart-header">
+        <span class="chart-title">${cfg.label}</span>
+        <span class="chart-sub">${cfg.sub}</span>
+      </div>
+      <div class="chart-wrap">
+        <canvas class="mort-chart" id="chart-${metric}" height="260"></canvas>
+      </div>
+      <div class="legend" id="legend-${metric}"></div>
+    `;
+    main.appendChild(card);
+
+    setTimeout(() => {
+      drawChart(metric, series, cfg);
+      buildLegend(metric, series);
+    }, 0);
+  });
+
+  // ── Summary table
+  buildSummaryTable(main, series);
+
+  // ── Source
+  const src = document.createElement('div');
+  src.className = 'source-note';
+  src.textContent = 'Fonte: Human Life-Table Database (lifetable.de) — tábuas de período mais recentes disponíveis por país.';
+  main.appendChild(src);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// CANVAS CHART
+// ═══════════════════════════════════════════════════════════════════════
+
+const PAD = { top: 14, right: 20, bottom: 48, left: 64 };
+const isDark = () => {
+  const t = document.documentElement.getAttribute('data-theme');
+  if (t === 'dark') return true;
+  if (t === 'light') return false;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches;
+};
+
+function drawChart(metric, series, cfg) {
+  const canvas = document.getElementById(`chart-${metric}`);
+  if (!canvas) return;
+  const W = canvas.offsetWidth || canvas.parentElement.offsetWidth || 600;
+  const H = 260;
+  canvas.width = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+
+  const dark = isDark();
+  const colBg    = dark ? '#161b22' : '#ffffff';
+  const colGrid  = dark ? '#21262d' : '#f0f0f0';
+  const colAxis  = dark ? '#8b949e' : '#57606a';
+  const colText  = dark ? '#e6edf3' : '#24292f';
+
+  ctx.clearRect(0, 0, W, H);
+
+  // ── Collect data
+  const allData = [];
+  series.forEach(s => {
+    const t = s.t;
+    const vals = t[metric];
+    if (!vals) return;
+    t.ages.forEach((age, i) => {
+      if (age < ageMin || age > ageMax) return;
+      const v = vals[i];
+      if (v != null && !isNaN(v) && v > 0) allData.push({ x: age, y: v });
+    });
+  });
+  if (!allData.length) return;
+
+  const xs = allData.map(d => d.x);
+  const ys = allData.map(d => d.y);
+  const xMin = Math.min(...xs), xMax = Math.max(...xs);
+  let yMin = Math.min(...ys), yMax = Math.max(...ys);
+
+  const useLog = logScale && metric === 'qx';
+  if (useLog) {
+    yMin = Math.log10(Math.max(yMin, 1e-6));
+    yMax = Math.log10(yMax);
+  }
+  if (yMin === yMax) { yMin -= 0.1; yMax += 0.1; }
+
+  const cx = x => PAD.left + (x - xMin) / (xMax - xMin) * (W - PAD.left - PAD.right);
+  const cy = y => {
+    const v = useLog ? Math.log10(Math.max(y, 1e-6)) : y;
+    return PAD.top + (1 - (v - yMin) / (yMax - yMin)) * (H - PAD.top - PAD.bottom);
+  };
+
+  // ── Grid + axes
+  ctx.font = `10px ${getComputedStyle(document.body).fontFamily}`;
+  ctx.fillStyle = colAxis;
+  ctx.textBaseline = 'middle';
+
+  // Y gridlines
+  const yTicks = 5;
+  for (let i = 0; i <= yTicks; i++) {
+    const vy = yMin + (yMax - yMin) * (i / yTicks);
+    const py = PAD.top + (1 - i / yTicks) * (H - PAD.top - PAD.bottom);
+    ctx.beginPath();
+    ctx.strokeStyle = colGrid;
+    ctx.lineWidth = 1;
+    ctx.moveTo(PAD.left, py); ctx.lineTo(W - PAD.right, py);
+    ctx.stroke();
+    let label;
+    if (useLog) {
+      const val = Math.pow(10, vy);
+      label = val < 0.001 ? val.toExponential(0) : val.toFixed(4);
+    } else {
+      label = cfg.fmt ? cfg.fmt(vy) : vy.toFixed(2);
+    }
+    ctx.textAlign = 'right';
+    ctx.fillText(label, PAD.left - 6, py);
+  }
+
+  // X gridlines + labels
+  const xStep = Math.ceil((xMax - xMin) / 8 / 10) * 10 || 10;
+  for (let x = Math.ceil(xMin / xStep) * xStep; x <= xMax; x += xStep) {
+    const px = cx(x);
+    ctx.beginPath();
+    ctx.strokeStyle = colGrid;
+    ctx.lineWidth = 1;
+    ctx.moveTo(px, PAD.top); ctx.lineTo(px, H - PAD.bottom);
+    ctx.stroke();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText(x, px, H - PAD.bottom + 6);
+  }
+
+  // Axis labels
+  ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+  ctx.fillStyle = colAxis;
+  ctx.fillText('Idade', W / 2, H - 2);
+
+  ctx.save();
+  ctx.translate(12, H / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(cfg.yLabel, 0, 0);
+  ctx.restore();
+
+  // ── Series lines
+  series.forEach(s => {
+    const t = s.t;
+    const vals = t[metric];
+    if (!vals) return;
+    const color = COUNTRY_COLORS[s.iso] || '#888';
+    const dashed = s.sex === 'F';
+
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.8;
+    if (dashed) ctx.setLineDash([6, 3]);
+    else ctx.setLineDash([]);
+
+    let first = true;
+    t.ages.forEach((age, i) => {
+      if (age < ageMin || age > ageMax) return;
+      const v = vals[i];
+      if (v == null || isNaN(v) || v <= 0) return;
+      const px = cx(age), py = cy(v);
+      if (first) { ctx.moveTo(px, py); first = false; }
+      else ctx.lineTo(px, py);
+    });
+    ctx.stroke();
+    ctx.setLineDash([]);
+  });
+
+  // ── Store canvas data for tooltip
+  canvas._chartData = { series, metric, cx, cy, xMin, xMax, H, W, cfg, useLog };
+  attachTooltip(canvas);
+}
+
+// ── Tooltip
+function attachTooltip(canvas) {
+  if (canvas._tooltipAttached) return;
+  canvas._tooltipAttached = true;
+  const tip = document.getElementById('chart-tooltip');
+
+  canvas.addEventListener('mousemove', e => {
+    if (!canvas._chartData) return;
+    const { series, metric, cx, cy, xMin, xMax, cfg } = canvas._chartData;
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+
+    // Find closest age
+    const ratio = (mx - PAD.left) / (rect.width - PAD.left - PAD.right);
+    const age = Math.round(xMin + ratio * (xMax - xMin));
+    if (age < xMin || age > xMax) { tip.style.display = 'none'; return; }
+
+    let html = `<strong>Idade ${age}</strong>`;
+    series.forEach(s => {
+      const t = s.t;
+      const idx = t.ages.indexOf(age);
+      if (idx < 0) return;
+      const v = t[metric]?.[idx];
+      if (v == null) return;
+      const color = COUNTRY_COLORS[s.iso] || '#888';
+      const sexLabel = s.sex === 'M' ? '♂' : '♀';
+      html += `<div class="tt-row"><span style="color:${color}">${t.country} ${sexLabel}</span><span class="tt-val">${cfg.fmt(v)}</span></div>`;
+    });
+
+    tip.innerHTML = html;
+    tip.style.display = 'block';
+    tip.style.left = (e.clientX + 14) + 'px';
+    tip.style.top  = (e.clientY - 10) + 'px';
+  });
+
+  canvas.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+}
+
+// ── Legend
+function buildLegend(metric, series) {
+  const el = document.getElementById(`legend-${metric}`);
+  if (!el) return;
+  el.innerHTML = '';
+  series.forEach(s => {
+    const color = COUNTRY_COLORS[s.iso] || '#888';
+    const dashed = s.sex === 'F';
+    const sexLabel = s.sex === 'M' ? '♂' : '♀';
+    const item = document.createElement('div');
+    item.className = 'legend-item';
+    item.innerHTML = `
+      <div class="legend-line ${dashed ? 'dashed' : ''}" style="background:${color};color:${color}"></div>
+      <span>${s.t.country} ${sexLabel}</span>
+    `;
+    el.appendChild(item);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// SUMMARY TABLE
+// ═══════════════════════════════════════════════════════════════════════
+
+function getAtAge(t, field, age) {
+  const idx = t.ages.indexOf(age);
+  if (idx < 0) return null;
+  return t[field]?.[idx] ?? null;
+}
+
+function fmtE(v) { return v != null ? v.toFixed(2) : '—'; }
+function fmtQ(v) { return v != null ? (v * 100).toFixed(3) + '%' : '—'; }
+
+function buildSummaryTable(main, series) {
+  const card = document.createElement('div');
+  card.className = 'summary-card';
+  card.innerHTML = `
+    <div class="chart-header" style="margin-bottom:14px">
+      <span class="chart-title">Indicadores-chave por tábua</span>
+    </div>
+    <div class="tbl-wrap">
+      <table class="summary-tbl" id="summary-tbl">
+        <thead><tr>
+          <th style="text-align:left">Tábua</th>
+          <th title="Expectativa de vida ao nascer">e(0)</th>
+          <th title="Expectativa de vida aos 30 anos">e(30)</th>
+          <th title="Expectativa de vida aos 65 anos">e(65)</th>
+          <th title="Probabilidade de morte aos 45 anos">q(45)</th>
+          <th title="Probabilidade de morte aos 65 anos">q(65)</th>
+          <th title="Probabilidade de morte aos 80 anos">q(80)</th>
+          <th title="Máximo de idades na tábua">Max. idade</th>
+        </tr></thead>
+        <tbody id="summary-body"></tbody>
+      </table>
+    </div>
+  `;
+  main.appendChild(card);
+
+  const tbody = card.querySelector('#summary-body');
+  const e0vals = series.map(s => s.t.e0 || 0);
+  const maxE0 = Math.max(...e0vals);
+  const minE0 = Math.min(...e0vals);
+
+  series.forEach(s => {
+    const t = s.t;
+    const color = COUNTRY_COLORS[s.iso] || '#888';
+    const sexLabel = s.sex === 'M' ? '♂' : '♀';
+    const e0 = t.e0;
+    const e0color = e0 === maxE0 ? 'color:var(--green)' : e0 === minE0 ? 'color:var(--red)' : '';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="flag-dot" style="background:${color}"></span>${t.country} ${sexLabel} <span style="color:var(--muted);font-size:10px">${t.year}</span></td>
+      <td style="${e0color};font-weight:600">${fmtE(e0)}</td>
+      <td>${fmtE(getAtAge(t, 'ex', 30))}</td>
+      <td>${fmtE(getAtAge(t, 'ex', 65))}</td>
+      <td>${fmtQ(getAtAge(t, 'qx', 45))}</td>
+      <td>${fmtQ(getAtAge(t, 'qx', 65))}</td>
+      <td>${fmtQ(getAtAge(t, 'qx', 80))}</td>
+      <td>${t.max_age}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ── Resize observer
+const ro = new ResizeObserver(() => {
+  ['qx', 'lx', 'ex'].forEach(m => {
+    const c = document.getElementById(`chart-${m}`);
+    if (c?._chartData) {
+      const s = c._chartData;
+      drawChart(s.metric, s.series, s.cfg);
+    }
+  });
+});
+ro.observe(document.querySelector('.main') || document.body);
+</script>
+</body>
+</html>
